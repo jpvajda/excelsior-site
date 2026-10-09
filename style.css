@@ -313,15 +313,48 @@ figcaption,
 .steps,
 .bubbles,
 .faq,
-.about-grid {
+.about-grid,
+.pain-row {
   display: grid;
   gap: var(--gutter);
 }
 
 .caption-row,
 .steps,
-.bubbles {
+.bubbles,
+.pain-row {
   grid-template-columns: repeat(3, 1fr);
+}
+
+#problem {
+  text-align: center;
+}
+
+.problem-intro {
+  margin: 0 auto 1.35rem;
+  text-align: center;
+}
+
+.pain-card h3 {
+  margin-bottom: 0.4rem;
+}
+
+.pain-card p {
+  margin: 0 auto;
+}
+
+.icon-slot {
+  display: grid;
+  place-items: center;
+  width: 5.75rem;
+  height: 5.75rem;
+  margin: 0.15rem auto 0.75rem;
+  border: var(--border);
+  border-radius: 50%;
+  background: var(--pale);
+  font-family: Bangers, Impact, sans-serif;
+  font-size: 1.05rem;
+  line-height: 1;
 }
 
 .bubbles {
@@ -339,6 +372,13 @@ figcaption,
 .step p,
 .bubble p {
   margin: 0;
+}
+
+.offer-price {
+  margin-top: 0.35rem;
+  font-family: Bangers, Impact, sans-serif;
+  font-size: 1.8rem;
+  line-height: 1;
 }
 
 .steps {
@@ -470,6 +510,13 @@ figcaption {
   font-weight: 700;
 }
 
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.15rem;
+  margin: 0 0 0.85rem;
+}
+
 @media (max-width: 719px) {
   .menu-toggle {
     display: inline-block;
@@ -500,7 +547,8 @@ figcaption {
   .caption-row,
   .steps,
   .bubbles,
-  .about-grid {
+  .about-grid,
+  .pain-row {
     grid-template-columns: 1fr;
   }
 
