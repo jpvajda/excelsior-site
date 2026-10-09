@@ -5,16 +5,17 @@ Marketing site for Excelsior LLC. The owner is a Pain Reprocessing Therapy (PRT)
 ## Stack
 
 - Static files at the repo root. GitHub Pages deploys from branch `main`, folder `/` (root).
-- Plain HTML, one CSS file, and a small JS file only when a mobile menu needs it.
-- No server, database, framework, bundler, or deploy workflow.
+- Each section is a JavaScript module in `components/` that returns its markup. `main.js` places them in order. `index.html` only loads that script.
+- To view locally, run `python3 -m http.server 3000` and open http://127.0.0.1:3000. Do not open `index.html` as a file. The browser blocks the section modules from a `file://` address.
+- One CSS file, plus `main.js`, `menu.js`, and the section modules.
+- No app framework, database, or deploy workflow.
 - Relative URLs, so the site works as a project site and on a custom domain.
 - Keep `.nojekyll` so Pages does not run Jekyll.
 - Do not push or deploy unless asked.
 
 ## Offer and copy
 
-- PRT coaching is the only offer.
-- One quieter slot may hold somatic coaching later. Do not invent a second program.
+- PRT coaching is the only offer. Do not add a second program.
 - Do not invent pricing, biography, credentials, a city, results, statistics, or client names.
 - Placeholder copy is Lorem Ipsum. Label each slot in the page or an HTML comment, for example `SLOT: hero subhead`.
 - Contact stays a placeholder until a real scheduler or email is given. No form backend.
@@ -22,7 +23,7 @@ Marketing site for Excelsior LLC. The owner is a Pain Reprocessing Therapy (PRT)
 
 ## Page
 
-One `index.html`. Sticky header. In-page links. Sections stay in this order:
+One page. Sticky header. In-page links. Sections stay in this order:
 
 1. Header. Corner-box mark: EXCELSIOR / LLC. Links: the offer, how it works, about, contact.
 2. Hero. Wordmark “Excelsior”. Line: Pain Reprocessing Therapy coaching. Short subhead. Button “Start here” to contact.
@@ -31,11 +32,10 @@ One `index.html`. Sticky header. In-page links. Sections stay in this order:
 5. How it works. Three numbered panels. A row on desktop, stacked on a phone.
 6. Who it is for. One panel.
 7. About the coach. Name slot, role “Pain Reprocessing Therapy Coach”, bio. Empty frame marked “Photo later”. No photo of a real person.
-8. Somatic coaching slot. Quieter than the PRT sections. The title shows it is not live yet.
-9. Stories. Two speech bubbles, each labeled as a sample to replace. No fake client names.
-10. Questions. Four FAQ caption boxes.
-11. Contact. Button “Book a call” with `href="#"` and a comment: `REPLACE WITH SCHEDULER OR MAILTO`. Email line stays a placeholder. No fake address.
-12. Footer. “Excelsior LLC”, the disclaimer, and a link back to the top.
+8. Stories. Two speech bubbles, each labeled as a sample to replace. No fake client names.
+9. Questions. Four FAQ caption boxes.
+10. Contact. Button “Book a call” with `href="#"` and a comment: `REPLACE WITH SCHEDULER OR MAILTO`. Email line stays a placeholder. No fake address.
+11. Footer. “Excelsior LLC”, the disclaimer, and a link back to the top.
 
 One `h1`: Excelsior. Section titles are `h2`.
 

@@ -1,0 +1,19 @@
+export function Header() {
+  return `
+<header class="site-header">
+  <div class="header-inner">
+    <a class="corner-box" href="#top">
+      <span class="corner-box-title">Excelsior</span>
+      <span class="corner-box-sub">LLC</span>
+    </a>
+    <button type="button" class="menu-toggle" aria-expanded="false" aria-controls="site-nav">Menu</button>
+    <nav id="site-nav" class="site-nav" aria-label="On this page">
+      <a href="#offer">The offer</a>
+      <a href="#how">How it works</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </div>
+</header>
+`;
+}

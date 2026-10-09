@@ -1,4 +1,4 @@
-(function () {
+export function bindMenu() {
   var button = document.querySelector(".menu-toggle");
   var nav = document.getElementById("site-nav");
 
@@ -29,4 +29,4 @@
       setOpen(false);
     }
   });
-})();
+}

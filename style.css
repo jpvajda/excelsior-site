@@ -193,9 +193,21 @@ main {
 .code-seal {
   position: relative;
   z-index: 1;
-  width: 3.35rem;
-  height: 3.35rem;
-  margin-top: 0.2rem;
+  display: block;
+  width: 4.4rem;
+  height: 4.4rem;
+  margin-top: 0.15rem;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.code-seal img {
+  position: absolute;
+  width: calc(232 / 216 * 100%);
+  height: calc(222 / 216 * 100%);
+  left: calc(-14 / 216 * 100%);
+  top: 0;
+  max-width: none;
 }
 
 .hero-copy {
@@ -386,19 +398,6 @@ figcaption,
   font-family: Bangers, Impact, sans-serif;
   font-size: 1.8rem;
   text-align: center;
-}
-
-.somatic {
-  background: var(--paper);
-  border-left: 8px solid var(--green);
-  box-shadow: none;
-}
-
-.somatic h2 {
-  color: var(--ink);
-  background: transparent;
-  box-shadow: none;
-  font-size: 1.65rem;
 }
 
 .bubble {
