@@ -1,8 +1,8 @@
 import { Header } from "./components/header.js";
 import { Hero } from "./components/hero.js";
-import { Problem } from "./components/problem.js";
-import { Offer } from "./components/offer.js";
-import { HowItWorks } from "./components/how-it-works.js";
+import { Understanding } from "./components/understanding.js";
+import { Options } from "./components/options.js";
+import { Process } from "./components/process.js";
 import { WhoItsFor } from "./components/who-its-for.js";
 import { About } from "./components/about.js";
 import { Stories } from "./components/stories.js";
@@ -17,9 +17,9 @@ app.innerHTML = [
   Header(),
   `<main id="top">
     ${Hero()}
-    ${Problem()}
-    ${Offer()}
-    ${HowItWorks()}
+    ${Understanding()}
+    ${Options()}
+    ${Process()}
     ${WhoItsFor()}
     ${About()}
     ${Stories()}

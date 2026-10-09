@@ -8,8 +8,8 @@ export function Header() {
     </a>
     <button type="button" class="menu-toggle" aria-expanded="false" aria-controls="site-nav">Menu</button>
     <nav id="site-nav" class="site-nav" aria-label="On this page">
-      <a href="#offer">The offer</a>
-      <a href="#how">How it works</a>
+      <a href="#options">Options</a>
+      <a href="#process">The Process</a>
       <a href="#about">About</a>
       <a href="#contact">Contact</a>
     </nav>

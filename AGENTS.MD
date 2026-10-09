@@ -19,23 +19,23 @@ Marketing site for Excelsior LLC. The owner is a Pain Reprocessing Therapy (PRT)
 - Do not invent pricing, biography, credentials, a city, results, statistics, or client names.
 - Placeholder copy is Lorem Ipsum. Label each slot in the page or an HTML comment, for example `SLOT: hero subhead`.
 - Contact stays a placeholder until a real scheduler or email is given. No form backend.
-- Keep the footer disclaimer factual: this is coaching, not medical care, not a diagnosis, and not a promise to remove pain.
+- Footer line: © 2026 Excelsior LLC. All rights reserved.
 
 ## Page
 
 One page. Sticky header. In-page links. Sections stay in this order:
 
-1. Header. Corner-box mark: EXCELSIOR / LLC. Links: the offer, how it works, about, contact.
-2. Hero. Wordmark “Excelsior”. Line: Pain Reprocessing Therapy coaching. Short subhead. Button “Start here” to contact.
-3. The problem. One panel.
-4. The offer. Three short caption boxes.
-5. How it works. Three numbered panels. A row on desktop, stacked on a phone.
+1. Header. Corner-box mark: EXCELSIOR / LLC. Links: Options, The Process, About, Contact.
+2. Hero. Wordmark “Excelsior”. Line: Pain Reprocessing Therapy coaching. Short subhead. No button in the hero.
+3. Understanding Chronic Pain. Title, short intro, three icon cards.
+4. Options. Three short caption boxes.
+5. The Process. Three numbered panels. A row on desktop, stacked on a phone.
 6. Who it is for. One panel.
 7. About the coach. Name slot, role “Pain Reprocessing Therapy Coach”, bio. Empty frame marked “Photo later”. No photo of a real person.
 8. Stories. Two speech bubbles, each labeled as a sample to replace. No fake client names.
 9. Questions. Four FAQ caption boxes.
-10. Contact. Button “Book a call” with `href="#"` and a comment: `REPLACE WITH SCHEDULER OR MAILTO`. Email line stays a placeholder. No fake address.
-11. Footer. “Excelsior LLC”, the disclaimer, and a link back to the top.
+10. Contact. Button “Book a call” links to the Google Calendar booking page and opens in a new tab. Email line stays a placeholder. No fake address.
+11. Footer. “Excelsior LLC”, the copyright line, and the reading links.
 
 One `h1`: Excelsior. Section titles are `h2`.
 

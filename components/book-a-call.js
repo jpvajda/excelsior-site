@@ -3,10 +3,9 @@ export function BookACall() {
 <section id="contact" class="panel contact">
   <div class="caption contact-card">
     <!-- SLOT: contact headline -->
-    <h2>Lorem ipsum dolor sit amet</h2>
-    <p class="email-line">Email placeholder — replace me</p>
-    <!-- REPLACE WITH SCHEDULER OR MAILTO -->
-    <a class="button" href="#">Book a call</a>
+    <h2>Discovery Call</h2>
+    <p class="email-line">I'm offering a free 30 minute discovery call to help you understand your options and how I can help you.</p>
+    <a class="button" href="https://calendar.app.google/dEmmExVmxuVE8Pp5A" target="_blank" rel="noopener noreferrer">Book a call</a>
   </div>
 </section>
 `;

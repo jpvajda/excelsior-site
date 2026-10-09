@@ -309,6 +309,12 @@ figcaption,
   box-shadow: 2px 2px 0 var(--ink);
 }
 
+.options-banner {
+  display: block;
+  margin-top: var(--gutter);
+  text-align: center;
+}
+
 .caption-row,
 .steps,
 .bubbles,
@@ -326,11 +332,11 @@ figcaption,
   grid-template-columns: repeat(3, 1fr);
 }
 
-#problem {
+#understanding {
   text-align: center;
 }
 
-.problem-intro {
+.understanding-intro {
   margin: 0 auto 1.35rem;
   text-align: center;
 }
@@ -374,7 +380,16 @@ figcaption,
   margin: 0;
 }
 
-.offer-price {
+.caption ul {
+  margin: 0.45rem 0 0;
+  padding-left: 1.15rem;
+}
+
+.caption li + li {
+  margin-top: 0.25rem;
+}
+
+.options-price {
   margin-top: 0.35rem;
   font-family: Bangers, Impact, sans-serif;
   font-size: 1.8rem;

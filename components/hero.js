@@ -27,7 +27,6 @@ export function Hero() {
     <p class="offer-line">Pain Reprocessing Therapy Coaching</p>
     <!-- SLOT: hero subhead -->
     <p class="hero-sub">PRT is an evidence-based psychological treatment that aims to change the brain’s response to pain signals. It involves techniques designed to help the brain process and reinterpret body signals accurately, thereby reducing or eliminating the pain experience.</p>
-    <a class="button" href="#contact">Start here</a>
   </div>
 </section>
 `;

@@ -1,7 +1,7 @@
-export function HowItWorks() {
+export function Process() {
   return `
-<section id="how" class="panel">
-  <h2>How it works</h2>
+<section id="process" class="panel">
+  <h2>The Process</h2>
   <ol class="steps">
     <li class="panel step">
       <!-- SLOT: step 1 -->
