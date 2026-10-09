@@ -390,14 +390,9 @@ figcaption,
 }
 
 .photo-frame {
-  display: grid;
-  place-items: center;
-  min-height: 220px;
-  border: var(--border);
-  background: #fff;
-  font-family: Bangers, Impact, sans-serif;
-  font-size: 1.8rem;
-  text-align: center;
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 .bubble {

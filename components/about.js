@@ -9,7 +9,7 @@ export function About() {
       <!-- SLOT: bio -->
       <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>
     </div>
-    <div class="photo-frame" role="img" aria-label="Photo later">Photo later</div>
+    <img class="photo-frame" src="design/jv_comic_book_profile_vibrant.png" alt="Comic portrait of John Vajda" width="1254" height="1254">
   </div>
 </section>
 `;

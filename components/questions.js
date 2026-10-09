@@ -4,28 +4,20 @@ export function Questions() {
   <h2>Questions</h2>
   <div class="faq">
     <article class="caption">
-      <!-- SLOT: faq 1 question -->
-      <h3>Lorem ipsum dolor sit amet?</h3>
-      <!-- SLOT: faq 1 answer -->
-      <p>Consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+      <h3>How does Pain Reprocessing Therapy work?</h3>
+      <p>PRT helps you understand that your pain—though completely real—is often driven by the brain misreading safe signals from the body. Through practices like somatic tracking, mindfulness, and emotional awareness, you gradually retrain those neural pathways, interrupt the pain-fear loop, and dial down your nervous system's sensitivity.</p>
     </article>
     <article class="caption">
-      <!-- SLOT: faq 2 question -->
-      <h3>Ut enim ad minim veniam?</h3>
-      <!-- SLOT: faq 2 answer -->
-      <p>Quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+      <h3>Can PRT help if my pain has a physical cause?</h3>
+      <p>PRT is designed for neuroplastic pain, but it also helps when structural and stress-related pain overlap—conditions like arthritis, MS, or cancer where fear, anxiety, and hypervigilance amplify what you feel. It won't replace necessary medical treatment, but it can meaningfully reduce the extra layer of suffering that the nervous system piles on. There is no risk in adding a mind-body approach alongside your existing care.</p>
     </article>
     <article class="caption">
-      <!-- SLOT: faq 3 question -->
-      <h3>Duis aute irure dolor in reprehenderit?</h3>
-      <!-- SLOT: faq 3 answer -->
-      <p>In voluptate velit esse cillum dolore eu fugiat nulla pariatur excepteur sint occaecat.</p>
+      <h3>Does PRT address chronic symptoms beyond pain?</h3>
+      <p>Yes. The same brain-based approach applies to a wide range of persistent symptoms: back, neck, shoulder, hip, and knee pain, plantar fasciitis, repetitive strain injuries, fibromyalgia, tension headaches, migraines, neuropathy, osteoarthritis, IBS, tinnitus, fatigue, insomnia, dizziness, nausea, and more.</p>
     </article>
     <article class="caption">
-      <!-- SLOT: faq 4 question -->
-      <h3>Excepteur sint occaecat cupidatat?</h3>
-      <!-- SLOT: faq 4 answer -->
-      <p>Sunt in culpa qui officia deserunt mollit anim id est laborum sed ut perspiciatis.</p>
+      <h3>How do I get started?</h3>
+      <p>Click <strong>Book a Call</strong> below and we'll set up a free 30-minute discovery call to learn about your situation and see if coaching is a good fit.</p>
     </article>
   </div>
 </section>
