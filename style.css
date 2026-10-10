@@ -37,6 +37,13 @@ li {
   max-width: 65ch;
 }
 
+#questions .caption p,
+#who li,
+.contact-card p,
+#about .about-grid p {
+  max-width: none;
+}
+
 a {
   color: inherit;
 }
@@ -180,10 +187,6 @@ main {
   display: block;
   width: 5.7rem;
   height: auto;
-  aspect-ratio: 961 / 1201;
-  /* trim the transparent margin baked into the PNG */
-  object-view-box: inset(4% 9.8% 5.2% 9.3%);
-  object-fit: contain;
 }
 
 .hero-copy {
@@ -257,12 +260,10 @@ figcaption,
 }
 
 .hero-sub {
-  max-width: 42ch;
+  display: block;
+  width: min(100%, 34rem);
+  height: auto;
   margin: 0;
-  padding: 0.7rem 0.9rem;
-  background: var(--pale);
-  border: var(--border);
-  text-align: left;
 }
 
 .button {

@@ -3,12 +3,12 @@ export function Hero() {
 <section class="hero" aria-labelledby="site-title">
   <div class="hero-burst" aria-hidden="true"></div>
   <img class="hero-poster" src="design/comic_corner_box.png" alt="Comic-style poster of John P. Vajda, PRT: For a better tomorrow" width="591" height="1689">
-  <img class="code-stamp" src="design/PRT_coach_stamp.png" alt="Certified PRT Coach" width="961" height="1201">
+  <img class="code-stamp" src="design/PRT_coach_stamp.png" alt="Certified PRT Coach" width="405" height="615">
   <div class="hero-copy">
     <h1 id="site-title">Excelsior</h1>
     <p class="offer-line">Pain Reprocessing Therapy Coaching</p>
     <!-- SLOT: hero subhead -->
-    <p class="hero-sub">PRT is an evidence-based psychological treatment that aims to change the brain’s response to pain signals. It involves techniques designed to help the brain process and reinterpret body signals accurately, thereby reducing or eliminating the pain experience.</p>
+    <img class="hero-sub" src="design/PRT_comic_text_panel.png" alt="PRT is an evidence-based psychological treatment that aims to change the brain’s response to pain signals. It involves techniques designed to help the brain process and reinterpret body signals accurately, thereby reducing or eliminating the pain experience." width="1085" height="720">
   </div>
 </section>
 `;
