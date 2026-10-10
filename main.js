@@ -5,7 +5,7 @@ import { Options } from "./components/options.js";
 import { Process } from "./components/process.js";
 import { WhoItsFor } from "./components/who-its-for.js";
 import { About } from "./components/about.js";
-import { Stories } from "./components/stories.js";
+import { Data } from "./components/data.js";
 import { Questions } from "./components/questions.js";
 import { BookACall } from "./components/book-a-call.js";
 import { Footer } from "./components/footer.js";
@@ -22,7 +22,7 @@ app.innerHTML = [
     ${Process()}
     ${WhoItsFor()}
     ${About()}
-    ${Stories()}
+    ${Data()}
     ${Questions()}
     ${BookACall()}
   </main>`,

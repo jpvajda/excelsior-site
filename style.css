@@ -156,58 +156,34 @@ main {
   );
 }
 
+.hero-poster {
+  position: absolute;
+  z-index: 2;
+  top: 0.65rem;
+  left: 0.65rem;
+  display: block;
+  height: 17.5rem;
+  width: auto;
+  aspect-ratio: 591 / 1689;
+  /* trim the transparent margin baked into the PNG */
+  object-view-box: inset(1.2% 17.5% 1.2% 17.6%);
+  object-fit: contain;
+  border-radius: 4px;
+  box-shadow: 4px 4px 0 var(--ink);
+}
+
 .code-stamp {
   position: absolute;
   z-index: 2;
   top: 0.65rem;
   right: 0.65rem;
-  display: grid;
-  align-content: center;
-  justify-items: center;
-  width: 7.6rem;
-  aspect-ratio: 120 / 148;
-  margin: 0;
-  padding: 0.95rem 0.7rem 0.7rem;
-  line-height: 0.95;
-  text-align: center;
-}
-
-.stamp-cut {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
-
-.code-stamp-title {
-  position: relative;
-  z-index: 1;
   display: block;
-  max-width: none;
-  color: var(--ink);
-  font-family: Bangers, Impact, sans-serif;
-  font-size: 1.2rem;
-  letter-spacing: 0.02em;
-}
-
-.code-seal {
-  position: relative;
-  z-index: 1;
-  display: block;
-  width: 4.4rem;
-  height: 4.4rem;
-  margin-top: 0.15rem;
-  border-radius: 50%;
-  overflow: hidden;
-}
-
-.code-seal img {
-  position: absolute;
-  width: calc(232 / 216 * 100%);
-  height: calc(222 / 216 * 100%);
-  left: calc(-14 / 216 * 100%);
-  top: 0;
-  max-width: none;
+  width: 5.7rem;
+  height: auto;
+  aspect-ratio: 961 / 1201;
+  /* trim the transparent margin baked into the PNG */
+  object-view-box: inset(4% 9.8% 5.2% 9.3%);
+  object-fit: contain;
 }
 
 .hero-copy {
@@ -350,22 +326,22 @@ figcaption,
 }
 
 .icon-slot {
-  display: grid;
-  place-items: center;
-  width: 5.75rem;
-  height: 5.75rem;
+  display: block;
+  width: 7.5rem;
+  height: 7.5rem;
   margin: 0.15rem auto 0.75rem;
-  border: var(--border);
-  border-radius: 50%;
-  background: var(--pale);
-  font-family: Bangers, Impact, sans-serif;
-  font-size: 1.05rem;
-  line-height: 1;
+  object-fit: contain;
 }
 
 .bubbles {
   grid-template-columns: 1fr 1fr;
   padding-bottom: 1.25rem;
+}
+
+@media (min-width: 720px) {
+  .bubbles {
+    grid-auto-rows: 1fr;
+  }
 }
 
 .caption {
@@ -428,6 +404,19 @@ figcaption,
   line-height: 1;
 }
 
+.step-payoff {
+  background: var(--red);
+  color: var(--paper);
+  counter-increment: none;
+}
+
+.step-payoff::before {
+  content: "Payoff";
+  width: auto;
+  padding: 0 0.5rem;
+  color: var(--ink);
+}
+
 .about-grid {
   grid-template-columns: 1fr 220px;
   align-items: start;
@@ -452,11 +441,17 @@ figcaption,
 
 .bubble {
   position: relative;
+  display: flex;
+  flex-direction: column;
   margin: 0 0 1.4rem;
-  padding: 1rem 1rem 0.85rem;
+  padding: 0.55rem 0.7rem 0.45rem;
   border: var(--border);
-  border-radius: 1.4rem;
+  border-radius: 1.1rem;
   background: #fff;
+}
+
+.bubble blockquote {
+  margin: 0;
 }
 
 .tail {
@@ -476,7 +471,8 @@ figcaption,
 }
 
 figcaption {
-  margin-top: 0.7rem;
+  margin-top: auto;
+  padding-top: 0.35rem;
   font-size: 0.95rem;
   font-weight: 700;
 }
@@ -569,13 +565,19 @@ figcaption {
 
   .hero {
     min-height: 0;
-    padding: 9.2rem 0.9rem 2rem;
+    padding: 11.5rem 0.9rem 2rem;
+  }
+
+  .hero-poster {
+    top: 0.45rem;
+    left: 0.45rem;
+    height: 10.4rem;
   }
 
   .code-stamp {
     top: 0.45rem;
     right: 0.45rem;
-    width: 6.7rem;
+    width: 5rem;
   }
 
   h1 {

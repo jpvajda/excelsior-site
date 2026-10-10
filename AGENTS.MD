@@ -29,10 +29,10 @@ One page. Sticky header. In-page links. Sections stay in this order:
 2. Hero. Wordmark “Excelsior”. Line: Pain Reprocessing Therapy coaching. Short subhead. No button in the hero.
 3. Understanding Chronic Pain. Title, short intro, three icon cards.
 4. Options. Three short caption boxes.
-5. The Process. Three numbered panels. A row on desktop, stacked on a phone.
+5. The Process. Five numbered panels and a red payoff panel. Three across on desktop, stacked on a phone.
 6. Who it is for. One panel.
 7. About the coach. Name slot, role “Pain Reprocessing Therapy Coach”, bio. Empty frame marked “Photo later”. No photo of a real person.
-8. Stories. Two speech bubbles, each labeled as a sample to replace. No fake client names.
+8. Data. Four speech bubbles. Each holds a sourced NIH finding or quote and links to the NIH article. No fake client names.
 9. Questions. Four FAQ caption boxes.
 10. Contact. Button “Book a call” links to the Google Calendar booking page and opens in a new tab. Email line stays a placeholder. No fake address.
 11. Footer. “Excelsior LLC”, the copyright line, and the reading links.
@@ -50,7 +50,7 @@ Use this graphic system:
 - A corner box with a small stacked label.
 - Flat comic yellow, red, and blue, plus black and white. Green as a spare accent.
 - Halftone dots, and a burst or speed lines, in backgrounds only. Never behind body text.
-- Speech bubbles for the two stories. Caption boxes for steps, FAQ, and short facts.
+- Speech bubbles for the data points. Caption boxes for steps, FAQ, and short facts.
 - Body text on solid white or solid pale yellow.
 
 Type: one display face for headlines, from a source that allows web use. One plain sans for body text. Body at least 18px. Line length about 65 characters. Paragraphs stay in the body face.
