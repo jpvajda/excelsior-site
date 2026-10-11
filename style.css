@@ -120,6 +120,7 @@ a {
 .site-nav {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 0.5rem 0.85rem;
 }
 
@@ -132,6 +133,19 @@ a {
 .site-nav a:hover {
   text-decoration: underline;
   text-underline-offset: 0.2em;
+}
+
+.site-nav a.nav-cta {
+  margin-top: 0;
+  padding: 0.4rem 0.75rem 0.28rem;
+  border: var(--border);
+  font-size: 1.2rem;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.site-nav a.nav-cta:hover {
+  text-decoration: none;
 }
 
 main {
@@ -510,6 +524,7 @@ figcaption {
 
 .step-payoff,
 .options-banner,
+.nav-cta,
 .contact {
   background-image: radial-gradient(
     rgba(186, 214, 255, 0.34) 1px,
@@ -590,6 +605,14 @@ figcaption {
   .site-nav a {
     padding: 0.7rem 0.15rem;
     border-top: 2px solid var(--ink);
+  }
+
+  .site-nav a.nav-cta {
+    align-self: center;
+    margin-top: 0.75rem;
+    padding: 0.45rem 0.85rem 0.3rem;
+    border: var(--border);
+    text-align: center;
   }
 
   .caption-row,

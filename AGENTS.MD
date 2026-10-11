@@ -66,6 +66,10 @@ Motion stays short. Honor `prefers-reduced-motion`.
 - Text on solid panels meets WCAG AA. If yellow fails against black, darken the yellow or move the text into a solid caption box.
 - The mobile menu works from the keyboard.
 
+## Tests
+
+When a new feature or element is added, add or update a check in `tests/` in the same change. Cover what a visitor can do: the control is present, it goes to the right place, and it still works on a phone when the layout changes. Run `pnpm test`. Do not add a screenshot test unless asked.
+
 ## Scope
 
 Stay on this one page. Do not add a blog, shop, login, CMS, analytics, or extra pages unless asked. Keep the README short: what the page is, how to open it locally, and the GitHub Pages setting.

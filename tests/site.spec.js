@@ -17,8 +17,10 @@ const navLinks = [
   ["Options", "#options"],
   ["The Process", "#process"],
   ["About", "#about"],
-  ["Contact", "#contact"],
 ];
+
+const zoomBooking =
+  "https://scheduler.zoom.us/excelsior-llc/prt-discovery-call";
 
 async function openPage(page) {
   await page.goto("/");
@@ -76,9 +78,17 @@ test("navigation and booking link are present", async ({ page }) => {
 
   const book = page.locator("#contact").getByRole("link", { name: "Book a call" });
   await expect(book).toBeVisible();
+  await expect(book).toHaveAttribute("href", zoomBooking);
   await expect(book).toHaveAttribute("target", "_blank");
   await expect(book).toHaveAttribute("rel", /noopener/);
-  await expect(book).toHaveAttribute("href", /^https:\/\//);
+
+  const headerBook = page
+    .getByRole("navigation", { name: "On this page" })
+    .getByRole("link", { name: "Book a Discovery Call" });
+  await expect(headerBook).toBeVisible();
+  await expect(headerBook).toHaveAttribute("href", zoomBooking);
+  await expect(headerBook).toHaveAttribute("target", "_blank");
+  await expect(headerBook).toHaveAttribute("rel", /noopener/);
 });
 
 test("images load and the copyright line is present", async ({ page }) => {
@@ -161,5 +171,26 @@ test.describe("phone layout", () => {
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
     );
     expect(openOverflow).toBeLessThanOrEqual(1);
+  });
+
+  test("booking button is centered in the open menu", async ({ page }) => {
+    await openPage(page);
+    await page.locator(".menu-toggle").focus();
+    await page.keyboard.press("Enter");
+
+    const button = page
+      .locator("#site-nav")
+      .getByRole("link", { name: "Book a Discovery Call" });
+    await expect(button).toBeVisible();
+    await expect(button).toHaveAttribute("href", zoomBooking);
+
+    const centerDelta = await button.evaluate((element) => {
+      const buttonBox = element.getBoundingClientRect();
+      const menuBox = element.closest("nav").getBoundingClientRect();
+      return Math.abs(
+        buttonBox.left + buttonBox.width / 2 - (menuBox.left + menuBox.width / 2),
+      );
+    });
+    expect(centerDelta).toBeLessThanOrEqual(1);
   });
 });

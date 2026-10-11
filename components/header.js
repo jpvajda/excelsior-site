@@ -11,7 +11,7 @@ export function Header() {
       <a href="#options">Options</a>
       <a href="#process">The Process</a>
       <a href="#about">About</a>
-      <a href="#contact">Contact</a>
+      <a class="button nav-cta" href="https://scheduler.zoom.us/excelsior-llc/prt-discovery-call" target="_blank" rel="noopener noreferrer">Book a Discovery Call</a>
     </nav>
   </div>
 </header>
