@@ -1,0 +1,11 @@
+{
+  "name": "excelsior-site",
+  "private": true,
+  "scripts": {
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.11.0",
+    "@playwright/test": "^1.56.1"
+  }
+}
