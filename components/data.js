@@ -5,7 +5,7 @@ export function Data() {
   <div class="bubbles">
     <figure class="bubble">
       <blockquote>
-        <p>In a clinical trial, 66% of people who did 4 weeks of PRT reported being pain-free or nearly pain-free. Only 20% of those who got placebo injections and 10% of those who got usual care said the same. A year later, the relief had largely held.</p>
+        <p>In a clinical trial for people suffering from chronic back pain, 66% of people who did 4 weeks of PRT reported being pain-free or nearly pain-free. Only 20% of those who got placebo injections and 10% of those who got usual care said the same. A year later, the relief had largely held.</p>
       </blockquote>
       <figcaption>Source: <a href="https://www.nih.gov/news-events/nih-research-matters/retraining-brain-treat-chronic-pain" target="_blank" rel="noopener noreferrer">NIH Research Matters</a></figcaption>
       <svg class="tail" viewBox="0 0 48 32" aria-hidden="true">

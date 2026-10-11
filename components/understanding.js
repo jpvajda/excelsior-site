@@ -17,7 +17,7 @@ export function Understanding() {
     </article>
     <article class="pain-card">
       <img class="icon-slot" src="design/brain_icon.png" alt="" width="1402" height="1122">
-      <h3>Neuroplasticity</h3>
+      <h3>Your Brain Can Change</h3>
       <p>The brain can learn a new pattern. PRT uses that ability to bring back a sense of safety, so fear stops keeping the pain going.</p>
     </article>
   </div>

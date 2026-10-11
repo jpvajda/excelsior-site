@@ -24,7 +24,10 @@ html {
 body {
   margin: 0;
   background-color: var(--blue);
-  background-image: radial-gradient(rgba(20, 20, 20, 0.28) 1.15px, transparent 1.25px);
+  background-image: radial-gradient(
+    rgba(20, 20, 20, 0.28) 1.15px,
+    transparent 1.25px
+  );
   background-size: 8px 8px;
   color: var(--ink);
   font-family: "Source Sans 3", "Segoe UI", sans-serif;
@@ -107,7 +110,10 @@ a {
   border: var(--border);
   background: var(--paper);
   color: var(--ink);
-  font: 700 1rem/1 "Source Sans 3", "Segoe UI", sans-serif;
+  font:
+    700 1rem/1 "Source Sans 3",
+    "Segoe UI",
+    sans-serif;
   cursor: pointer;
 }
 
@@ -373,6 +379,25 @@ figcaption,
   line-height: 1;
 }
 
+.caption-best {
+  position: relative;
+  z-index: 1;
+}
+
+.best-value-badge {
+  position: absolute;
+  z-index: 2;
+  right: -2.05rem;
+  bottom: -1.15rem;
+  display: block;
+  width: 6.5rem;
+  height: auto;
+  margin: 0;
+  transform: rotate(16deg);
+  pointer-events: none;
+  filter: drop-shadow(3px 4px 0 rgba(20, 20, 20, 0.45));
+}
+
 .steps {
   list-style: none;
   margin: 0;
@@ -406,10 +431,11 @@ figcaption,
 }
 
 .step-payoff {
-  background: var(--red);
+  background-color: var(--red);
   color: var(--paper);
   counter-increment: none;
 }
+
 
 .step-payoff::before {
   content: "Payoff";
@@ -479,7 +505,17 @@ figcaption {
 }
 
 .contact {
-  background: var(--red);
+  background-color: var(--red);
+}
+
+.step-payoff,
+.options-banner,
+.contact {
+  background-image: radial-gradient(
+    rgba(186, 214, 255, 0.34) 1px,
+    transparent 1.15px
+  );
+  background-size: 6px 6px;
 }
 
 .contact-card h2 {
@@ -562,6 +598,10 @@ figcaption {
   .about-grid,
   .pain-row {
     grid-template-columns: 1fr;
+  }
+
+  .best-value-badge {
+    right: -1.55rem;
   }
 
   .hero {
