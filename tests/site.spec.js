@@ -1,3 +1,4 @@
+import { execSync } from "node:child_process";
 import { expect, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
@@ -91,6 +92,14 @@ test("navigation and booking link are present", async ({ page }) => {
   await expect(headerBook).toHaveAttribute("rel", /noopener/);
 });
 
+test("option prices share one line", async ({ page }) => {
+  await openPage(page);
+  const tops = await page.locator(".options-price").evaluateAll((prices) =>
+    prices.map((price) => Math.round(price.getBoundingClientRect().top)),
+  );
+  expect(new Set(tops).size).toBe(1);
+});
+
 test("images load and the copyright line is present", async ({ page }) => {
   await openPage(page);
 
@@ -105,6 +114,11 @@ test("images load and the copyright line is present", async ({ page }) => {
     [...document.images].map((img) => img.getAttribute("src")),
   );
   expect(sources.length).toBeGreaterThan(0);
+  const tracked = new Set(
+    execSync("git ls-files", { encoding: "utf8" }).trim().split("\n"),
+  );
+  const missing = sources.filter((src) => !tracked.has(src));
+  expect(missing, "image src must match the committed filename, including case").toEqual([]);
   for (const src of sources) {
     expect(src).not.toMatch(/^https?:\/\//);
     const response = await page.request.get(src);

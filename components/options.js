@@ -9,7 +9,6 @@ export function Options() {
         <li>Provides time to get a feel for the process.</li>
         <li>One-time intro session, one per person.</li>
       </ul>
-      <br />
       <p class="options-price">$100.00</p>
     </article>
     <article class="caption">
@@ -18,7 +17,6 @@ export function Options() {
         <li>Includes six 60-minute sessions.</li>
         <li>Provides time to build and practice the skills and see initial results.</li>
       </ul>
-      <br />
       <p class="options-price">$800.00</p>
     </article>
     <article class="caption caption-best">
@@ -27,7 +25,6 @@ export function Options() {
         <li>Includes twelve 60-minute sessions.</li>
         <li>Provides time to build and practice the skills and see sustained results.</li>
       </ul>
-      <br />
       <p class="options-price">$1,200.00</p>
       <img class="best-value-badge" src="design/best_value_badge.png" alt="Best value" width="1378" height="1142">
     </article>
