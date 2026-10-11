@@ -6,8 +6,8 @@ export function Options() {
     <article class="caption">
       <p><b>One 60-minute intro session to get started with PRT</b></p>
       <ul>
-        <li>Provides time to get a feel for the process.</li>
         <li>One-time intro session, one per person.</li>
+        <li>Provides time to get a feel for the process.</li>
       </ul>
       <p class="options-price">$100.00</p>
     </article>
