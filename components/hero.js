@@ -2,7 +2,7 @@ export function Hero() {
   return `
 <section class="hero" aria-labelledby="site-title">
   <div class="hero-burst" aria-hidden="true"></div>
-  <img class="hero-poster" src="design/comic_corner_box.png" alt="Comic-style poster of John P. Vajda, PRT: For a better tomorrow" width="591" height="1689">
+  <img class="hero-poster" src="design/comic_corner_box.png" alt="Comic-style poster of John P. Vajda, PRT: For a better tomorrow" width="910" height="1728">
   <img class="code-stamp" src="design/prt_coach_stamp.png" alt="Certified PRT Coach" width="405" height="615">
   <div class="hero-copy">
     <h1 id="site-title">Excelsior</h1>
