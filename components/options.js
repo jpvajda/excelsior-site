@@ -29,7 +29,7 @@ export function Options() {
       <img class="best-value-badge" src="design/best_value_badge.png" alt="Best value" width="1378" height="1142">
     </article>
   </div>
-  <a class="button options-banner" href="#contact">Want to learn more? Book a free discovery call.</a>
+  <a class="button options-banner" data-discovery-call="options" href="#contact">Want to learn more? Book a free discovery call.</a>
 </section>
 `;
 }

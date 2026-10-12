@@ -30,3 +30,7 @@ GitHub runs these on every pull request.
 Edit a section in `components/`. Each file is a JavaScript function for that part of the page.
 
 GitHub Pages: Settings → Pages → Deploy from a branch → `main` → `/ (root)`.
+
+## Instrumentation
+
+[PostHog](https://posthog.com) records page views, clicks, and booking clicks. The snippet lives in `index.html`. Booking buttons send one shared event, `discovery_call_clicked`, with a `placement` property for the spot that was clicked.

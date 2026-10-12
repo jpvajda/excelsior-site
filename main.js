@@ -30,3 +30,11 @@ app.innerHTML = [
 ].join("\n");
 
 bindMenu();
+
+document.addEventListener("click", (event) => {
+  const link = event.target.closest("[data-discovery-call]");
+  if (!link || !window.posthog) return;
+  window.posthog.capture("discovery_call_clicked", {
+    placement: link.getAttribute("data-discovery-call"),
+  });
+});

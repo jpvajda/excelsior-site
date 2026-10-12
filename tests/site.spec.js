@@ -81,6 +81,52 @@ test("search engines get the live domain and a description", async ({ page }) =>
   expect(await sitemap.text()).toContain("https://excelsior-prt.com/");
 });
 
+async function watchDiscoveryClicks(page) {
+  await page.evaluate(() => {
+    window.__discoveryEvents = [];
+    const capture = window.posthog.capture.bind(window.posthog);
+    window.posthog.capture = (name, properties) => {
+      if (name === "discovery_call_clicked") {
+        window.__discoveryEvents.push({ name, placement: properties.placement });
+      }
+      return capture(name, properties);
+    };
+  });
+}
+
+test("analytics snippet sends visits to the US project", async ({ page }) => {
+  const hit = page.waitForRequest((request) =>
+    request.url().includes("us.i.posthog.com"),
+  );
+  await page.goto("/");
+  expect((await hit).url()).toContain("us.i.posthog.com");
+});
+
+test("booking links record which spot was clicked", async ({ page }) => {
+  await openPage(page);
+  await watchDiscoveryClicks(page);
+
+  const spots = [
+    ["header", "https://scheduler.zoom.us/excelsior-llc/prt-discovery-call"],
+    ["options", "#contact"],
+    ["contact", "https://scheduler.zoom.us/excelsior-llc/prt-discovery-call"],
+  ];
+
+  for (const [placement, href] of spots) {
+    const link = page.locator(`[data-discovery-call="${placement}"]`);
+    await expect(link).toHaveAttribute("href", href);
+    await link.dispatchEvent("click", { bubbles: true });
+  }
+
+  await expect
+    .poll(() => page.evaluate(() => window.__discoveryEvents))
+    .toEqual([
+      { name: "discovery_call_clicked", placement: "header" },
+      { name: "discovery_call_clicked", placement: "options" },
+      { name: "discovery_call_clicked", placement: "contact" },
+    ]);
+});
+
 test("page sections stay in order with one heading", async ({ page }) => {
   await openPage(page);
 
@@ -217,6 +263,21 @@ test.describe("phone layout", () => {
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
     );
     expect(openOverflow).toBeLessThanOrEqual(1);
+  });
+
+  test("booking button in the open menu records a header click", async ({ page }) => {
+    await openPage(page);
+    await watchDiscoveryClicks(page);
+    await page.locator(".menu-toggle").focus();
+    await page.keyboard.press("Enter");
+
+    const button = page.locator("#site-nav [data-discovery-call='header']");
+    await expect(button).toBeVisible();
+    await button.dispatchEvent("click", { bubbles: true });
+
+    await expect
+      .poll(() => page.evaluate(() => window.__discoveryEvents))
+      .toEqual([{ name: "discovery_call_clicked", placement: "header" }]);
   });
 
   test("booking button is centered in the open menu", async ({ page }) => {
