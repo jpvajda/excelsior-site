@@ -70,6 +70,12 @@ Motion stays short. Honor `prefers-reduced-motion`.
 
 When a new feature or element is added, add or update a check in `tests/` in the same change. Cover what a visitor can do: the control is present, it goes to the right place, and it still works on a phone when the layout changes. Run `pnpm test`. Do not add a screenshot test unless asked.
 
+## Instrumentation
+
+PostHog records visits and clicks. The snippet is in `index.html`. Do not add a second analytics tool, and do not write the project key, host account, or dashboard names into the repo docs.
+
+When a new control is added, send a PostHog event for it in the same change. Booking links already share one event, `discovery_call_clicked`, with a `placement` property for where it was clicked. Follow that pattern: one event name, plus a property when the same action appears in more than one place. Cover the event in `tests/`.
+
 ## Scope
 
-Stay on this one page. Do not add a blog, shop, login, CMS, analytics, or extra pages unless asked. Keep the README short: what the page is, how to open it locally, and the GitHub Pages setting.
+Stay on this one page. Do not add a blog, shop, login, CMS, or extra pages unless asked. Keep the README short: what the page is, how to open it locally, the GitHub Pages setting, and that PostHog is used for instrumentation.
