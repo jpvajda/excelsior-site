@@ -9,6 +9,7 @@ export function Footer() {
     <a href="https://www.youtube.com/watch?v=_S7w2eg0DYw" target="_blank" rel="noopener noreferrer">A Deeper Look at PRT</a>
     <a href="https://www.amazon.com/Way-Out-Revolutionary-Scientifically-Approach/dp/059308683X" target="_blank" rel="noopener noreferrer">The Way Out</a>
     <a href="https://www.amazon.com/Unlearn-Your-Pain-Recovering-Depression/dp/0593994361" target="_blank" rel="noopener noreferrer">Unlearn Your Pain</a>
+    <a href="https://www.painreprocessingtherapy.com/painreprocessingtherapy-com-podcast" target="_blank" rel="noopener noreferrer">The PRT Podcast</a>
   </nav>
 </footer>
 `;

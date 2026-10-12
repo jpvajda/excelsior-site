@@ -49,6 +49,38 @@ function formatViolations(violations) {
     .join("\n");
 }
 
+test("search engines get the live domain and a description", async ({ page }) => {
+  const description =
+    "Pain Reprocessing Therapy coaching for chronic pain. Learn how the brain can keep pain going, then book a free 30 minute discovery call with Excelsior LLC.";
+
+  await openPage(page);
+
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+    "content",
+    description,
+  );
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+    "href",
+    "https://excelsior-prt.com/",
+  );
+
+  const business = await page
+    .locator('script[type="application/ld+json"]')
+    .textContent();
+  expect(JSON.parse(business).name).toBe("Excelsior LLC");
+  expect(JSON.parse(business)["@type"]).toBe("ProfessionalService");
+
+  const robots = await page.request.get("/robots.txt");
+  expect(robots.ok()).toBeTruthy();
+  expect(await robots.text()).toContain(
+    "Sitemap: https://excelsior-prt.com/sitemap.xml",
+  );
+
+  const sitemap = await page.request.get("/sitemap.xml");
+  expect(sitemap.ok()).toBeTruthy();
+  expect(await sitemap.text()).toContain("https://excelsior-prt.com/");
+});
+
 test("page sections stay in order with one heading", async ({ page }) => {
   await openPage(page);
 

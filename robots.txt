@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://excelsior-prt.com/sitemap.xml
