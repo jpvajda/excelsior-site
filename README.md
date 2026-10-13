@@ -1,8 +1,8 @@
-![Comic banner for John P. Vajda, Excelsior LLC](design/comic_hero_banner.png)
+![Comic banner for John P. Vajda, Excelsior LLC](images/comic_hero_banner.png)
 
 # Excelsior LLC
 
-One-page site for Pain Reprocessing Therapy coaching.
+Home page for Pain Reprocessing Therapy coaching, plus a My Story page.
 
 © 2026 Excelsior LLC. All rights reserved. Do not copy, reproduce, or reuse this site, its words, or its images without permission.
 
@@ -11,7 +11,7 @@ One-page site for Pain Reprocessing Therapy coaching.
 Run it locally from this folder:
 
 ```bash
-python3 -m http.server 3000
+python3 serve.py
 ```
 
 Then open http://127.0.0.1:3000.
@@ -27,10 +27,10 @@ pnpm test
 
 GitHub runs these on every pull request.
 
-Edit a section in `components/`. Each file is a JavaScript function for that part of the page.
+Each page lives in a folder under `pages/`. Edit a section there. Each file is a JavaScript function for that part of the page. The folder map is in `AGENTS.MD`.
 
 GitHub Pages: Settings → Pages → Deploy from a branch → `main` → `/ (root)`.
 
 ## Instrumentation
 
-[PostHog](https://posthog.com) records page views, clicks, and booking clicks. The snippet lives in `index.html`. Booking buttons send one shared event, `discovery_call_clicked`, with a `placement` property for the spot that was clicked.
+[PostHog](https://posthog.com) records page views, clicks, and booking clicks. The snippet lives in `index.html` and `pages/my-story/index.html`. Booking buttons send one shared event, `discovery_call_clicked`, with a `placement` property for the spot that was clicked. The My Story link sends `my_story_clicked` with `placement` set to `header`.

@@ -11,7 +11,7 @@ export default defineConfig({
     ...devices["Desktop Chrome"],
   },
   webServer: {
-    command: "python3 -m http.server 3000 --bind 127.0.0.1",
+    command: "python3 serve.py 3000 --bind 127.0.0.1",
     url: "http://127.0.0.1:3000",
     reuseExistingServer: !process.env.CI,
   },
