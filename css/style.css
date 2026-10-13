@@ -548,6 +548,77 @@ figcaption {
   color: var(--ink);
 }
 
+.site-nav a[aria-current="page"] {
+  text-decoration: underline;
+  text-decoration-thickness: 3px;
+  text-underline-offset: 0.2em;
+}
+
+.story {
+  margin-bottom: var(--gutter);
+  border: var(--border);
+  background: var(--paper);
+  box-shadow: 6px 6px 0 var(--ink);
+}
+
+.story-banner {
+  margin: 0;
+  border-bottom: var(--border);
+}
+
+.story-banner img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.story-body {
+  width: min(65ch, calc(100% - 2.5rem));
+  margin: 0 auto;
+  padding: 1.35rem 0 0.2rem;
+}
+
+.story-body:last-child {
+  padding-bottom: 1.6rem;
+}
+
+.story h1 {
+  display: inline-block;
+  margin-bottom: 0.75rem;
+  font-size: clamp(2.6rem, 8vw, 4.25rem);
+}
+
+.story-byline {
+  margin: 0 0 1rem;
+  font-weight: 700;
+}
+
+.story-body p {
+  margin: 0 0 1rem;
+}
+
+.story-body h2 {
+  margin-top: 0.35rem;
+}
+
+.story-figure {
+  margin: 0.85rem 1.25rem 0.35rem;
+}
+
+.story-image-slot {
+  display: grid;
+  place-items: center;
+  min-height: 16rem;
+  border: var(--border);
+  background: var(--pale);
+  font-weight: 700;
+}
+
+.story-figure figcaption {
+  margin-top: 0.45rem;
+  font-size: 1rem;
+}
+
 .site-footer {
   max-width: 1040px;
   margin: 0 auto var(--gutter);
@@ -633,6 +704,10 @@ figcaption {
     --corner-h: clamp(6rem, 34vw, 10.5rem);
     min-height: 0;
     padding: calc(var(--corner-h) + 1.4rem) 0.9rem 2rem;
+  }
+
+  .story-image-slot {
+    min-height: 12rem;
   }
 
   .hero-poster {

@@ -10,7 +10,7 @@ export function About() {
       <p>I'm a certified Pain Reprocessing Therapy and Somatic Coach. I've lived with chronic pain at different levels for most of my 20-year career in technology, and through years of cycling and CrossFit. For a long time I assumed it was just part of life and getting older. Then I learned about PRT and somatic approaches, and I saw a real path to recovery and a better quality of life. Now I'm passionate about helping others to recover and unlearn their pain.</p>
       <p>Find me on <a href="https://www.linkedin.com/in/johnpvajda/" target="_blank" rel="noopener noreferrer">LinkedIn</a>.</p>
     </div>
-    <img class="photo-frame" src="design/jv_comic_book_profile_vibrant.png" alt="Comic portrait of John Vajda" width="1254" height="1254">
+    <img class="photo-frame" src="images/jv_comic_book_profile_vibrant.png" alt="Comic portrait of John Vajda" width="1254" height="1254">
   </div>
 </section>
 `;
