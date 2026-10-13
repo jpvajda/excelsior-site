@@ -15,7 +15,7 @@ export function Story() {
         <img src="../../images/jv_laptop_pain.png" alt="John Vajda in a blue suit, red cape, and red beanie at a laptop, with pain bolts at his neck." width="962" height="887">
       </figure>
       <div class="story-copy">
-        <p>I spent more than 20 years working in the tech industry, and for most of them, my body hurt. Neck, wrists, shoulders, lower back. I did everything the internet told me to do: standing desks, ergonomic keyboards, wrist guards, ergonomic mice, a high-end Herman Miller chair. Each fix helped for a while. Then the pain would eventually come back. I felt physically good when I was on vacation but as soon as I got back to work, the pain would eventually come back.</p>
+        <p>I've spent 20 years working in the tech industry, and for most of them, my body hurt: neck, wrists, shoulders, lower back. I did everything the internet told me to do: standing desks, ergonomic keyboards, wrist guards, ergonomic mice, a high-end Herman Miller chair. Each fix helped for a while. Then the pain would eventually come back. I felt physically good when I was on vacation but as soon as I got back to work, the pain would eventually come back.</p>
         <p><b>I just assumed this was part of the sacrifice to work in the tech industry.</b></p>
       </div>
     </div>
@@ -27,7 +27,7 @@ export function Story() {
       <figure class="story-aside story-aside-left">
         <img src="../../images/jv_cycling_back_pain.png" alt="John Vajda riding a yellow bicycle, with pain bolts at his lower back." width="805" height="887">
       </figure>
-      <p>The pain followed me from the desk. In Boulder, Colorado I trained as an amateur racing cyclist and dealt with pain in my knees, hips, back, shoulder, and neck. I saw chiropractors, massage therapists, and physical therapists for treatment but of course I kept riding. All competitive cyclists believe suffering is part of the sport. I even bought a lot of fitness related products to help my cause: CBD oils, supplements, foam rollers, ice packs, massagers, and more.</p>
+      <p>The pain followed me from the desk. In Boulder, Colorado I trained as an amateur racing cyclist and dealt with pain in my knees, hips, back, shoulder, and neck. I saw chiropractors, massage therapists, and physical therapists for treatment but of course I kept riding. All competitive cyclists believe suffering is part of the sport. I even bought a lot of fitness related products to help my cause: CBD oils, supplements, foam rollers, ice and heat packs, massagers, and more.</p>
     </div>
     <div class="story-float">
       <figure class="story-aside story-aside-right">
@@ -42,7 +42,7 @@ export function Story() {
     <h2 id="the-year-title">The year that broke me</h2>
     <div class="story-copy story-copy-solo">
         <p><b>Then came 2026.</b></p>
-        <p>Everything stacked up at once as I experienced several significant personal challenges all at the same time. A minor injury from a home improvement project turned into a debilitating frozen shoulder. The injury was very small but what made it worse was a nervous system already carrying more pressure than it could handle. My shoulder froze because my system was overloaded. My body telling me something had to change immediately and it couldn't go on like this.</p>
+        <p>Everything stacked up at once as I experienced several significant personal challenges all at the same time. A minor injury from a home improvement project turned into a debilitating frozen shoulder. The injury was very small but what made it worse was a nervous system already carrying more pressure than it could handle. My shoulder froze because my system was overloaded. My body was telling me something had to change immediately and it couldn't go on like this.</p>
         <p>When I started learning about Pain Reprocessing Therapy (PRT) the pattern finally became clear. Looking back, the neck, the back, the knees, the shoulders: nearly all of it traced to the same root. Chronic stress and a nervous system I hadn't learned to regulate. I'd been treating symptoms while the source kept running in the background.</p>
         <p>I was fixated on every moment of pain and minor discomfort, and that fixation kept me locked in a chronic pain-fear cycle. I could push through it when I was younger. Now that I'm in my later forties, my body won't let me and I'm so grateful it finally took a stand.</p>
         <p>That realization is why I do this work. Pain Reprocessing Therapy (PRT) and Somatic Therapy gave me a different way to understand pain — a way to work with my nervous system instead of bypassing what it was trying to tell me. Yes, ergonomics, diet, form, good equipment and rest all matter. But for me, lasting change started when I stopped asking "what's wrong with my body?" and started asking:</p>
