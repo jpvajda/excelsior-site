@@ -11,7 +11,7 @@ Home page for Pain Reprocessing Therapy coaching, plus a My Story page.
 Run it locally from this folder:
 
 ```bash
-python3 -m http.server 3000
+python3 serve.py
 ```
 
 Then open http://127.0.0.1:3000.

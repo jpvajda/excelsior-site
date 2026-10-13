@@ -727,6 +727,39 @@ figcaption {
   }
 }
 
+.not-found h1 {
+  display: inline-block;
+  margin-bottom: 0.85rem;
+  font-size: clamp(2.4rem, 8vw, 4.25rem);
+}
+
+.not-found-panel p {
+  margin: 0 0 1.15rem;
+}
+
+@media (max-width: 719px) {
+  .not-found .site-nav {
+    display: flex;
+    position: static;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.5rem 0.85rem;
+    padding: 0;
+    border-bottom: 0;
+    background: transparent;
+  }
+
+  .not-found .site-nav a {
+    padding: 0.2rem 0.15rem;
+    border-top: 0;
+  }
+
+  .not-found .site-nav a.nav-cta {
+    align-self: center;
+    margin-top: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .button:hover {
     transform: none;

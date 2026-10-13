@@ -561,3 +561,57 @@ for (const { url, script, stylesheet } of pages) {
     }
   });
 }
+
+test("an unknown path shows the 404 page", async ({ page }) => {
+  for (const path of ["/blah", "/no/such/page"]) {
+    const response = await page.goto(path);
+    expect(response.status(), path).toBe(404);
+    await expect(page.locator("h1")).toHaveText("Page not found");
+    await expect(page).toHaveURL(new RegExp(`${path}$`));
+  }
+
+  const background = await page.evaluate(
+    () => getComputedStyle(document.body).backgroundColor,
+  );
+  expect(background).toBe("rgb(29, 78, 216)");
+
+  await page.evaluate(() => {
+    window.__notFoundEvents = [];
+    const capture = window.posthog.capture.bind(window.posthog);
+    window.posthog.capture = (name, properties) => {
+      if (name === "not_found_home_clicked") window.__notFoundEvents.push({ name });
+      return capture(name, properties);
+    };
+  });
+  const home = page.getByRole("link", { name: "Back to Excelsior" });
+  await home.evaluate((element) => {
+    element.addEventListener("click", (event) => event.preventDefault());
+  });
+  await home.dispatchEvent("click", { bubbles: true });
+  await expect
+    .poll(() => page.evaluate(() => window.__notFoundEvents))
+    .toEqual([{ name: "not_found_home_clicked" }]);
+
+  await page.goto("/blah");
+  await page.getByRole("link", { name: "Back to Excelsior" }).click();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.locator("h1")).toHaveText("Excelsior");
+});
+
+test.describe("404 on a phone", () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test("the page fits and the way home is visible", async ({ page }) => {
+    const response = await page.goto("/blah");
+    expect(response.status()).toBe(404);
+
+    const home = page.getByRole("link", { name: "Back to Excelsior" });
+    await expect(home).toBeVisible();
+    await expect(page.locator(".site-nav").getByRole("link", { name: "My Story" })).toBeVisible();
+
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    expect(overflow).toBeLessThanOrEqual(1);
+  });
+});

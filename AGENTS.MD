@@ -6,7 +6,7 @@ Marketing site for Excelsior LLC. The owner is a Pain Reprocessing Therapy (PRT)
 
 - Static files at the repo root. GitHub Pages deploys from branch `main`, folder `/` (root).
 - Each section is a JavaScript module that returns its markup as a string. Each page has one `page.js` that stacks its sections into `#app`. The HTML file only loads that script. See File layout.
-- To view locally, run `python3 -m http.server 3000` and open http://127.0.0.1:3000. Do not open `index.html` as a file. The browser blocks the modules from a `file://` address.
+- To view locally, run `python3 serve.py` and open http://127.0.0.1:3000. Do not use `python3 -m http.server`. That command shows Python's own error page for a bad address. Do not open `index.html` as a file. The browser blocks the modules from a `file://` address.
 - One CSS file at `css/style.css`.
 - No app framework, database, build step, or deploy workflow. Vanilla JS, HTML, and CSS only.
 - Relative URLs, so the site works as a project site and on a custom domain.
@@ -17,6 +17,8 @@ Marketing site for Excelsior LLC. The owner is a Pain Reprocessing Therapy (PRT)
 
 ```
 index.html                  home page HTML. Must stay in root so "/" works. Loads pages/home/page.js
+404.html                    missing-path page. Stays in root because GitHub Pages looks for it there
+serve.py                    local server. Serves 404.html with status 404 for a bad address
 pages/                      one folder per page. Everything for a page lives in its folder
   home/
     page.js                 entry script. Stacks the sections into #app, then binds behavior

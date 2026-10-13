@@ -19,7 +19,7 @@ export function Header(page = "home") {
       <a href="${section("options")}">Options</a>
       <a href="${section("process")}">The Process</a>
       <a href="${section("about")}">About</a>
-      <a href="${prefix}pages/my-story/"${current("my-story")} data-my-story="header">My Story</a>
+      <a href="/pages/my-story/"${current("my-story")} data-my-story="header">My Story</a>
       <a class="button nav-cta" data-discovery-call="header" href="https://scheduler.zoom.us/excelsior-llc/prt-discovery-call" target="_blank" rel="noopener noreferrer">Book a Discovery Call</a>
     </nav>
   </div>
