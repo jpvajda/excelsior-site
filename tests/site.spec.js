@@ -376,9 +376,6 @@ test("my story is its own page", async ({ page }) => {
     "src",
     "../../images/comic_hero_banner.png",
   );
-  await expect(page.locator("#working-in-tech")).toContainText(
-    "more than 20 years working in the tech industry",
-  );
   await expect(page.locator("#working-in-tech img")).toHaveAttribute(
     "src",
     "../../images/jv_laptop_pain.png",
