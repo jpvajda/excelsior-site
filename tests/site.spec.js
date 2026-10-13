@@ -179,7 +179,7 @@ test("navigation and booking link are present", async ({ page }) => {
   }
 
   const story = nav.getByRole("link", { name: "My Story", exact: true });
-  await expect(story).toHaveAttribute("href", "pages/my-story/");
+  await expect(story).toHaveAttribute("href", "/pages/my-story/");
   await expect(story).not.toHaveAttribute("aria-current", "page");
 
   const book = page.locator("#contact").getByRole("link", { name: "Book a call" });
@@ -326,7 +326,7 @@ test.describe("phone layout", () => {
 
     const link = page.locator("#site-nav").getByRole("link", { name: "My Story" });
     await expect(link).toBeVisible();
-    await expect(link).toHaveAttribute("href", "pages/my-story/");
+    await expect(link).toHaveAttribute("href", "/pages/my-story/");
     await clickWithoutLeaving(link);
 
     await expect
@@ -376,16 +376,78 @@ test("my story is its own page", async ({ page }) => {
     "src",
     "../../images/comic_hero_banner.png",
   );
-  await expect(page.locator(".story")).toContainText("Lorem ipsum");
-  await expect(page.locator(".story-image-slot")).toHaveCount(3);
-  await expect(page.locator(".story-image-slot").first()).toHaveText("Image later");
+  await expect(page.locator("#working-in-tech")).toContainText(
+    "more than 20 years working in the tech industry",
+  );
+  await expect(page.locator("#working-in-tech img")).toHaveAttribute(
+    "src",
+    "../../images/jv_laptop_pain.png",
+  );
+  await expect(page.locator("#cycling img").nth(0)).toHaveAttribute(
+    "src",
+    "../../images/jv_cycling_back_pain.png",
+  );
+  await expect(page.locator("#cycling img").nth(1)).toHaveAttribute(
+    "src",
+    "../../images/jv_shoulder_lifting_pain.png",
+  );
+  await expect(page.locator("#the-year img")).toHaveCount(0);
+  await expect(page.locator("#excelsior-meaning img")).toHaveAttribute(
+    "src",
+    "../../images/stan_lee.png",
+  );
+
+  const boxes = await page.evaluate(() => {
+    const box = (selector) => document.querySelector(selector).getBoundingClientRect();
+    return {
+      title: box("#story-title"),
+      sectionTitle: box("#working-in-tech h2"),
+      laptop: box("#working-in-tech img"),
+      workingText: box("#working-in-tech .story-copy"),
+      shoulder: box("#cycling .story-aside-left img"),
+      bike: box("#cycling .story-aside-right img"),
+      stan: box("#excelsior-meaning img"),
+      meaningText: box("#excelsior-meaning .story-copy"),
+    };
+  });
+  expect(Math.abs(boxes.title.left - boxes.sectionTitle.left)).toBeLessThan(8);
+  expect(boxes.laptop.right).toBeLessThanOrEqual(boxes.workingText.left + 1);
+  const cycling = await page.evaluate(() => {
+    const lines = (selector) => {
+      const range = document.createRange();
+      range.selectNodeContents(document.querySelector(selector));
+      return [...range.getClientRects()];
+    };
+    const first = lines("#cycling .story-float p");
+    const second = lines("#cycling .story-float:last-of-type p");
+    const firstWrap = document.querySelector("#cycling .story-float").getBoundingClientRect();
+    const secondWrap = document
+      .querySelector("#cycling .story-float:last-of-type")
+      .getBoundingClientRect();
+    return {
+      firstLeft: Math.min(...first.map((rect) => rect.left)),
+      firstRight: Math.max(...first.map((rect) => rect.right)),
+      secondLeft: Math.min(...second.map((rect) => rect.left)),
+      secondRight: Math.max(...second.map((rect) => rect.right)),
+      firstWrapRight: firstWrap.right,
+      secondWrapLeft: secondWrap.left,
+    };
+  });
+  expect(boxes.shoulder.right).toBeLessThanOrEqual(cycling.firstLeft + 4);
+  expect(cycling.firstWrapRight - cycling.firstRight).toBeLessThan(80);
+  expect(cycling.secondLeft - cycling.secondWrapLeft).toBeLessThan(16);
+  expect(boxes.bike.left).toBeGreaterThanOrEqual(cycling.secondRight - 4);
+  expect(boxes.bike.top).toBeGreaterThan(boxes.shoulder.top);
+  expect(boxes.stan.left).toBeGreaterThanOrEqual(boxes.meaningText.right - 1);
 
   const headings = await page.locator("main h1, main h2").allTextContents();
   expect(headings.map((heading) => heading.trim())).toEqual([
     "My Story",
-    "Section one",
-    "Section two",
-    "Section three",
+    "Working in tech with pain",
+    "Cycling through the pain",
+    "The year that broke me",
+    "What does Excelsior mean?",
+    "Be the hero of your own story",
   ]);
 
   const landmarks = await page.evaluate(() =>
@@ -566,7 +628,7 @@ test("an unknown path shows the 404 page", async ({ page }) => {
   for (const path of ["/blah", "/no/such/page"]) {
     const response = await page.goto(path);
     expect(response.status(), path).toBe(404);
-    await expect(page.locator("h1")).toHaveText("Page not found");
+    await expect(page.locator("h1")).toHaveText("404 — Page not found");
     await expect(page).toHaveURL(new RegExp(`${path}$`));
   }
 
