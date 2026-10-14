@@ -15,5 +15,12 @@ export function bindTracking() {
         placement: story.getAttribute("data-my-story"),
       });
     }
+
+    const video = event.target.closest("[data-promo-video]");
+    if (video) {
+      window.posthog.capture("promo_video_played", {
+        placement: video.getAttribute("data-promo-video"),
+      });
+    }
   });
 }

@@ -130,6 +130,49 @@ test("booking links record which spot was clicked", async ({ page }) => {
     ]);
 });
 
+test("promo video stays a poster until play", async ({ page }) => {
+  const vimeo = [];
+  page.on("request", (request) => {
+    if (request.url().includes("vimeo.com")) vimeo.push(request.url());
+  });
+
+  await openPage(page);
+
+  const play = page.getByRole("button", {
+    name: "Play the pain and fear cycle video",
+  });
+  await expect(play).toBeVisible();
+  await expect(page.locator("#understanding .promo-video img")).toHaveAttribute(
+    "src",
+    "images/ig-promo-pain-fear-cycle.png",
+  );
+  await expect(page.locator("iframe")).toHaveCount(0);
+  expect(vimeo).toEqual([]);
+
+  await page.evaluate(() => {
+    window.__videoEvents = [];
+    const capture = window.posthog.capture.bind(window.posthog);
+    window.posthog.capture = (name, properties) => {
+      if (name === "promo_video_played") {
+        window.__videoEvents.push({ name, placement: properties.placement });
+      }
+      return capture(name, properties);
+    };
+  });
+
+  await play.click();
+
+  const frame = page.locator("#understanding iframe");
+  await expect(frame).toHaveAttribute(
+    "src",
+    /player\.vimeo\.com\/video\/1235991016/,
+  );
+  await expect(frame).toHaveAttribute("title", "The pain and fear cycle");
+  await expect
+    .poll(() => page.evaluate(() => window.__videoEvents))
+    .toEqual([{ name: "promo_video_played", placement: "understanding" }]);
+});
+
 test("page sections stay in order with one heading", async ({ page }) => {
   await openPage(page);
 
@@ -332,6 +375,22 @@ test.describe("phone layout", () => {
     await expect
       .poll(() => page.evaluate(() => window.__storyEvents))
       .toEqual([{ name: "my_story_clicked", placement: "header" }]);
+  });
+
+  test("promo video plays from the poster", async ({ page }) => {
+    await openPage(page);
+
+    const play = page.getByRole("button", {
+      name: "Play the pain and fear cycle video",
+    });
+    await expect(play).toBeVisible();
+    await play.click();
+    await expect(page.locator("#understanding iframe")).toBeVisible();
+
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    expect(overflow).toBeLessThanOrEqual(1);
   });
 
   test("booking button is centered in the open menu", async ({ page }) => {
