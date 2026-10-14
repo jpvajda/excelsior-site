@@ -4,6 +4,10 @@ export function Understanding() {
   <h2>Understanding Chronic Pain</h2>
   <!-- SLOT: understanding intro -->
   <p class="understanding-intro">Pain is real, even when the body isn't damaged. Sometimes the brain sounds the alarm on its own, and that is neuroplastic pain. It's not imaginary. It's a learned pattern in the brain, and what the brain learns, it can unlearn.</p>
+  <button type="button" class="promo-video" data-promo-video="understanding" aria-label="Play the pain and fear cycle video">
+    <img src="images/ig-promo-pain-fear-cycle.png" alt="" width="1254" height="1254">
+    <span class="promo-play" aria-hidden="true">Play</span>
+  </button>
   <div class="pain-row">
     <article class="pain-card">
       <img class="icon-slot" src="images/bell_icon.png" alt="" width="1254" height="1254">

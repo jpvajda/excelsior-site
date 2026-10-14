@@ -2,6 +2,7 @@ import { Header } from "../../shared/header.js";
 import { Footer } from "../../shared/footer.js";
 import { bindMenu } from "../../shared/menu.js";
 import { bindTracking } from "../../shared/tracking.js";
+import { bindPromoVideo } from "./promo-video.js";
 import { Hero } from "./hero.js";
 import { Understanding } from "./understanding.js";
 import { Options } from "./options.js";
@@ -32,3 +33,4 @@ app.innerHTML = [
 
 bindMenu();
 bindTracking();
+bindPromoVideo();

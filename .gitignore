@@ -153,3 +153,11 @@ vite.config.ts.timestamp-*
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# Videos
+*.mp4
+comic-video-storyboard.png
+
+
+# Mac
+.DS_Store

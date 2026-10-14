@@ -333,6 +333,64 @@ figcaption,
   text-align: center;
 }
 
+.promo-video {
+  position: relative;
+  display: block;
+  width: min(100%, 22rem);
+  margin: 0 auto 1.35rem;
+  padding: 0;
+  border: var(--border);
+  background: var(--ink);
+  box-shadow: 6px 6px 0 var(--ink);
+  cursor: pointer;
+}
+
+.promo-video img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.promo-play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 0.35rem 0.95rem 0.15rem;
+  border: var(--border);
+  background: var(--red);
+  color: var(--paper);
+  font-family: Bangers, Impact, sans-serif;
+  font-size: 2rem;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  box-shadow: 4px 4px 0 var(--ink);
+}
+
+.promo-video:hover .promo-play {
+  transform: translate(-50%, -50%) translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--ink);
+}
+
+.promo-video-frame {
+  position: relative;
+  width: min(100%, 36rem);
+  margin: 0 auto 1.35rem;
+  padding: 56.25% 0 0;
+  border: var(--border);
+  background: var(--ink);
+  box-shadow: 6px 6px 0 var(--ink);
+}
+
+.promo-video-frame iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
 .pain-card h3 {
   margin-bottom: 0.4rem;
 }
@@ -847,6 +905,11 @@ figcaption {
 @media (prefers-reduced-motion: reduce) {
   .button:hover {
     transform: none;
+    box-shadow: 4px 4px 0 var(--ink);
+  }
+
+  .promo-video:hover .promo-play {
+    transform: translate(-50%, -50%);
     box-shadow: 4px 4px 0 var(--ink);
   }
 }
