@@ -97,12 +97,12 @@ async function watchDiscoveryClicks(page) {
   });
 }
 
-test("analytics snippet sends visits to the US project", async ({ page }) => {
+test("analytics snippet sends visits through the reverse proxy", async ({ page }) => {
   const hit = page.waitForRequest((request) =>
-    request.url().includes("us.i.posthog.com"),
+    request.url().includes("e.excelsior-prt.com"),
   );
   await page.goto("/");
-  expect((await hit).url()).toContain("us.i.posthog.com");
+  expect((await hit).url()).toContain("e.excelsior-prt.com");
 });
 
 test("booking links record which spot was clicked", async ({ page }) => {
