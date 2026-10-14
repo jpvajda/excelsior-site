@@ -480,6 +480,18 @@ test("my story is its own page", async ({ page }) => {
   );
   expect(broken).toEqual([]);
 
+  const storyCall = page.locator("#be-the-hero [data-discovery-call='story']");
+  await expect(storyCall).toBeVisible();
+  await expect(storyCall).toHaveClass(/button options-banner/);
+  await expect(storyCall).toHaveText("Want to learn more? Book a free discovery call.");
+  await expect(storyCall).toHaveAttribute("href", zoomBooking);
+  await expect(storyCall).toHaveAttribute("target", "_blank");
+  await expect(storyCall).toHaveAttribute("rel", /noopener/);
+  const storyCallIsLast = await storyCall.evaluate(
+    (element) => element === element.parentElement.lastElementChild,
+  );
+  expect(storyCallIsLast).toBe(true);
+
   await expect(page.locator("footer")).toContainText(
     "© 2026 Excelsior LLC. All rights reserved.",
   );
@@ -489,11 +501,32 @@ test("my story is its own page", async ({ page }) => {
   expect(blocking, formatViolations(blocking)).toEqual([]);
 });
 
+test("my story discovery call records where it was clicked", async ({ page }) => {
+  await openStory(page);
+  await watchDiscoveryClicks(page);
+
+  const link = page.locator("#be-the-hero [data-discovery-call='story']");
+  await expect(link).toHaveAttribute("href", zoomBooking);
+  await link.dispatchEvent("click", { bubbles: true });
+
+  await expect
+    .poll(() => page.evaluate(() => window.__discoveryEvents))
+    .toEqual([{ name: "discovery_call_clicked", placement: "story" }]);
+});
+
 test.describe("my story on a phone", () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
   test("menu opens and the page does not scroll sideways", async ({ page }) => {
     await openStory(page);
+
+    const storyCall = page.locator("#be-the-hero [data-discovery-call='story']");
+    await expect(storyCall).toBeVisible();
+    await storyCall.scrollIntoViewIfNeeded();
+    const callBox = await storyCall.boundingBox();
+    expect(callBox.width).toBeGreaterThan(0);
+    expect(callBox.x).toBeGreaterThanOrEqual(0);
+    expect(callBox.x + callBox.width).toBeLessThanOrEqual(390);
 
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth,

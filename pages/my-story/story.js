@@ -74,6 +74,7 @@ export function Story() {
     <div class="story-copy story-copy-solo">
       <p>My business is inspired by the comic book heroes I grew up reading about. I always wanted to be a comic book artist and writer but never broke into the industry. So I brought that style to my business instead. Comic book heroes are our modern-day mythology — in them we find strength, purpose, and the ability to overcome the greatest challenges.</p>
     </div>
+    <a class="button options-banner" data-discovery-call="story" href="https://scheduler.zoom.us/excelsior-llc/prt-discovery-call" target="_blank" rel="noopener noreferrer">Want to learn more? Book a free discovery call.</a>
   </section>
 </article>
 `;
