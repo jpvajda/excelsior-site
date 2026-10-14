@@ -2,7 +2,7 @@
 
 # Excelsior LLC
 
-Home page for Pain Reprocessing Therapy coaching, plus a My Story page.
+Home page for Pain Reprocessing Therapy coaching.
 
 © 2026 Excelsior LLC. All rights reserved. Do not copy, reproduce, or reuse this site, its words, or its images without permission.
 
