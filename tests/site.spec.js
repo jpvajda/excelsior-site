@@ -251,6 +251,16 @@ test("my story link records a header click", async ({ page }) => {
     .toEqual([{ name: "my_story_clicked", placement: "header" }]);
 });
 
+test("the single session is pay as you go", async ({ page }) => {
+  await openPage(page);
+
+  const option = page.locator("#options article").first();
+  await expect(option).toContainText("Pay as you go: one 60-minute session");
+  await expect(option).toContainText("Buy a 60-minute session whenever you need one.");
+  await expect(option).toContainText("$100.00");
+  await expect(page.locator("#options")).not.toContainText("one per person");
+});
+
 test("option prices share one line", async ({ page }) => {
   await openPage(page);
   const tops = await page.locator(".options-price").evaluateAll((prices) =>

@@ -4,9 +4,9 @@ export function Options() {
   <h2>Options</h2>
   <div class="caption-row">
     <article class="caption">
-      <p><b>One 60-minute intro session to get started with PRT</b></p>
+      <p><b>Pay as you go: one 60-minute session</b></p>
       <ul>
-        <li>One-time intro session, one per person.</li>
+        <li>Buy a 60-minute session whenever you need one.</li>
         <li>Provides time to get a feel for the process.</li>
       </ul>
       <p class="options-price">$100.00</p>
