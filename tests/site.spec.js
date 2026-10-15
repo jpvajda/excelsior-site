@@ -314,6 +314,51 @@ test("navigation and booking link are present", async ({ page }) => {
   await expect(headerBook).toHaveAttribute("rel", /noopener/);
 });
 
+test("promo banner sits above the header and links to the Data section", async ({
+  page,
+}) => {
+  await openPage(page);
+
+  const banner = page.locator(".promo-banner");
+  const link = banner.getByRole("link", { name: "See the Data" });
+  await expect(banner).toBeVisible();
+  await expect(banner).toContainText(
+    "66% of people were pain-free or nearly pain-free after trying PRT.",
+  );
+  await expect(link).toHaveAttribute("href", "#data");
+  await expect(page.locator("#data")).toBeAttached();
+
+  const stack = await page.evaluate(() => {
+    const bannerBox = document.querySelector(".promo-banner").getBoundingClientRect();
+    const headerBox = document.querySelector(".site-header").getBoundingClientRect();
+    const bannerStyle = getComputedStyle(document.querySelector(".promo-banner"));
+    return {
+      bannerBottom: bannerBox.bottom,
+      headerTop: headerBox.top,
+      background: bannerStyle.backgroundColor,
+      color: bannerStyle.color,
+    };
+  });
+  expect(stack.bannerBottom).toBeLessThanOrEqual(stack.headerTop + 1);
+  expect(stack.background).toBe("rgb(20, 20, 20)");
+  expect(stack.color).toBe("rgb(245, 196, 0)");
+
+  await page.evaluate(() => {
+    window.__studyEvents = [];
+    const capture = window.posthog.capture.bind(window.posthog);
+    window.posthog.capture = (name, properties) => {
+      if (name === "data_section_clicked") {
+        window.__studyEvents.push({ name, placement: properties.placement });
+      }
+      return capture(name, properties);
+    };
+  });
+  await link.dispatchEvent("click", { bubbles: true });
+  await expect
+    .poll(() => page.evaluate(() => window.__studyEvents))
+    .toEqual([{ name: "data_section_clicked", placement: "banner" }]);
+});
+
 test("my story link records a header click", async ({ page }) => {
   await openPage(page);
   await watchStoryClicks(page);
@@ -510,6 +555,27 @@ test.describe("phone layout", () => {
     await expect(menu).toHaveAttribute("aria-expanded", "false");
     await expect(menu).toBeFocused();
     await expect(page.locator("#site-nav")).toBeHidden();
+  });
+
+  test("promo banner stays on screen and the page does not scroll sideways", async ({
+    page,
+  }) => {
+    await openPage(page);
+
+    const banner = page.locator(".promo-banner");
+    const link = banner.getByRole("link", { name: "See the Data" });
+    await expect(link).toBeVisible();
+    await expect(link).toHaveAttribute("href", "#data");
+
+    const box = await banner.boundingBox();
+    expect(box.y).toBeLessThan(80);
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width).toBeLessThanOrEqual(391);
+
+    const headerTop = await page.locator(".site-header").evaluate((element) =>
+      element.getBoundingClientRect().top,
+    );
+    expect(box.y + box.height).toBeLessThanOrEqual(headerTop + 1);
   });
 
   test("page does not scroll sideways", async ({ page }) => {
@@ -735,6 +801,18 @@ test("my story is its own page", async ({ page }) => {
   );
   expect(landmarks).toEqual(["HEADER", "MAIN", "FOOTER"]);
 
+  const storyBanner = page.locator(".promo-banner");
+  await expect(storyBanner.getByRole("link", { name: "See the Data" })).toHaveAttribute(
+    "href",
+    "../../#data",
+  );
+  const storyStack = await page.evaluate(() => {
+    const bannerBox = document.querySelector(".promo-banner").getBoundingClientRect();
+    const headerBox = document.querySelector(".site-header").getBoundingClientRect();
+    return bannerBox.bottom <= headerBox.top + 1;
+  });
+  expect(storyStack).toBe(true);
+
   const nav = page.getByRole("navigation", { name: "Site" });
   await expect(nav.getByRole("link", { name: "My Story", exact: true })).toHaveAttribute(
     "aria-current",
@@ -869,7 +947,7 @@ test("files live in the documented folders", async () => {
   expect(
     list("shared").map((entry) => entry.name).sort(),
     "shared/ holds only code used by every page",
-  ).toEqual(["footer.js", "header.js", "menu.js", "tracking.js"]);
+  ).toEqual(["footer.js", "header.js", "menu.js", "promo-banner.js", "tracking.js"]);
 
   const pageFolders = list("pages");
   expect(pageFolders.filter((entry) => entry.isFile()), "pages/ holds only page folders").toEqual([]);
@@ -941,6 +1019,9 @@ test("an unknown path shows the 404 page", async ({ page }) => {
     expect(response.status(), path).toBe(404);
     await expect(page.locator("h1")).toHaveText("404 — Page not found");
     await expect(page).toHaveURL(new RegExp(`${path}$`));
+    await expect(
+      page.locator(".promo-banner").getByRole("link", { name: "See the Data" }),
+    ).toHaveAttribute("href", "/#data");
   }
 
   const background = await page.evaluate(

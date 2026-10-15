@@ -61,6 +61,33 @@ a {
   outline-color: var(--yellow);
 }
 
+.promo-banner {
+  background: var(--ink);
+  color: var(--yellow);
+  text-align: center;
+}
+
+.promo-banner p {
+  max-width: 70ch;
+  margin: 0 auto;
+  padding: 0.55rem 1rem;
+  font-weight: 700;
+}
+
+.promo-banner a {
+  color: var(--yellow);
+  font-weight: 700;
+  text-underline-offset: 0.15em;
+}
+
+.promo-banner a:hover {
+  color: var(--paper);
+}
+
+.promo-banner a:focus-visible {
+  outline-color: var(--yellow);
+}
+
 .site-header {
   position: sticky;
   top: 0;
