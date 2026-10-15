@@ -28,6 +28,10 @@ export function Questions() {
       <p>Somatic tracking is a mindfulness practice of paying attention to a body sensation, such as an ache or tightness, with calm curiosity instead of fear. You notice what it feels like, where it is, and how it shifts, while reminding yourself that the sensation is safe. Over time, this teaches the brain that the signal is not a threat, which can help turn down the pain alarm.</p>
     </article>
     <article class="caption">
+      <h3>Do you coach remotely?</h3>
+      <p>Yes. Coaching is by video anywhere. You do not need to be in Boulder, Colorado.</p>
+    </article>
+    <article class="caption">
       <h3>How do I get started?</h3>
       <p>Click <strong>Book a Call</strong> below and we'll set up a free 30 minute discovery call to learn about your situation and see if coaching is a good fit.</p>
     </article>

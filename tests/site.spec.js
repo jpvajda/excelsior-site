@@ -52,7 +52,7 @@ function formatViolations(violations) {
 
 test("search engines get the live domain and a description", async ({ page }) => {
   const description =
-    "Pain Reprocessing Therapy coaching for chronic pain. Learn how the brain can keep pain going, then book a free 30 minute discovery call with Excelsior LLC.";
+    "Pain Reprocessing Therapy coaching for chronic pain. Based in Boulder, Colorado. Coaching by video anywhere. Book a free 30 minute discovery call with Excelsior LLC.";
 
   await openPage(page);
 
@@ -68,8 +68,10 @@ test("search engines get the live domain and a description", async ({ page }) =>
   const business = await page
     .locator('script[type="application/ld+json"]')
     .textContent();
-  expect(JSON.parse(business).name).toBe("Excelsior LLC");
-  expect(JSON.parse(business)["@type"]).toBe("ProfessionalService");
+  const service = JSON.parse(business)["@graph"].find(
+    (node) => node["@type"] === "ProfessionalService",
+  );
+  expect(service.name).toBe("Excelsior LLC");
 
   const robots = await page.request.get("/robots.txt");
   expect(robots.ok()).toBeTruthy();
@@ -82,6 +84,78 @@ test("search engines get the live domain and a description", async ({ page }) =>
   const sitemapText = await sitemap.text();
   expect(sitemapText).toContain("https://excelsior-prt.com/");
   expect(sitemapText).toContain("https://excelsior-prt.com/pages/my-story/");
+});
+
+test("agents can read the offer without running scripts", async ({ page }) => {
+  await openPage(page);
+
+  const home = await (await page.request.get("/")).text();
+  expect(home).toContain("Boulder, Colorado");
+  expect(home).toContain(zoomBooking);
+  expect(home).toContain("Pain Reprocessing Therapy");
+  expect(home).toContain("Pain Reprocessing Coaching Training");
+
+  const graph = JSON.parse(
+    home.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1],
+  );
+  const service = graph["@graph"].find((node) => node["@type"] === "ProfessionalService");
+  expect(JSON.stringify(service.areaServed)).toContain("Boulder");
+  expect(JSON.stringify(service.potentialAction)).toContain(zoomBooking);
+  expect(graph["@graph"].find((node) => node["@type"] === "Person").hasCredential.name).toBe(
+    "Pain Reprocessing Coaching Training",
+  );
+
+  const structured = graph["@graph"]
+    .find((node) => node["@type"] === "FAQPage")
+    .mainEntity.map((question) => ({
+      q: question.name,
+      a: question.acceptedAnswer.text,
+    }));
+  const visible = await page.locator("#questions .caption").evaluateAll((nodes) =>
+    nodes.map((node) => ({
+      q: node.querySelector("h3").textContent.trim(),
+      a: node.querySelector("p").textContent.replace(/\s+/g, " ").trim(),
+    })),
+  );
+  expect(structured).toEqual(visible);
+
+  const story = await (await page.request.get("/pages/my-story/")).text();
+  const article = JSON.parse(
+    story.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1],
+  );
+  expect(article["@type"]).toBe("Article");
+  expect(article.author.name).toBe("John Vajda");
+  expect(article.author.hasCredential.name).toBe("Pain Reprocessing Coaching Training");
+  expect(story).toContain("Boulder, Colorado");
+  expect(story).toContain(zoomBooking);
+
+  const llms = await page.request.get("/llms.txt");
+  expect(llms.ok()).toBeTruthy();
+  const llmsText = await llms.text();
+  expect(llmsText.startsWith("# Excelsior LLC")).toBe(true);
+  expect(llmsText).toContain("Boulder, Colorado");
+
+  const links = [...llmsText.matchAll(/\]\((https?:\/\/[^)]+)\)/g)].map((match) => match[1]);
+  expect(links.length).toBeGreaterThan(0);
+  for (const link of links) {
+    if (link.startsWith("https://excelsior-prt.com")) {
+      const path = new URL(link).pathname;
+      expect((await page.request.get(path)).ok(), path).toBeTruthy();
+    } else {
+      expect(link).toBe(zoomBooking);
+    }
+  }
+
+  const full = await page.request.get("/llms-full.txt");
+  expect(full.ok()).toBeTruthy();
+  expect(await full.text()).toContain("Pain Reprocessing Coaching Training");
+
+  const robots = await (await page.request.get("/robots.txt")).text();
+  expect(robots).not.toMatch(/Disallow:\s*\//);
+  expect(robots).toContain("Sitemap: https://excelsior-prt.com/sitemap.xml");
+
+  expect(existsSync("llms.txt")).toBe(true);
+  expect(existsSync("llms-full.txt")).toBe(true);
 });
 
 async function watchDiscoveryClicks(page) {
