@@ -35,6 +35,10 @@ export function Questions() {
       <h3>How do I get started?</h3>
       <p>Click <strong>Book a Call</strong> below and we'll set up a free 30 minute discovery call to learn about your situation and see if coaching is a good fit.</p>
     </article>
+    <article class="caption">
+      <h3>What If I have a question?</h3>
+      <p>Just email <a href="mailto:hello@excelsior-prt.com" data-support-email="questions">hello@excelsior-prt.com</a> and I'll get back to you!</p>
+    </article>
   </div>
 </section>
 `;
