@@ -62,11 +62,12 @@ To add a page (only when asked):
 3. Add the link in `shared/header.js`, using `prefix` for the href, and add a `<loc>` for `https://excelsior-prt.com/pages/<name>/` to `sitemap.xml`.
 4. In `tests/site.spec.js`, add the page to the `pages` list and add a test for what a visitor can do there. The folder check fails until you do.
 5. If the page adds a control, send a PostHog event for it (see Instrumentation).
+6. Add the page to `llms.txt` and a short plain-text section to `llms-full.txt`. See Findability.
 
 ## Offer and copy
 
 - PRT coaching is the only offer. Do not add a second program.
-- Approved location claim, use this sentence: "Based in Boulder, Colorado. Coaching by video anywhere."
+- Approved location claim, use this sentence: "Based in Boulder, Colorado. Coaching by video anywhere." The My Story meta description says "coaching online" on purpose. Do not copy that wording into `llms.txt`, `llms-full.txt`, or the home page.
 - Approved credential, use this sentence: "Completed the Pain Reprocessing Coaching Training from the Pain Reprocessing Therapy Center, 2026." Do not call it a certification, and do not add a level.
 - Do not invent pricing, biography, credentials, a city, results, statistics, or client names.
 - Placeholder copy is Lorem Ipsum. Label each slot in the page or an HTML comment, for example `SLOT: hero subhead`.
@@ -122,13 +123,19 @@ Motion stays short. Honor `prefers-reduced-motion`.
 
 When a new feature or element is added, add or update a check in `tests/` in the same change. Cover what a visitor can do: the control is present, it goes to the right place, and it still works on a phone when the layout changes. Run `pnpm test`. Do not add a screenshot test unless asked.
 
-When files move or are renamed, update every import, `<script>`, `<link>`, image `src`, and `og:image` URL, then update the tests that name them. `tests/site.spec.js` checks the folder layout, that every folder in `pages/` is registered in the test and listed in `sitemap.xml`, that each page loads its script and stylesheet from the right place with no failed requests, and that every image comes from `images/`.
+When files move or are renamed, update every import, `<script>`, `<link>`, image `src`, and `og:image` URL, then update the tests that name them. `tests/site.spec.js` checks the folder layout, that every folder in `pages/` is registered in the test and listed in `sitemap.xml`, that each page loads its script and stylesheet from the right place with no failed requests, that every image comes from `images/`, and that `llms.txt`, `llms-full.txt`, the JSON-LD, and the `<noscript>` text match the visible page.
 
 ## Findability
 
-`llms.txt` is the short summary for agents. `llms-full.txt` is the plain-text offer, process, questions, and bio. `robots.txt` allows the main search and answer bots. The home page JSON-LD is an `@graph` with `WebSite`, `ProfessionalService`, `Person`, and `FAQPage`.
+The home page is built in the browser. Agents that do not run JavaScript only see `index.html`: the title, meta description, JSON-LD, and `<noscript>` text. `llms.txt` and `llms-full.txt` are the plain-text copies for those agents. Visitors do not see them. Spec: https://llmstxt.org/
 
-The `<noscript>` block, the JSON-LD, `llms.txt`, and `llms-full.txt` must state the same facts as the visible page. When the offer, location, credential, process, or questions change, update all four in the same change.
+`llms.txt` is the short index. Keep this order: an H1 `# Excelsior LLC`, a blockquote summary (offer, the approved location sentence, the approved credential sentence, booking), then H2 sections whose items are markdown links. The H1 text is checked by `tests/site.spec.js`. Markdown links may only point at `https://excelsior-prt.com/...` or the Zoom booking URL. Any other markdown link fails the test. Put other URLs, such as the Pain Reprocessing Therapy Center, in the blockquote as plain text.
+
+`llms-full.txt` is one file with the offer, who it is for, the process, the session options, the questions, and the bio. The August 2026 spec no longer requires this expanded file. Keep it. This site has no per-page `.md` copies, and one fetch is how an agent reads the facts without JavaScript. Link it from `llms.txt`. Do not delete it, and do not add `/.well-known/` agent files. GitHub Pages cannot set `Link` headers.
+
+The `<noscript>` blocks, the JSON-LD, `llms.txt`, and `llms-full.txt` must state the same facts as the visible page. When the offer, location, credential, process, session options, or questions change, update all four in the same change. The home JSON-LD `FAQPage` questions and answers must match the `#questions` caption text. The test `agents can read the offer without running scripts` fails when they drift.
+
+`robots.txt` stays `Allow: /` for `*` and for the named search and answer bots. Do not add `Disallow: /`. Keep the `Sitemap:` line.
 
 ## Instrumentation
 
