@@ -109,9 +109,10 @@ test("booking links record which spot was clicked", async ({ page }) => {
   await openPage(page);
   await watchDiscoveryClicks(page);
 
+  await expect(page.locator("[data-discovery-call='options']")).toHaveCount(0);
+
   const spots = [
     ["header", "https://scheduler.zoom.us/excelsior-llc/prt-discovery-call"],
-    ["options", "#contact"],
     ["contact", "https://scheduler.zoom.us/excelsior-llc/prt-discovery-call"],
   ];
 
@@ -125,7 +126,6 @@ test("booking links record which spot was clicked", async ({ page }) => {
     .poll(() => page.evaluate(() => window.__discoveryEvents))
     .toEqual([
       { name: "discovery_call_clicked", placement: "header" },
-      { name: "discovery_call_clicked", placement: "options" },
       { name: "discovery_call_clicked", placement: "contact" },
     ]);
 });
@@ -251,11 +251,119 @@ test("my story link records a header click", async ({ page }) => {
     .toEqual([{ name: "my_story_clicked", placement: "header" }]);
 });
 
+test("each option has a plan mark in the corner", async ({ page }) => {
+  await openPage(page);
+
+  const marks = page.locator("#options .plan-mark");
+  await expect(marks).toHaveText([
+    "Starter",
+    "Pay-as-you-go",
+    "Six Pack",
+    "12 Pack",
+  ]);
+
+  const placed = await page.evaluate(() => {
+    const step = getComputedStyle(document.querySelector(".step"), "::before");
+    return [...document.querySelectorAll("#options .plan-mark")].map((mark) => {
+      const box = mark.getBoundingClientRect();
+      const card = mark.closest("article").getBoundingClientRect();
+      const title = mark.closest("article").querySelector("b").getBoundingClientRect();
+      const style = getComputedStyle(mark);
+      return {
+        background: style.backgroundColor,
+        stepBackground: step.backgroundColor,
+        font: style.fontFamily,
+        stepFont: step.fontFamily,
+        border: style.borderTopWidth,
+        stepBorder: step.borderTopWidth,
+        color: style.color,
+        stepColor: step.color,
+        leftGap: Math.round(box.left - card.left),
+        topGap: Math.round(box.top - card.top),
+        insideCard: box.right <= card.right + 1,
+        aboveTitle: box.bottom <= title.top + 1,
+      };
+    });
+  });
+
+  for (const mark of placed) {
+    expect(mark.background).toBe(mark.stepBackground);
+    expect(mark.font).toBe(mark.stepFont);
+    expect(mark.border).toBe(mark.stepBorder);
+    expect(mark.color).toBe(mark.stepColor);
+    expect(mark.leftGap).toBeGreaterThan(0);
+    expect(mark.leftGap).toBeLessThan(24);
+    expect(mark.topGap).toBeGreaterThan(0);
+    expect(mark.topGap).toBeLessThan(24);
+    expect(mark.insideCard).toBe(true);
+    expect(mark.aboveTitle).toBe(true);
+  }
+});
+
+test("the single session is pay as you go", async ({ page }) => {
+  await openPage(page);
+
+  const option = page.locator("#options article").nth(1);
+  await expect(option).toContainText("One 60-minute session as you need it");
+  await expect(option).toContainText("Buy a 60-minute session whenever you need one.");
+  await expect(option).toContainText("Flexibility to schedule sessions as you go.");
+  await expect(option).toContainText("$125.00");
+  await expect(option).not.toContainText("one per person");
+});
+
+test("the introduction call spans the options row", async ({ page }) => {
+  await openPage(page);
+
+  const intro = page.locator("#options .caption-intro");
+  await expect(intro).toContainText("Starter");
+  await expect(intro).toContainText("First 60-minute session");
+  await expect(intro).toContainText("One-time first session, limited to one per person.");
+  await expect(intro).toContainText("Provides time to get a feel for the process.");
+  await expect(intro).toContainText("$85.00");
+  await expect(page.locator("#options article").nth(2)).toContainText("$650.00");
+  await expect(page.locator("#options article").nth(3)).toContainText("$1,200.00");
+
+  const paint = await intro.evaluate((box) => {
+    const style = getComputedStyle(box);
+    const page = getComputedStyle(document.body);
+    return {
+      color: style.backgroundColor,
+      pageColor: page.backgroundColor,
+      dots: style.backgroundImage,
+      pageDots: page.backgroundImage,
+      size: style.backgroundSize,
+      pageSize: page.backgroundSize,
+    };
+  });
+  expect(paint.color).toBe(paint.pageColor);
+  expect(paint.dots).toBe(paint.pageDots);
+  expect(paint.size).toBe(paint.pageSize);
+
+  const span = await page.evaluate(() => {
+    const introBox = document.querySelector("#options .caption-intro").getBoundingClientRect();
+    const row = document.querySelector("#options .caption-row").getBoundingClientRect();
+    const session = document.querySelectorAll("#options article")[1].getBoundingClientRect();
+    return {
+      introLeft: Math.round(introBox.left),
+      rowLeft: Math.round(row.left),
+      introRight: Math.round(introBox.right),
+      rowRight: Math.round(row.right),
+      introBottom: Math.round(introBox.bottom),
+      sessionTop: Math.round(session.top),
+    };
+  });
+  expect(span.introLeft).toBe(span.rowLeft);
+  expect(span.introRight).toBe(span.rowRight);
+  expect(span.introBottom).toBeLessThan(span.sessionTop);
+});
+
 test("option prices share one line", async ({ page }) => {
   await openPage(page);
-  const tops = await page.locator(".options-price").evaluateAll((prices) =>
-    prices.map((price) => Math.round(price.getBoundingClientRect().top)),
-  );
+  const tops = await page
+    .locator("#options article:not(.caption-intro) .options-price")
+    .evaluateAll((prices) =>
+      prices.map((price) => Math.round(price.getBoundingClientRect().top)),
+    );
   expect(new Set(tops).size).toBe(1);
 });
 
@@ -375,6 +483,46 @@ test.describe("phone layout", () => {
     await expect
       .poll(() => page.evaluate(() => window.__storyEvents))
       .toEqual([{ name: "my_story_clicked", placement: "header" }]);
+  });
+
+  test("the introduction call stays above the other options", async ({ page }) => {
+    await openPage(page);
+
+    const intro = page.locator("#options .caption-intro");
+    await expect(intro).toBeVisible();
+    await expect(intro).toContainText("$85.00");
+
+    const stack = await page.evaluate(() => {
+      const introBox = document.querySelector("#options .caption-intro").getBoundingClientRect();
+      const row = document.querySelector("#options .caption-row").getBoundingClientRect();
+      const session = document.querySelectorAll("#options article")[1].getBoundingClientRect();
+      return {
+        introLeft: Math.round(introBox.left),
+        rowLeft: Math.round(row.left),
+        introRight: Math.round(introBox.right),
+        rowRight: Math.round(row.right),
+        introBottom: Math.round(introBox.bottom),
+        sessionTop: Math.round(session.top),
+      };
+    });
+    expect(stack.introLeft).toBe(stack.rowLeft);
+    expect(stack.introRight).toBe(stack.rowRight);
+    expect(stack.introBottom).toBeLessThan(stack.sessionTop);
+
+    const marks = await page.evaluate(() =>
+      [...document.querySelectorAll("#options .plan-mark")].map((mark) => {
+        const box = mark.getBoundingClientRect();
+        const card = mark.closest("article").getBoundingClientRect();
+        return {
+          inside:
+            box.left >= card.left &&
+            box.right <= card.right + 1 &&
+            box.top >= card.top,
+        };
+      }),
+    );
+    expect(marks).toHaveLength(4);
+    expect(marks.every((mark) => mark.inside)).toBe(true);
   });
 
   test("promo video plays from the poster", async ({ page }) => {
