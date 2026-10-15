@@ -23,6 +23,13 @@ export function bindTracking() {
       });
     }
 
+    const email = event.target.closest("[data-support-email]");
+    if (email) {
+      window.posthog.capture("support_email_clicked", {
+        placement: email.getAttribute("data-support-email"),
+      });
+    }
+
     const video = event.target.closest("[data-promo-video]");
     if (video) {
       window.posthog.capture("promo_video_played", {

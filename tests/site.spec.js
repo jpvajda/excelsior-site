@@ -93,7 +93,7 @@ test("agents can read the offer without running scripts", async ({ page }) => {
   expect(home).toContain("Boulder, Colorado");
   expect(home).toContain(zoomBooking);
   expect(home).toContain("Pain Reprocessing Therapy");
-  expect(home).toContain("Pain Reprocessing Coaching Training");
+  expect(home).not.toContain("Pain Reprocessing Coaching Training");
 
   const graph = JSON.parse(
     home.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1],
@@ -101,9 +101,9 @@ test("agents can read the offer without running scripts", async ({ page }) => {
   const service = graph["@graph"].find((node) => node["@type"] === "ProfessionalService");
   expect(JSON.stringify(service.areaServed)).toContain("Boulder");
   expect(JSON.stringify(service.potentialAction)).toContain(zoomBooking);
-  expect(graph["@graph"].find((node) => node["@type"] === "Person").hasCredential.name).toBe(
-    "Pain Reprocessing Coaching Training",
-  );
+  const person = graph["@graph"].find((node) => node["@type"] === "Person");
+  expect(person.sameAs).toBe("https://www.linkedin.com/in/johnpvajda/");
+  expect(person.hasCredential).toBeUndefined();
 
   const structured = graph["@graph"]
     .find((node) => node["@type"] === "FAQPage")
@@ -118,6 +118,10 @@ test("agents can read the offer without running scripts", async ({ page }) => {
     })),
   );
   expect(structured).toEqual(visible);
+  expect(visible).toContainEqual({
+    q: "What If I have a question?",
+    a: "Just email hello@excelsior-prt.com and I'll get back to you!",
+  });
 
   const story = await (await page.request.get("/pages/my-story/")).text();
   const article = JSON.parse(
@@ -125,7 +129,8 @@ test("agents can read the offer without running scripts", async ({ page }) => {
   );
   expect(article["@type"]).toBe("Article");
   expect(article.author.name).toBe("John Vajda");
-  expect(article.author.hasCredential.name).toBe("Pain Reprocessing Coaching Training");
+  expect(article.author.sameAs).toBe("https://www.linkedin.com/in/johnpvajda/");
+  expect(article.author.hasCredential).toBeUndefined();
   expect(story).toContain("Boulder, Colorado");
   expect(story).toContain(zoomBooking);
 
@@ -148,7 +153,9 @@ test("agents can read the offer without running scripts", async ({ page }) => {
 
   const full = await page.request.get("/llms-full.txt");
   expect(full.ok()).toBeTruthy();
-  expect(await full.text()).toContain("Pain Reprocessing Coaching Training");
+  const fullText = await full.text();
+  expect(fullText).not.toContain("Pain Reprocessing Coaching Training");
+  expect(fullText).toContain("https://www.linkedin.com/in/johnpvajda/");
 
   const robots = await (await page.request.get("/robots.txt")).text();
   expect(robots).not.toMatch(/Disallow:\s*\//);
@@ -357,6 +364,30 @@ test("promo banner sits above the header and links to the Data section", async (
   await expect
     .poll(() => page.evaluate(() => window.__studyEvents))
     .toEqual([{ name: "data_section_clicked", placement: "banner" }]);
+});
+
+test("support email opens a mail message", async ({ page }) => {
+  await openPage(page);
+
+  const link = page.locator("#questions a[href='mailto:hello@excelsior-prt.com']");
+  await expect(link).toHaveText("hello@excelsior-prt.com");
+  await expect(link).toHaveCSS("color", "rgb(208, 18, 26)");
+
+  await page.evaluate(() => {
+    window.__emailEvents = [];
+    const capture = window.posthog.capture.bind(window.posthog);
+    window.posthog.capture = (name, properties) => {
+      if (name === "support_email_clicked") {
+        window.__emailEvents.push({ name, placement: properties.placement });
+      }
+      return capture(name, properties);
+    };
+  });
+  await clickWithoutLeaving(link);
+
+  await expect
+    .poll(() => page.evaluate(() => window.__emailEvents))
+    .toEqual([{ name: "support_email_clicked", placement: "questions" }]);
 });
 
 test("my story link records a header click", async ({ page }) => {

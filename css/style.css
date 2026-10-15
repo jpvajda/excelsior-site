@@ -47,6 +47,12 @@ li {
   max-width: none;
 }
 
+#questions a[data-support-email] {
+  color: var(--red);
+  font-weight: 700;
+  text-underline-offset: 0.15em;
+}
+
 a {
   color: inherit;
 }
