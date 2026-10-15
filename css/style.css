@@ -440,8 +440,56 @@ figcaption,
 }
 
 .caption-row .caption {
+  position: relative;
   display: flex;
   flex-direction: column;
+  padding-top: 3.2rem;
+}
+
+.plan-mark {
+  position: absolute;
+  top: 0.7rem;
+  left: 0.8rem;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: auto;
+  height: 2.1rem;
+  margin: 0;
+  padding: 0 0.5rem;
+  border: var(--border);
+  background: var(--yellow);
+  color: var(--ink);
+  font-family: Bangers, Impact, sans-serif;
+  font-size: 1.45rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.caption-row .caption-intro {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: 1.5rem;
+  align-items: center;
+  color: var(--paper);
+  background-color: var(--blue);
+  background-image: radial-gradient(
+    rgba(20, 20, 20, 0.28) 1.15px,
+    transparent 1.25px
+  );
+  background-size: 8px 8px;
+}
+
+.caption-intro ul {
+  margin-top: 0.35rem;
+}
+
+.caption-intro .options-price {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  margin-top: 0;
+  padding-top: 0;
 }
 
 .caption-row .options-price {
