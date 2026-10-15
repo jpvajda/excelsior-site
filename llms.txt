@@ -1,0 +1,17 @@
+# Excelsior LLC
+
+> John Vajda is a Pain Reprocessing Therapy Coach at Excelsior LLC. Based in Boulder, Colorado. Coaching by video anywhere. Completed the Pain Reprocessing Coaching Training from the Pain Reprocessing Therapy Center (https://www.painreprocessingtherapy.com/), 2026. Coaching is not medical care. Book a free 30 minute discovery call to see if it is a good fit.
+
+## Pages
+
+- [Home](https://excelsior-prt.com/): Pain Reprocessing Therapy coaching, the process, who it is for, and common questions.
+- [My Story](https://excelsior-prt.com/pages/my-story/): John Vajda on living with chronic pain and why he coaches.
+- [Full text](https://excelsior-prt.com/llms-full.txt): The offer, process, questions, and bio in one file.
+
+## Book
+
+- [Book a free discovery call](https://scheduler.zoom.us/excelsior-llc/prt-discovery-call): 30 minutes by video.
+
+## Optional
+
+- [Sitemap](https://excelsior-prt.com/sitemap.xml): Every public page.

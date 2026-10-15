@@ -6,7 +6,7 @@
     <title>Excelsior LLC — Pain Reprocessing Therapy Coaching</title>
     <meta
       name="description"
-      content="Pain Reprocessing Therapy coaching for chronic pain. Learn how the brain can keep pain going, then book a free 30 minute discovery call with Excelsior LLC."
+      content="Pain Reprocessing Therapy coaching for chronic pain. Based in Boulder, Colorado. Coaching by video anywhere. Book a free 30 minute discovery call with Excelsior LLC."
     />
     <link rel="canonical" href="https://excelsior-prt.com/" />
     <meta property="og:type" content="website" />
@@ -14,24 +14,151 @@
     <meta property="og:title" content="Excelsior LLC — Pain Reprocessing Therapy Coaching" />
     <meta
       property="og:description"
-      content="Pain Reprocessing Therapy coaching for chronic pain. Learn how the brain can keep pain going, then book a free 30 minute discovery call with Excelsior LLC."
+      content="Pain Reprocessing Therapy coaching for chronic pain. Based in Boulder, Colorado. Coaching by video anywhere. Book a free 30 minute discovery call with Excelsior LLC."
     />
     <meta property="og:image" content="https://excelsior-prt.com/images/comic_hero_banner.png" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
-        "@type": "ProfessionalService",
-        "name": "Excelsior LLC",
-        "url": "https://excelsior-prt.com/",
-        "description": "Pain Reprocessing Therapy coaching for chronic pain. Learn how the brain can keep pain going, then book a free 30 minute discovery call with Excelsior LLC.",
-        "serviceType": "Pain Reprocessing Therapy coaching",
-        "image": "https://excelsior-prt.com/images/comic_hero_banner.png",
-        "founder": {
-          "@type": "Person",
-          "name": "John Vajda",
-          "jobTitle": "Pain Reprocessing Therapy Coach",
-          "sameAs": "https://www.linkedin.com/in/johnpvajda/"
-        }
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://excelsior-prt.com/#website",
+            "name": "Excelsior LLC",
+            "url": "https://excelsior-prt.com/",
+            "publisher": { "@id": "https://excelsior-prt.com/#business" }
+          },
+          {
+            "@type": "ProfessionalService",
+            "@id": "https://excelsior-prt.com/#business",
+            "name": "Excelsior LLC",
+            "url": "https://excelsior-prt.com/",
+            "description": "Pain Reprocessing Therapy coaching for chronic pain. Based in Boulder, Colorado. Coaching by video anywhere. Book a free 30 minute discovery call with Excelsior LLC.",
+            "serviceType": "Pain Reprocessing Therapy coaching",
+            "image": "https://excelsior-prt.com/images/comic_hero_banner.png",
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": "Boulder",
+              "addressRegion": "CO",
+              "addressCountry": "US"
+            },
+            "areaServed": [
+              {
+                "@type": "City",
+                "name": "Boulder",
+                "containedInPlace": { "@type": "State", "name": "Colorado" }
+              },
+              "Remote coaching by video"
+            ],
+            "founder": { "@id": "https://excelsior-prt.com/#john-vajda" },
+            "makesOffer": {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Service",
+                "name": "Pain Reprocessing Therapy coaching",
+                "serviceType": "Pain Reprocessing Therapy coaching"
+              }
+            },
+            "potentialAction": {
+              "@type": "ReserveAction",
+              "name": "Book a free 30 minute discovery call",
+              "target": {
+                "@type": "EntryPoint",
+                "urlTemplate": "https://scheduler.zoom.us/excelsior-llc/prt-discovery-call"
+              }
+            }
+          },
+          {
+            "@type": "Person",
+            "@id": "https://excelsior-prt.com/#john-vajda",
+            "name": "John Vajda",
+            "jobTitle": "Pain Reprocessing Therapy Coach",
+            "url": "https://excelsior-prt.com/pages/my-story/",
+            "sameAs": "https://www.linkedin.com/in/johnpvajda/",
+            "worksFor": { "@id": "https://excelsior-prt.com/#business" },
+            "knowsAbout": ["Pain Reprocessing Therapy", "chronic pain", "somatic therapy"],
+            "hasCredential": {
+              "@type": "EducationalOccupationalCredential",
+              "name": "Pain Reprocessing Coaching Training",
+              "dateCreated": "2026",
+              "recognizedBy": {
+                "@type": "Organization",
+                "name": "Pain Reprocessing Therapy Center",
+                "url": "https://www.painreprocessingtherapy.com/"
+              }
+            }
+          },
+          {
+            "@type": "FAQPage",
+            "@id": "https://excelsior-prt.com/#faq",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "How does Pain Reprocessing Therapy work?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "PRT helps you understand that the pain you feel is often driven by the brain misreading safe signals from the body. Through practices like somatic tracking, mindfulness, and emotional awareness, you gradually retrain your brain to interpret these signals accurately, interrupt the pain-fear cycle, and dial down your nervous system's sensitivity."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Can PRT help if my pain has a physical cause?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "PRT is designed for neuroplastic pain, but it also helps when structural and stress-related pain overlap with conditions where fear, anxiety, and hyper-vigilance amplify what you feel. PRT won't replace necessary medical treatment, but it can meaningfully reduce the additional impact of an overloaded nervous system."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Is PRT a substitute for medical treatment?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "No. PRT coaching is not medical care, and it does not replace your doctor, medication, physical therapy, or any other treatment you need. It's best used alongside your medical care. If you have new, changing, or worrying symptoms, see your doctor first. Coaching works on the brain's role in pain, and your doctor can rule out other causes."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Does PRT address chronic symptoms beyond pain?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes. The same brain-based approach applies to a wide range of persistent symptoms: back, neck, shoulder, hip, and knee pain, plantar fasciitis, repetitive strain injuries, fibromyalgia, tension headaches, migraines, neuropathy, osteoarthritis, IBS, tinnitus, fatigue, insomnia, dizziness, nausea, and more."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "What is neuroplasticity?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Neuroplasticity is the brain's ability to change itself. Every time you learn a skill or form a habit, your brain builds new neural connections. The same ability can work against you: after an injury or a stressful period, the brain can learn to keep sending pain signals even once the body has healed. PRT uses that same ability to help the brain learn that those signals are safe, so the pain can ease."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "What is somatic tracking?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Somatic tracking is a mindfulness practice of paying attention to a body sensation, such as an ache or tightness, with calm curiosity instead of fear. You notice what it feels like, where it is, and how it shifts, while reminding yourself that the sensation is safe. Over time, this teaches the brain that the signal is not a threat, which can help turn down the pain alarm."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Do you coach remotely?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes. Coaching is by video anywhere. You do not need to be in Boulder, Colorado."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How do I get started?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Click Book a Call below and we'll set up a free 30 minute discovery call to learn about your situation and see if coaching is a good fit."
+                }
+              }
+            ]
+          }
+        ]
       }
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -56,11 +183,25 @@
     <noscript>
       <h1>Excelsior</h1>
       <p>Pain Reprocessing Therapy Coaching</p>
-      <p>
-        Pain Reprocessing Therapy coaching for chronic pain. Learn how the brain
-        can keep pain going, then book a free 30 minute discovery call with
-        Excelsior LLC.
-      </p>
+      <p>John Vajda is a Pain Reprocessing Therapy Coach at Excelsior LLC. Based in Boulder, Colorado. Coaching by video anywhere. Completed the Pain Reprocessing Coaching Training from the Pain Reprocessing Therapy Center, 2026.</p>
+      <p>Pain Reprocessing Therapy coaching helps people with chronic pain learn how the brain can keep pain going. It is coaching, not medical care, and it does not replace a doctor.</p>
+      <h2>The Process</h2>
+      <ol>
+        <li>Learn the brain's role. Pain is real, and the brain can generate it even without injury.</li>
+        <li>Find your own evidence. Notice when pain shifts with stress, mood, rest, or position.</li>
+        <li>Befriend the pain. Pay attention with curiosity and calm instead of fear.</li>
+        <li>Face what's underneath. Work through the stress, worry, and emotions that keep the alarm on.</li>
+        <li>Move toward what feels good. Build positive feelings so the brain gets more safe signals.</li>
+      </ol>
+      <p>The payoff: as the brain relearns safety, the alarm can quiet down and pain signals can turn down.</p>
+      <h2>Questions</h2>
+      <p>How does Pain Reprocessing Therapy work? PRT helps you understand that the pain you feel is often driven by the brain misreading safe signals from the body. Through practices like somatic tracking, mindfulness, and emotional awareness, you gradually retrain your brain to interpret these signals accurately, interrupt the pain-fear cycle, and dial down your nervous system's sensitivity.</p>
+      <p>Can PRT help if my pain has a physical cause? PRT is designed for neuroplastic pain, but it also helps when structural and stress-related pain overlap. It will not replace necessary medical treatment.</p>
+      <p>Is PRT a substitute for medical treatment? No. See your doctor for new, changing, or worrying symptoms.</p>
+      <p>Do you coach remotely? Yes. Coaching is by video anywhere. You do not need to be in Boulder, Colorado.</p>
+      <p>How do I get started? Book a free 30 minute discovery call.</p>
+      <p><a href="https://scheduler.zoom.us/excelsior-llc/prt-discovery-call">Book a call</a></p>
+      <p><a href="https://excelsior-prt.com/pages/my-story/">My Story</a></p>
     </noscript>
     <script type="module" src="pages/home/page.js"></script>
   </body>
