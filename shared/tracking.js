@@ -16,6 +16,13 @@ export function bindTracking() {
       });
     }
 
+    const dataSection = event.target.closest("[data-data-section]");
+    if (dataSection) {
+      window.posthog.capture("data_section_clicked", {
+        placement: dataSection.getAttribute("data-data-section"),
+      });
+    }
+
     const video = event.target.closest("[data-promo-video]");
     if (video) {
       window.posthog.capture("promo_video_played", {
