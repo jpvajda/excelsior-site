@@ -22,7 +22,7 @@ export function Options() {
       <p class="options-price">$125.00</p>
     </article>
     <article class="caption">
-      <p class="plan-mark">Six Pack</p>
+      <p class="plan-mark">6 Pack</p>
       <p><b>Six 60-minute sessions to go deeper with PRT</b></p>
       <ul>
         <li>Includes six 60-minute sessions.</li>
