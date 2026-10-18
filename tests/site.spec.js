@@ -408,7 +408,7 @@ test("each option has a plan mark in the corner", async ({ page }) => {
   await expect(marks).toHaveText([
     "Starter",
     "Pay-as-you-go",
-    "Six Pack",
+    "6 Pack",
     "12 Pack",
   ]);
 
