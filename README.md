@@ -31,6 +31,10 @@ Each page lives in a folder under `pages/`. Edit a section there. Each file is a
 
 GitHub Pages: Settings → Pages → Deploy from a branch → `main` → `/ (root)`.
 
+## Newsletter Signup
+
+The footer newsletter form posts to the Cloudflare Worker in `worker/`. Deploy changes to that Worker from `worker/` with `npx wrangler deploy`, and only when asked. The Resend API key is a Worker secret and is not in source.
+
 ## Instrumentation
 
 [PostHog](https://posthog.com) records page views, clicks, and booking clicks. The snippet lives in `index.html` and `pages/my-story/index.html`. Booking buttons send one shared event, `discovery_call_clicked`, with a `placement` property for the spot that was clicked. The My Story link sends `my_story_clicked` with `placement` set to `header`.

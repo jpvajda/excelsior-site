@@ -2,6 +2,7 @@ import { execSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import { newsletterEndpoint } from "../shared/newsletter.js";
 
 const sectionHeadings = [
   "Excelsior",
@@ -563,6 +564,105 @@ test("keyboard focus is visible", async ({ page }) => {
   expect(outline.width).toBeGreaterThanOrEqual(3);
 });
 
+test("both pages show the newsletter form", async ({ page }) => {
+  await openPage(page);
+  await expect(page.locator("[data-newsletter]")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Sign up" })).toBeVisible();
+
+  await page.goto("/pages/my-story/");
+  await expect(page.locator("h1")).toHaveText("My Story");
+  await expect(page.locator("[data-newsletter]")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Sign up" })).toBeVisible();
+});
+
+test("a valid newsletter email is sent and recorded", async ({ page }) => {
+  await page.route(newsletterEndpoint, (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ ok: true }),
+    }),
+  );
+  await openPage(page);
+  await page.evaluate(() => {
+    window.__newsletterEvents = [];
+    const capture = window.posthog.capture.bind(window.posthog);
+    window.posthog.capture = (name, properties) => {
+      if (name === "newsletter_signup") {
+        window.__newsletterEvents.push({ name, placement: properties.placement });
+      }
+      return capture(name, properties);
+    };
+  });
+
+  const form = page.locator("[data-newsletter]");
+  await form.getByLabel("Email").fill("reader@example.com");
+  const posted = page.waitForRequest(newsletterEndpoint);
+  await form.getByRole("button", { name: "Sign up" }).click();
+  const request = await posted;
+  expect(request.method()).toBe("POST");
+  expect(request.postDataJSON()).toEqual({
+    email: "reader@example.com",
+    signup_hp: "",
+  });
+  await expect(form.locator("[data-newsletter-status]")).toHaveText("You're signed up.");
+  await expect
+    .poll(() => page.evaluate(() => window.__newsletterEvents))
+    .toEqual([{ name: "newsletter_signup", placement: "footer" }]);
+});
+
+test("the newsletter error goes away when the email is cleared", async ({ page }) => {
+  await page.route(newsletterEndpoint, (route) =>
+    route.fulfill({
+      status: 502,
+      contentType: "application/json",
+      body: JSON.stringify({ ok: false }),
+    }),
+  );
+  await openPage(page);
+  const form = page.locator("[data-newsletter]");
+  const email = form.getByLabel("Email");
+  await email.fill("reader@example.com");
+  await form.getByRole("button", { name: "Sign up" }).click();
+  await expect(form.locator("[data-newsletter-status]")).toHaveText("Could not sign up. Try again.");
+  await email.fill("");
+  await expect(form.locator("[data-newsletter-status]")).toBeEmpty();
+});
+
+test("an invalid newsletter email is not sent", async ({ page }) => {
+  let posted = false;
+  await page.route(newsletterEndpoint, (route) => {
+    posted = true;
+    return route.abort();
+  });
+  await openPage(page);
+  const form = page.locator("[data-newsletter]");
+  await form.getByLabel("Email").fill("not-an-email");
+  await form.getByRole("button", { name: "Sign up" }).click();
+  expect(posted).toBe(false);
+  await expect(form.locator("[data-newsletter-status]")).toBeEmpty();
+});
+
+test.describe("newsletter on a phone", () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test("the form fits on the home page and on my story", async ({ page }) => {
+    for (const url of ["/", "/pages/my-story/"]) {
+      await page.goto(url);
+      const form = page.locator("[data-newsletter]");
+      await expect(form).toBeVisible();
+      await form.scrollIntoViewIfNeeded();
+      const box = await form.boundingBox();
+      expect(box.x).toBeGreaterThanOrEqual(0);
+      expect(box.x + box.width).toBeLessThanOrEqual(390);
+      const overflow = await page.evaluate(
+        () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      );
+      expect(overflow).toBeLessThanOrEqual(1);
+    }
+  });
+});
+
 test("no serious access issues", async ({ page }) => {
   await openPage(page);
   const results = await new AxeBuilder({ page }).analyze();
@@ -978,7 +1078,7 @@ test("files live in the documented folders", async () => {
   expect(
     list("shared").map((entry) => entry.name).sort(),
     "shared/ holds only code used by every page",
-  ).toEqual(["footer.js", "header.js", "menu.js", "promo-banner.js", "tracking.js"]);
+  ).toEqual(["footer.js", "header.js", "menu.js", "newsletter.js", "promo-banner.js", "tracking.js"]);
 
   const pageFolders = list("pages");
   expect(pageFolders.filter((entry) => entry.isFile()), "pages/ holds only page folders").toEqual([]);

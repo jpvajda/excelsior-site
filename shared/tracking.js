@@ -38,3 +38,8 @@ export function bindTracking() {
     }
   });
 }
+
+export function trackNewsletterSignup() {
+  if (!window.posthog) return;
+  window.posthog.capture("newsletter_signup", { placement: "footer" });
+}

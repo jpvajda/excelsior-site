@@ -148,6 +148,10 @@ vite.config.ts.timestamp-*
 # Turbo Repo
 .turbo
 
+# Cloudflare Worker local secrets and cache
+worker/.dev.vars
+worker/.wrangler/
+
 # Playwright
 /test-results/
 /playwright-report/
