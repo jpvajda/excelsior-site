@@ -6,12 +6,12 @@ Marketing site for Excelsior LLC. The owner is a Pain Reprocessing Therapy (PRT)
 
 - Static files at the repo root. GitHub Pages deploys from branch `main`, folder `/` (root).
 - Each section is a JavaScript module that returns its markup as a string. Each page has one `page.js` that stacks its sections into `#app`. The HTML file only loads that script. See File layout.
-- To view locally, run `python3 serve.py` and open http://127.0.0.1:3000. Do not use `python3 -m http.server`. That command shows Python's own error page for a bad address. Do not open `index.html` as a file. The browser blocks the modules from a `file://` address.
+- To view locally, run `python3 serve.py` and open http://127.0.0.1:3000. http://localhost:3000 is the same server with a different browser origin. See Newsletter. Do not use `python3 -m http.server`. That command shows Python's own error page for a bad address. Do not open `index.html` as a file. The browser blocks the modules from a `file://` address.
 - One CSS file at `css/style.css`.
-- No app framework, database, build step, or deploy workflow. Vanilla JS, HTML, and CSS only.
+- No app framework, database, or build step. Vanilla JS, HTML, and CSS only. GitHub Pages publishes the static files. The footer signup Worker is the only separate deploy. See Newsletter.
 - Relative URLs, so the site works as a project site and on a custom domain.
 - Keep `.nojekyll` so Pages does not run Jekyll.
-- Do not push or deploy unless asked.
+- Do not push or deploy unless asked. That includes `npx wrangler deploy`.
 
 ## File layout
 
@@ -30,7 +30,11 @@ pages/                      one folder per page. Everything for a page lives in 
 shared/                     code used by two or more pages
   header.js, footer.js      markup
   menu.js                   mobile menu behavior
+  newsletter.js             newsletter signup behavior
   tracking.js               PostHog click events
+worker/                     Cloudflare Worker for the footer signup. Holds no API key. Deploy from this folder only
+  index.js                  request handler
+  wrangler.toml             Worker name, segment id, and allowed origins
 css/style.css               the only stylesheet
 images/                     every image the site shows
 tests/                      Playwright checks
@@ -71,7 +75,7 @@ To add a page (only when asked):
 - Leave credentials off the site until asked. They will be added later. Do not invent a credential, a year, or a training name in the meantime.
 - Do not invent pricing, biography, credentials, a city, results, statistics, or client names.
 - Placeholder copy is Lorem Ipsum. Label each slot in the page or an HTML comment, for example `SLOT: hero subhead`.
-- Contact stays a placeholder until a real scheduler or email is given. No form backend.
+- Contact email stays a placeholder until a real scheduler or email is given. The footer newsletter form posts to the Cloudflare Worker in `worker/`. See Newsletter.
 - Footer line: © 2026 Excelsior LLC. All rights reserved.
 
 ## Page
@@ -88,7 +92,7 @@ One page. Sticky header. In-page links. Sections stay in this order:
 8. Data. Four speech bubbles. Each holds a sourced NIH finding or quote and links to the NIH article. No fake client names.
 9. Questions. FAQ caption boxes, including where coaching happens and whether it is remote.
 10. Contact. Button “Book a call” links to the Google Calendar booking page and opens in a new tab. Email line stays a placeholder. No fake address.
-11. Footer. “Excelsior LLC”, the copyright line, and the reading links.
+11. Footer. “Excelsior LLC”, the copyright line, a newsletter signup, and the reading links.
 
 One `h1` on the home page: Excelsior. The My Story page `h1` is My Story. Section titles are `h2`.
 
@@ -123,7 +127,7 @@ Motion stays short. Honor `prefers-reduced-motion`.
 
 When a new feature or element is added, add or update a check in `tests/` in the same change. Cover what a visitor can do: the control is present, it goes to the right place, and it still works on a phone when the layout changes. Run `pnpm test`. Do not add a screenshot test unless asked.
 
-When files move or are renamed, update every import, `<script>`, `<link>`, image `src`, and `og:image` URL, then update the tests that name them. `tests/site.spec.js` checks the folder layout, that every folder in `pages/` is registered in the test and listed in `sitemap.xml`, that each page loads its script and stylesheet from the right place with no failed requests, that every image comes from `images/`, and that `llms.txt`, `llms-full.txt`, the JSON-LD, and the `<noscript>` text match the visible page.
+When files move or are renamed, update every import, `<script>`, `<link>`, image `src`, and `og:image` URL, then update the tests that name them. `tests/site.spec.js` checks the folder layout, that every folder in `pages/` is registered in the test and listed in `sitemap.xml`, that each page loads its script and stylesheet from the right place with no failed requests, that every image comes from `images/`, and that `llms.txt`, `llms-full.txt`, the JSON-LD, and the `<noscript>` text match the visible page. `tests/worker.spec.js` checks the signup Worker. See Newsletter.
 
 ## Findability
 
@@ -141,7 +145,22 @@ The `<noscript>` blocks, the JSON-LD, `llms.txt`, and `llms-full.txt` must state
 
 PostHog records visits and clicks. The snippet is in `index.html` and in every `pages/<name>/index.html`. Click handlers live in `shared/tracking.js`. Do not add a second analytics tool, and do not write the project key, host account, or dashboard names into the repo docs.
 
-When a new control is added, send a PostHog event for it in the same change. Booking links already share one event, `discovery_call_clicked`, with a `placement` property for where it was clicked. Follow that pattern: one event name, plus a property when the same action appears in more than one place. Cover the event in `tests/`.
+When a new control is added, send a PostHog event for it in the same change. Booking links already share one event, `discovery_call_clicked`, with a `placement` property for where it was clicked. Follow that pattern: one event name, plus a property when the same action appears in more than one place. The newsletter form sends `newsletter_signup` with `placement` set to `footer` only after the signup is accepted. Cover the event in `tests/`.
+
+## Newsletter
+
+The footer form is on every page. Markup is in `shared/footer.js`. `shared/newsletter.js` posts the address. `pages/home/page.js` and `pages/my-story/page.js` call `bindNewsletter()`.
+
+- The browser posts JSON `{ email, signup_hp }` to `newsletterEndpoint` in `shared/newsletter.js`: `https://excelsior-signup.john-vajda.workers.dev`. Keep the `john-vajda` subdomain. `https://excelsior-signup.workers.dev` does not serve this Worker.
+- Deploy the Worker only when asked, and only from `worker/`: `npx wrangler deploy`. From the repo root, Wrangler offers a new static Worker named `excelsior-site`. Decline that. Editing `worker/` does not change the live Worker until this deploy. The static site still ships only when `main` is pushed.
+- `RESEND_API_KEY` is set with `npx wrangler secret put RESEND_API_KEY` from `worker/`. It stays a Cloudflare secret. Do not put it in the repo, in `wrangler.toml`, or in a committed `worker/.dev.vars`. The key needs Full access. A Sending access key cannot create contacts. No sending domain is required.
+- `SEGMENT_ID` in `wrangler.toml` is the Resend Newsletter segment. It is a plain var, not a secret.
+- `ALLOWED_ORIGINS` is the exact `Origin` the browser sends. `http://127.0.0.1:3000` and `http://localhost:3000` are both local and both required. A missing origin gets 403 with no CORS header, and the form says "Could not sign up. Try again." Restarting `serve.py` does not change the list.
+- The hidden field is `signup_hp`. If it is non-empty, the Worker returns success and does not call Resend. Do not name that field `company` or any other autofill name.
+- A contact Resend already has is treated as success.
+- Observability in `wrangler.toml` uses `[observability.logs]` and `[observability.issues]`. `issue_detection` is not a valid key.
+- Leave the `workers.dev` URL public. Do not put the Worker behind Cloudflare Access.
+- `tests/site.spec.js` covers the form, the posted body, and `newsletter_signup`. `tests/worker.spec.js` checks `ALLOWED_ORIGINS` and that only `signup_hp` skips Resend. Update both when those change.
 
 ## Scope
 
