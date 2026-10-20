@@ -1,0 +1,29 @@
+name = "excelsior-checkout"
+main = "index.js"
+compatibility_date = "2026-10-20"
+
+[vars]
+ALLOWED_ORIGINS = "https://excelsior-prt.com,http://127.0.0.1:3000,http://localhost:3000"
+SUCCESS_URL = "https://excelsior-prt.com/pages/paid/"
+CANCEL_URL = "https://excelsior-prt.com/#options"
+NOTIFY_EMAIL = "hello@excelsior-prt.com"
+FROM_EMAIL = "Excelsior LLC <hello@excelsior-prt.com>"
+# Sandbox prices. Replace these when the live account is verified.
+PRICE_STARTER = "price_1USktLE2v9L7aAJlyRyBCfie"
+PRICE_SESSION = "price_1USktLE2v9L7aAJlIFISw0QE"
+PRICE_PACK_6 = "price_1USktME2v9L7aAJlRAGPhDdl"
+PRICE_PACK_12 = "price_1USktME2v9L7aAJl3Iz4T0L6"
+
+[observability.logs]
+enabled = true
+head_sampling_rate = 1
+invocation_logs = true
+persist = true
+
+[observability.traces]
+enabled = true
+head_sampling_rate = 1
+persist = true
+
+[observability.issues]
+enabled = false

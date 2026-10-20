@@ -151,6 +151,8 @@ vite.config.ts.timestamp-*
 # Cloudflare Worker local secrets and cache
 worker/.dev.vars
 worker/.wrangler/
+checkout/.dev.vars
+checkout/.wrangler/
 
 # Playwright
 /test-results/

@@ -3,6 +3,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { newsletterEndpoint } from "../shared/newsletter.js";
+import { checkoutEndpoint } from "../pages/home/checkout.js";
 
 const sectionHeadings = [
   "Excelsior",
@@ -620,13 +621,35 @@ test("the newsletter error goes away when the email is cleared", async ({ page }
     }),
   );
   await openPage(page);
+  await page.evaluate(() => {
+    window.__formErrors = [];
+    const capture = window.posthog.capture.bind(window.posthog);
+    window.posthog.capture = (name, properties) => {
+      if (name === "form_error_shown" || name === "form_error_dismissed") {
+        window.__formErrors.push({ name, placement: properties.placement, reason: properties.reason });
+      }
+      return capture(name, properties);
+    };
+  });
   const form = page.locator("[data-newsletter]");
   const email = form.getByLabel("Email");
   await email.fill("reader@example.com");
   await form.getByRole("button", { name: "Sign up" }).click();
-  await expect(form.locator("[data-newsletter-status]")).toHaveText("Could not sign up. Try again.");
-  await email.fill("");
-  await expect(form.locator("[data-newsletter-status]")).toBeEmpty();
+  const status = form.locator("[data-newsletter-status]");
+  await expect(status).toContainText("Could not sign up. Try again.");
+  await expect(status).toHaveClass(/form-error/);
+  await expect(status.locator("img")).toHaveAttribute("src", "images/error_icon.png");
+  await expect
+    .poll(() => page.evaluate(() => window.__formErrors))
+    .toEqual([{ name: "form_error_shown", placement: "footer", reason: "signup_failed" }]);
+  await status.getByRole("button", { name: "Dismiss error" }).click();
+  await expect(status).toBeEmpty();
+  await expect
+    .poll(() => page.evaluate(() => window.__formErrors))
+    .toEqual([
+      { name: "form_error_shown", placement: "footer", reason: "signup_failed" },
+      { name: "form_error_dismissed", placement: "footer", reason: "signup_failed" },
+    ]);
 });
 
 test("an invalid newsletter email is not sent", async ({ page }) => {
@@ -636,11 +659,38 @@ test("an invalid newsletter email is not sent", async ({ page }) => {
     return route.abort();
   });
   await openPage(page);
+  await page.evaluate(() => {
+    window.__formErrors = [];
+    const capture = window.posthog.capture.bind(window.posthog);
+    window.posthog.capture = (name, properties) => {
+      if (name === "form_error_shown") {
+        window.__formErrors.push({ name, placement: properties.placement, reason: properties.reason });
+      }
+      return capture(name, properties);
+    };
+  });
   const form = page.locator("[data-newsletter]");
   await form.getByLabel("Email").fill("not-an-email");
   await form.getByRole("button", { name: "Sign up" }).click();
   expect(posted).toBe(false);
-  await expect(form.locator("[data-newsletter-status]")).toBeEmpty();
+  const status = form.locator("[data-newsletter-status]");
+  await expect(status).toContainText("@");
+  await expect(status).toHaveClass(/form-error/);
+  await expect(status.locator("img")).toHaveAttribute("src", "images/error_icon.png");
+  const look = await status.evaluate((element) => {
+    const style = getComputedStyle(element);
+    return {
+      background: style.backgroundColor,
+      color: style.color,
+      font: style.fontFamily,
+    };
+  });
+  expect(look.background).toBe("rgb(255, 255, 255)");
+  expect(look.color).toBe("rgb(0, 0, 0)");
+  expect(look.font).toMatch(/Bangers/);
+  await expect
+    .poll(() => page.evaluate(() => window.__formErrors))
+    .toEqual([{ name: "form_error_shown", placement: "footer", reason: "invalid_email" }]);
 });
 
 test.describe("newsletter on a phone", () => {
@@ -660,6 +710,161 @@ test.describe("newsletter on a phone", () => {
       );
       expect(overflow).toBeLessThanOrEqual(1);
     }
+  });
+});
+
+test("a plan buy starts Stripe checkout", async ({ page }) => {
+  await page.route(checkoutEndpoint, (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ ok: true, url: "https://checkout.stripe.com/c/pay/cs_test" }),
+    }),
+  );
+  await openPage(page);
+  await page.evaluate(() => {
+    window.__checkoutEvents = [];
+    window.__assigned = "";
+    const capture = window.posthog.capture.bind(window.posthog);
+    window.posthog.capture = (name, properties) => {
+      if (name === "plan_checkout_started") {
+        window.__checkoutEvents.push({ name, plan: properties.plan });
+      }
+      return capture(name, properties);
+    };
+    window.location.assign = (url) => {
+      window.__assigned = url;
+    };
+    window.followCheckout = (url) => {
+      window.__assigned = url;
+    };
+  });
+
+  await expect(page.locator("[data-plan-buy]")).toHaveCount(4);
+  const starter = page.locator("[data-plan-buy='starter']");
+  await expect(starter.getByLabel("Email")).toHaveCount(0);
+  const posted = page.waitForRequest(checkoutEndpoint);
+  await starter.getByRole("button", { name: "Buy" }).click();
+  const request = await posted;
+  expect(request.method()).toBe("POST");
+  expect(request.postDataJSON()).toEqual({
+    plan: "starter",
+    checkout_hp: "",
+  });
+  await expect
+    .poll(() => page.evaluate(() => window.__checkoutEvents))
+    .toEqual([{ name: "plan_checkout_started", plan: "starter" }]);
+  await expect
+    .poll(() => page.evaluate(() => window.__assigned))
+    .toBe("https://checkout.stripe.com/c/pay/cs_test");
+});
+
+test("a pay-as-you-go buy does not ask for an email first", async ({ page }) => {
+  await page.route(checkoutEndpoint, (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ ok: true, url: "https://checkout.stripe.com/c/pay/cs_test" }),
+    }),
+  );
+  await openPage(page);
+  await page.evaluate(() => {
+    window.followCheckout = () => {};
+  });
+  const posted = page.waitForRequest(checkoutEndpoint);
+  await page.locator("[data-plan-buy='session']").getByRole("button", { name: "Buy" }).click();
+  expect((await posted).postDataJSON()).toEqual({
+    plan: "session",
+    checkout_hp: "",
+  });
+});
+
+test("a checkout failure uses the same error box", async ({ page }) => {
+  await page.route(checkoutEndpoint, (route) =>
+    route.fulfill({
+      status: 502,
+      contentType: "application/json",
+      body: JSON.stringify({ ok: false }),
+    }),
+  );
+  await openPage(page);
+  await page.evaluate(() => {
+    window.__formErrors = [];
+    const capture = window.posthog.capture.bind(window.posthog);
+    window.posthog.capture = (name, properties) => {
+      if (name === "form_error_shown" || name === "form_error_dismissed") {
+        window.__formErrors.push({
+          name,
+          placement: properties.placement,
+          reason: properties.reason,
+          plan: properties.plan,
+        });
+      }
+      return capture(name, properties);
+    };
+  });
+  const form = page.locator("[data-plan-buy='pack-6']");
+  await form.getByRole("button", { name: "Buy" }).click();
+  const status = form.locator("[data-checkout-status]");
+  await expect(status).toContainText("Could not start checkout. Try again.");
+  await expect(status).toHaveClass(/form-error/);
+  await expect(status.locator("img")).toHaveAttribute("src", "images/error_icon.png");
+  await status.getByRole("button", { name: "Dismiss error" }).click();
+  await expect(status).toBeEmpty();
+  await expect
+    .poll(() => page.evaluate(() => window.__formErrors))
+    .toEqual([
+      { name: "form_error_shown", placement: "options", reason: "checkout_failed", plan: "pack-6" },
+      { name: "form_error_dismissed", placement: "options", reason: "checkout_failed", plan: "pack-6" },
+    ]);
+});
+
+test("the paid page sends the buyer to the scheduler", async ({ page }) => {
+  await page.goto("/pages/paid/");
+  await expect(page.locator("h1")).toHaveText("Payment received");
+  const call = page.locator("[data-discovery-call='paid']");
+  await expect(call).toHaveAttribute("href", zoomBooking);
+  await page.evaluate(() => {
+    window.__discoveryEvents = [];
+    const capture = window.posthog.capture.bind(window.posthog);
+    window.posthog.capture = (name, properties) => {
+      if (name === "discovery_call_clicked") {
+        window.__discoveryEvents.push({ name, placement: properties.placement });
+      }
+      return capture(name, properties);
+    };
+  });
+  await call.dispatchEvent("click", { bubbles: true });
+  await expect
+    .poll(() => page.evaluate(() => window.__discoveryEvents))
+    .toEqual([{ name: "discovery_call_clicked", placement: "paid" }]);
+});
+
+test.describe("checkout on a phone", () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test("the starter form fits", async ({ page }) => {
+    await page.route(checkoutEndpoint, (route) =>
+      route.fulfill({
+        status: 502,
+        contentType: "application/json",
+        body: JSON.stringify({ ok: false }),
+      }),
+    );
+    await openPage(page);
+    const form = page.locator("[data-plan-buy='starter']");
+    await form.scrollIntoViewIfNeeded();
+    await expect(form.getByRole("button", { name: "Buy" })).toBeVisible();
+    await form.getByRole("button", { name: "Buy" }).click();
+    const status = form.locator("[data-checkout-status]");
+    await expect(status).toBeVisible();
+    const box = await status.boundingBox();
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width).toBeLessThanOrEqual(390);
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    expect(overflow).toBeLessThanOrEqual(1);
   });
 });
 
@@ -1051,6 +1256,12 @@ const pages = [
     script: "page.js",
     stylesheet: "../../css/style.css",
   },
+  {
+    name: "paid",
+    url: "/pages/paid/",
+    script: "page.js",
+    stylesheet: "../../css/style.css",
+  },
 ];
 
 function list(dir) {
@@ -1078,7 +1289,7 @@ test("files live in the documented folders", async () => {
   expect(
     list("shared").map((entry) => entry.name).sort(),
     "shared/ holds only code used by every page",
-  ).toEqual(["footer.js", "header.js", "menu.js", "newsletter.js", "promo-banner.js", "tracking.js"]);
+  ).toEqual(["footer.js", "form-error.js", "header.js", "menu.js", "newsletter.js", "promo-banner.js", "tracking.js"]);
 
   const pageFolders = list("pages");
   expect(pageFolders.filter((entry) => entry.isFile()), "pages/ holds only page folders").toEqual([]);

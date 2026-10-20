@@ -4,6 +4,7 @@ import { Footer } from "../../shared/footer.js";
 import { bindMenu } from "../../shared/menu.js";
 import { bindTracking } from "../../shared/tracking.js";
 import { bindNewsletter } from "../../shared/newsletter.js";
+import { bindCheckout } from "./checkout.js";
 import { bindPromoVideo } from "./promo-video.js";
 import { Hero } from "./hero.js";
 import { Understanding } from "./understanding.js";
@@ -37,4 +38,5 @@ app.innerHTML = [
 bindMenu();
 bindTracking();
 bindNewsletter();
+bindCheckout();
 bindPromoVideo();

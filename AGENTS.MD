@@ -35,6 +35,9 @@ shared/                     code used by two or more pages
 worker/                     Cloudflare Worker for the footer signup. Holds no API key. Deploy from this folder only
   index.js                  request handler
   wrangler.toml             Worker name, segment id, and allowed origins
+checkout/                   Stripe Checkout Worker. Holds no API key. Deploy from this folder only
+  index.js                  request handler
+  wrangler.toml             Worker name, sandbox price ids, and allowed origins
 css/style.css               the only stylesheet
 images/                     every image the site shows
 tests/                      Playwright checks
@@ -145,7 +148,7 @@ The `<noscript>` blocks, the JSON-LD, `llms.txt`, and `llms-full.txt` must state
 
 PostHog records visits and clicks. The snippet is in `index.html` and in every `pages/<name>/index.html`. Click handlers live in `shared/tracking.js`. Do not add a second analytics tool, and do not write the project key, host account, or dashboard names into the repo docs.
 
-When a new control is added, send a PostHog event for it in the same change. Booking links already share one event, `discovery_call_clicked`, with a `placement` property for where it was clicked. Follow that pattern: one event name, plus a property when the same action appears in more than one place. The newsletter form sends `newsletter_signup` with `placement` set to `footer` only after the signup is accepted. Cover the event in `tests/`.
+When a new control is added, send a PostHog event for it in the same change. Booking links already share one event, `discovery_call_clicked`, with a `placement` property for where it was clicked. Follow that pattern: one event name, plus a property when the same action appears in more than one place. The newsletter form sends `newsletter_signup` with `placement` set to `footer` only after the signup is accepted. A plan buy sends `plan_checkout_started` with `plan` only after the checkout Worker accepts it. A form error sends `form_error_shown` with `placement` and `reason`, and dismissing it sends `form_error_dismissed` with the same properties. Cover the event in `tests/`.
 
 ## Newsletter
 
@@ -162,6 +165,17 @@ The footer form is on every page. Markup is in `shared/footer.js`. `shared/newsl
 - Leave the `workers.dev` URL public. Do not put the Worker behind Cloudflare Access.
 - `tests/site.spec.js` covers the form, the posted body, and `newsletter_signup`. `tests/worker.spec.js` checks `ALLOWED_ORIGINS` and that only `signup_hp` skips Resend. Update both when those change.
 
+## Checkout
+
+Buying a session pack uses a second Worker in `checkout/`. The newsletter Worker stays as it is. Deploy this Worker only when asked, from `checkout/`: `npx wrangler deploy`.
+
+- The browser posts JSON `{ plan, checkout_hp }` to `checkoutEndpoint` in `pages/home/checkout.js`. `plan` is `starter`, `session`, `pack-6`, or `pack-12`. The Worker maps that name to a Stripe Price ID. A price or amount in the body is ignored. Stripe Checkout collects the email.
+- Starter is one paid purchase per email address. Stripe has the address. The webhook refunds a later starter payment for an email that already has one.
+- `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, and `RESEND_API_KEY` are Worker secrets. Do not put them in the repo or in `checkout/wrangler.toml`. The Price IDs in that file are the sandbox prices.
+- The webhook is `POST /webhook`. Fulfill only `checkout.session.completed` and `checkout.session.async_payment_succeeded` when `payment_status` is `paid`. That sends one email to `hello@excelsior-prt.com`. The thank-you page is not proof of payment.
+- After payment, Stripe sends the buyer to `/pages/paid/`. That page is not in the header. Cancel returns to `/#options`.
+- `tests/checkout.spec.js` covers the price lock, the starter limit, and the webhook. `tests/site.spec.js` covers the buttons and `plan_checkout_started`.
+
 ## Scope
 
-The home page stays one page. My Story is the only extra page, at `/pages/my-story/`: a single post layout with the comic banner, lorem ipsum slots, and empty image frames. Do not add a blog index, shop, login, CMS, or other pages unless asked. When a page is asked for, follow the steps in File layout. Keep the README short: what the page is, how to open it locally, the GitHub Pages setting, and that PostHog is used for instrumentation. Keep the file layout in this file, not the README.
+The home page stays one page. My Story is the story page, at `/pages/my-story/`. `/pages/paid/` is the page Stripe returns to after a payment. It is not in the header. Do not add a blog index, shop, login, CMS, or other pages unless asked. When a page is asked for, follow the steps in File layout. Keep the README short: what the page is, how to open it locally, the GitHub Pages setting, and that PostHog is used for instrumentation. Keep the file layout in this file, not the README.
