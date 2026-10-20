@@ -316,7 +316,7 @@ test("navigation and booking link are present", async ({ page }) => {
 
   const headerBook = page
     .getByRole("navigation", { name: "Site" })
-    .getByRole("link", { name: "Book a Discovery Call" });
+    .getByRole("link", { name: "Free Discovery Call" });
   await expect(headerBook).toBeVisible();
   await expect(headerBook).toHaveAttribute("href", zoomBooking);
   await expect(headerBook).toHaveAttribute("target", "_blank");
@@ -822,6 +822,15 @@ test("a checkout failure uses the same error box", async ({ page }) => {
 test("the paid page sends the buyer to the scheduler", async ({ page }) => {
   await page.goto("/pages/paid/");
   await expect(page.locator("h1")).toHaveText("Payment received");
+  await expect(page.locator("main p")).toHaveText(
+    "Your payment went through. Book your discovery call so we can get started.",
+  );
+  await expect(page.locator("main img")).toHaveCount(0);
+  const paidSize = await page.locator("h1").evaluate((element) => getComputedStyle(element).fontSize);
+  await page.goto("/no/such/page");
+  const missingSize = await page.locator("h1").evaluate((element) => getComputedStyle(element).fontSize);
+  expect(paidSize).toBe(missingSize);
+  await page.goto("/pages/paid/");
   const call = page.locator("[data-discovery-call='paid']");
   await expect(call).toHaveAttribute("href", zoomBooking);
   await page.evaluate(() => {
@@ -1024,7 +1033,7 @@ test.describe("phone layout", () => {
 
     const button = page
       .locator("#site-nav")
-      .getByRole("link", { name: "Book a Discovery Call" });
+      .getByRole("link", { name: "Free Discovery Call" });
     await expect(button).toBeVisible();
     await expect(button).toHaveAttribute("href", zoomBooking);
 
@@ -1348,7 +1357,6 @@ for (const { url, script, stylesheet } of pages) {
     const imageSources = await page.evaluate(() =>
       [...document.images].map((img) => new URL(img.src).pathname),
     );
-    expect(imageSources.length).toBeGreaterThan(0);
     for (const src of imageSources) {
       expect(src, "page images come from images/").toMatch(/^\/images\//);
     }

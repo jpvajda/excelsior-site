@@ -6,7 +6,7 @@
 
 - [Home](https://excelsior-prt.com/): Pain Reprocessing Therapy coaching, the process, who it is for, and common questions.
 - [My Story](https://excelsior-prt.com/pages/my-story/): John Vajda on living with chronic pain and why he coaches.
-- [Payment received](https://excelsior-prt.com/pages/paid/): Where a buyer lands after paying for a session pack, with the link to book a time.
+- [Payment received](https://excelsior-prt.com/pages/paid/): Where a buyer lands after paying for a session pack, with the link to book a discovery call.
 - [Full text](https://excelsior-prt.com/llms-full.txt): The offer, process, questions, and bio in one file.
 
 ## Book

@@ -579,13 +579,6 @@ figcaption,
   border: 0;
 }
 
-.paid-banner {
-  display: block;
-  width: min(100%, 40rem);
-  height: auto;
-  margin: 0 0 1rem;
-}
-
 .caption-best {
   position: relative;
   z-index: 1;
@@ -1139,7 +1132,8 @@ figcaption {
   }
 }
 
-.not-found h1 {
+.not-found h1,
+.paid-panel h1 {
   display: inline-block;
   margin-bottom: 0.85rem;
   font-size: clamp(2.4rem, 8vw, 4.25rem);
