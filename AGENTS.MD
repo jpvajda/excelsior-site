@@ -85,8 +85,8 @@ To add a page (only when asked):
 
 One page. Sticky header. In-page links. Sections stay in this order:
 
-1. Header. Corner-box mark: EXCELSIOR / LLC. Links: Options, The Process, About, My Story, Contact. My Story goes to `/pages/my-story/`. On that page, the other links return to the matching home section.
-2. Hero. Wordmark “Excelsior”. Line: Pain Reprocessing Therapy coaching. Short subhead. No button in the hero.
+1. Header. Corner-box mark: EXCELSIOR / LLC. Links: Options, The Process, About, My Story, Free Discovery Call. My Story goes to `/pages/my-story/`. On that page, the other links return to the matching home section.
+2. Hero. Wordmark “Excelsior”. Line: Pain Reprocessing Therapy & Somatic Coaching. Short subhead. No button in the hero.
 3. Understanding Chronic Pain. Title, short intro, three icon cards.
 4. Options. Three short caption boxes.
 5. The Process. Five numbered panels and a red payoff panel. Three across on desktop, stacked on a phone.

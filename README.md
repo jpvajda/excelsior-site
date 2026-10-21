@@ -2,7 +2,7 @@
 
 # Excelsior LLC
 
-Home page for Pain Reprocessing Therapy coaching.
+Home page for Pain Reprocessing Therapy & Somatic Coaching.
 
 © 2026 Excelsior LLC. All rights reserved. Do not copy, reproduce, or reuse this site, its words, or its images without permission.
 
