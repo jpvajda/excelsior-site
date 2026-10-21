@@ -316,7 +316,7 @@ test("navigation and booking link are present", async ({ page }) => {
 
   const headerBook = page
     .getByRole("navigation", { name: "Site" })
-    .getByRole("link", { name: "Free Discovery Call" });
+    .getByRole("link", { name: "Book a Discovery Call" });
   await expect(headerBook).toBeVisible();
   await expect(headerBook).toHaveAttribute("href", zoomBooking);
   await expect(headerBook).toHaveAttribute("target", "_blank");
@@ -1033,7 +1033,7 @@ test.describe("phone layout", () => {
 
     const button = page
       .locator("#site-nav")
-      .getByRole("link", { name: "Free Discovery Call" });
+      .getByRole("link", { name: "Book a Discovery Call" });
     await expect(button).toBeVisible();
     await expect(button).toHaveAttribute("href", zoomBooking);
 
