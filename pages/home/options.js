@@ -8,7 +8,8 @@ export function Options() {
       <p><b>First 60-minute session</b></p>
       <ul>
         <li>One-time first session, limited to one per person.</li>
-         <li>Provides time to get a feel for the process.</li>
+        <li>Provides time to get a feel for the process.</li>
+        <li>Coupon code will be provided after Discovery Call.</li>
       </ul>
       <p class="options-price">$85.00</p>
     </article>
@@ -20,6 +21,14 @@ export function Options() {
         <li>Flexibility to schedule sessions as you go.</li>
       </ul>
       <p class="options-price">$125.00</p>
+      <form class="plan-buy" data-plan-buy="session">
+        <button class="button" type="submit">Buy</button>
+        <p class="plan-status" data-checkout-status role="status" aria-live="polite"></p>
+        <div class="plan-hp" aria-hidden="true">
+          <label for="session-hp">Leave blank</label>
+          <input id="session-hp" name="checkout_hp" type="text" tabindex="-1" autocomplete="off">
+        </div>
+      </form>
     </article>
     <article class="caption">
       <p class="plan-mark">6 Pack</p>
@@ -29,6 +38,14 @@ export function Options() {
         <li>Provides time to build and practice the skills and see initial results.</li>
       </ul>
       <p class="options-price">$650.00</p>
+      <form class="plan-buy" data-plan-buy="pack-6">
+        <button class="button" type="submit">Buy</button>
+        <p class="plan-status" data-checkout-status role="status" aria-live="polite"></p>
+        <div class="plan-hp" aria-hidden="true">
+          <label for="pack-6-hp">Leave blank</label>
+          <input id="pack-6-hp" name="checkout_hp" type="text" tabindex="-1" autocomplete="off">
+        </div>
+      </form>
     </article>
     <article class="caption caption-best">
       <p class="plan-mark">12 Pack</p>
@@ -38,6 +55,14 @@ export function Options() {
         <li>Provides time to build and practice the skills and see sustained results.</li>
       </ul>
       <p class="options-price">$1,200.00</p>
+      <form class="plan-buy" data-plan-buy="pack-12">
+        <button class="button" type="submit">Buy</button>
+        <p class="plan-status" data-checkout-status role="status" aria-live="polite"></p>
+        <div class="plan-hp" aria-hidden="true">
+          <label for="pack-12-hp">Leave blank</label>
+          <input id="pack-12-hp" name="checkout_hp" type="text" tabindex="-1" autocomplete="off">
+        </div>
+      </form>
       <img class="best-value-badge" src="images/best_value_badge.png" alt="Best value" width="1378" height="1142">
     </article>
   </div>

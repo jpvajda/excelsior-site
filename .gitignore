@@ -151,6 +151,11 @@ vite.config.ts.timestamp-*
 # Cloudflare Worker local secrets and cache
 worker/.dev.vars
 worker/.wrangler/
+checkout/.dev.vars
+checkout/.wrangler/
+
+# Local Stripe sandbox notes. Not for the public repo.
+tests/stripe_testing.md
 
 # Playwright
 /test-results/

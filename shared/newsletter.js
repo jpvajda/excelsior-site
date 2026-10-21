@@ -1,3 +1,4 @@
+import { clearFormStatus, showFormError, showFormNote } from "./form-error.js";
 import { trackNewsletterSignup } from "./tracking.js";
 
 export const newsletterEndpoint = "https://excelsior-signup.john-vajda.workers.dev";
@@ -10,26 +11,31 @@ export function bindNewsletter() {
   const button = form.querySelector("button");
   const emailInput = form.querySelector("input[type='email']");
 
+  emailInput.addEventListener("invalid", (event) => {
+    event.preventDefault();
+    showFormError(status, emailInput.validationMessage, {
+      placement: "footer",
+      reason: "invalid_email",
+    });
+  });
+
   emailInput.addEventListener("input", () => {
     if (
       emailInput.value.trim() === "" &&
-      status.textContent === "Could not sign up. Try again."
+      status.querySelector("span")?.textContent === "Could not sign up. Try again."
     ) {
-      status.textContent = "";
+      clearFormStatus(status);
     }
   });
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
-    if (!form.checkValidity()) {
-      form.reportValidity();
-      return;
-    }
+    if (!form.checkValidity()) return;
 
     const data = new FormData(form);
     const email = String(data.get("email") || "").trim();
     const signupHp = String(data.get("signup_hp") || "");
-    status.textContent = "";
+    clearFormStatus(status);
     button.disabled = true;
 
     try {
@@ -39,14 +45,17 @@ export function bindNewsletter() {
         body: JSON.stringify({ email, signup_hp: signupHp }),
       });
       if (!response.ok) {
-        status.textContent = "Could not sign up. Try again.";
+        showFormError(status, "Could not sign up. Try again.", {
+          placement: "footer",
+          reason: "signup_failed",
+        });
         return;
       }
       trackNewsletterSignup();
-      status.textContent = "You're signed up.";
+      showFormNote(status, "You're signed up.");
       form.reset();
     } catch {
-      status.textContent = "Could not sign up. Try again.";
+      showFormError(status, "Could not sign up. Try again.");
     } finally {
       button.disabled = false;
     }

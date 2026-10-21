@@ -43,3 +43,22 @@ export function trackNewsletterSignup() {
   if (!window.posthog) return;
   window.posthog.capture("newsletter_signup", { placement: "footer" });
 }
+
+export function trackPlanCheckout(plan) {
+  if (!window.posthog) return;
+  window.posthog.capture("plan_checkout_started", { plan });
+}
+
+export function trackFormErrorShown({ placement, reason, plan } = {}) {
+  if (!window.posthog) return;
+  const properties = { placement, reason };
+  if (plan) properties.plan = plan;
+  window.posthog.capture("form_error_shown", properties);
+}
+
+export function trackFormErrorDismissed({ placement, reason, plan } = {}) {
+  if (!window.posthog) return;
+  const properties = { placement, reason };
+  if (plan) properties.plan = plan;
+  window.posthog.capture("form_error_dismissed", properties);
+}

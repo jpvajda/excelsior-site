@@ -1,0 +1,26 @@
+name = "excelsior-checkout"
+main = "index.js"
+compatibility_date = "2026-10-20"
+
+[vars]
+ALLOWED_ORIGINS = "https://excelsior-prt.com,http://127.0.0.1:3000,http://localhost:3000"
+SUCCESS_URL = "https://excelsior-prt.com/pages/paid/"
+CANCEL_URL = "https://excelsior-prt.com/#options"
+# Live prices. A test key cannot charge these.
+PRICE_SESSION = "price_1UT7kRE2v9L7aAJl8nOBIeZV"
+PRICE_PACK_6 = "price_1UT7kRE2v9L7aAJlT9rvJRPm"
+PRICE_PACK_12 = "price_1UT7kSE2v9L7aAJl9Sqil3yp"
+
+[observability.logs]
+enabled = true
+head_sampling_rate = 1
+invocation_logs = true
+persist = true
+
+[observability.traces]
+enabled = true
+head_sampling_rate = 1
+persist = true
+
+[observability.issues]
+enabled = false

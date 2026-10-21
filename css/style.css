@@ -533,6 +533,52 @@ figcaption,
   line-height: 1;
 }
 
+.plan-buy {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  width: 100%;
+  margin-top: 0.75rem;
+}
+
+.caption-intro .plan-buy {
+  grid-column: 1;
+}
+
+.plan-buy .button {
+  margin-top: 0;
+}
+
+.plan-buy .button:disabled {
+  cursor: wait;
+}
+
+.plan-status {
+  flex: 1 1 100%;
+  margin: 0;
+  min-width: 0;
+  min-height: 0;
+  font-size: 18px;
+}
+
+.plan-status:empty {
+  display: none;
+}
+
+.plan-hp {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .caption-best {
   position: relative;
   z-index: 1;
@@ -906,6 +952,50 @@ figcaption {
   display: none;
 }
 
+.form-error {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  margin-top: 0.45rem;
+  padding: 0.12rem 0.4rem 0.12rem 0.12rem;
+  border: var(--border);
+  background: #fff;
+  color: #000;
+  font-family: Bangers, Impact, sans-serif;
+  font-size: 1.35rem;
+  line-height: 1.05;
+  letter-spacing: 0.02em;
+  box-shadow: 4px 4px 0 #000;
+}
+
+.form-error img {
+  flex: 0 0 auto;
+  width: 4.5rem;
+  height: auto;
+}
+
+.form-error span {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.form-error-close {
+  flex: 0 0 auto;
+  margin-left: auto;
+  padding: 0.05rem 0.45rem 0.12rem;
+  border: var(--border);
+  background: var(--yellow);
+  color: var(--ink);
+  font-family: Bangers, Impact, sans-serif;
+  font-size: 1.45rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
 .newsletter-hp {
   position: absolute;
   width: 1px;
@@ -984,6 +1074,10 @@ figcaption {
     grid-template-columns: 1fr;
   }
 
+  .caption {
+    min-width: 0;
+  }
+
   .best-value-badge {
     right: -1.55rem;
   }
@@ -1038,7 +1132,8 @@ figcaption {
   }
 }
 
-.not-found h1 {
+.not-found h1,
+.paid-panel h1 {
   display: inline-block;
   margin-bottom: 0.85rem;
   font-size: clamp(2.4rem, 8vw, 4.25rem);
