@@ -172,7 +172,8 @@ Buying a session pack uses a second Worker in `checkout/`. The newsletter Worker
 - The browser posts JSON `{ plan, checkout_hp }` to `checkoutEndpoint` in `pages/home/checkout.js`. `plan` is `session`, `pack-6`, or `pack-12`. The Worker maps that name to a Stripe Price ID. A price or amount in the body is ignored. Stripe Checkout collects the email.
 - The Starter card has no Buy button and the Worker has no starter plan. The coach gives the buyer a coupon code after the Discovery Call. The buyer uses Pay-as-you-go, or enters the code on the Stripe page of a plan. Checkout shows a promotion code box (`allow_promotion_codes`). Coupons and promotion codes are made in Stripe, not in the repo.
 - There is no webhook. The coach checks Payments in Stripe. Do not add a webhook, a refund, or an email send unless asked.
-- `STRIPE_SECRET_KEY` is the only Worker secret. Do not put it in the repo or in `checkout/wrangler.toml`. The Price IDs in that file are the live prices. A test key cannot charge them.
+- `STRIPE_SECRET_KEY` is the only Worker secret. Do not put it in the repo or in `checkout/wrangler.toml`. The Price IDs in that file are the live prices. A test key cannot charge them. A Buy click on the local site charges a real card. The test card 4242 is declined.
+- Sandbox testing steps are in `tests/stripe_testing.md`. That file is gitignored. Do not commit it, and do not put a coupon code in the repo.
 - After payment, Stripe sends the buyer to `/pages/paid/`. That page is not in the header. Cancel returns to `/#options`. The thank-you page is not proof of payment.
 - `tests/checkout.spec.js` covers the price lock, the promotion code box, and that the starter has no checkout. `tests/site.spec.js` covers the buttons and `plan_checkout_started`.
 
