@@ -4,7 +4,7 @@
 
 ## Pages
 
-- [Home](https://excelsior-prt.com/): Pain Reprocessing Therapy coaching, the process, who it is for, and common questions.
+- [Home](https://excelsior-prt.com/): Pain Reprocessing Therapy & Somatic Coaching, the process, who it is for, and common questions.
 - [My Story](https://excelsior-prt.com/pages/my-story/): John Vajda on living with chronic pain and why he coaches.
 - [Full text](https://excelsior-prt.com/llms-full.txt): The offer, process, questions, and bio in one file.
 

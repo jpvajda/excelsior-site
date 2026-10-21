@@ -53,7 +53,7 @@ function formatViolations(violations) {
 
 test("search engines get the live domain and a description", async ({ page }) => {
   const description =
-    "Pain Reprocessing Therapy coaching for chronic pain. Based in Boulder, Colorado. Coaching by video anywhere. Book a free 30 minute discovery call with Excelsior LLC.";
+    "Pain Reprocessing Therapy & Somatic Coaching for chronic pain. Based in Boulder, Colorado. Coaching by video anywhere. Book a free 30 minute discovery call with Excelsior LLC.";
 
   await openPage(page);
 
@@ -259,6 +259,9 @@ test("page sections stay in order with one heading", async ({ page }) => {
   await openPage(page);
 
   await expect(page.locator("h1")).toHaveCount(1);
+  await expect(page.locator(".offer-line")).toHaveText(
+    "Pain Reprocessing Therapy & Somatic Coaching",
+  );
 
   const landmarks = await page.evaluate(() =>
     [...document.querySelectorAll("header, main, footer")].map(
@@ -315,7 +318,7 @@ test("navigation and booking link are present", async ({ page }) => {
 
   const headerBook = page
     .getByRole("navigation", { name: "Site" })
-    .getByRole("link", { name: "Book a Discovery Call" });
+    .getByRole("link", { name: "Free Discovery Call" });
   await expect(headerBook).toBeVisible();
   await expect(headerBook).toHaveAttribute("href", zoomBooking);
   await expect(headerBook).toHaveAttribute("target", "_blank");
@@ -819,7 +822,7 @@ test.describe("phone layout", () => {
 
     const button = page
       .locator("#site-nav")
-      .getByRole("link", { name: "Book a Discovery Call" });
+      .getByRole("link", { name: "Free Discovery Call" });
     await expect(button).toBeVisible();
     await expect(button).toHaveAttribute("href", zoomBooking);
 
