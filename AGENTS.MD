@@ -169,12 +169,12 @@ The footer form is on every page. Markup is in `shared/footer.js`. `shared/newsl
 
 Buying a session pack uses a second Worker in `checkout/`. The newsletter Worker stays as it is. Deploy this Worker only when asked, from `checkout/`: `npx wrangler deploy`.
 
-- The browser posts JSON `{ plan, checkout_hp }` to `checkoutEndpoint` in `pages/home/checkout.js`. `plan` is `starter`, `session`, `pack-6`, or `pack-12`. The Worker maps that name to a Stripe Price ID. A price or amount in the body is ignored. Stripe Checkout collects the email.
-- Starter is one paid purchase per email address. Stripe has the address. The webhook refunds a later starter payment for an email that already has one.
-- `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, and `RESEND_API_KEY` are Worker secrets. Do not put them in the repo or in `checkout/wrangler.toml`. The Price IDs in that file are the sandbox prices.
-- The webhook is `POST /webhook`. Fulfill only `checkout.session.completed` and `checkout.session.async_payment_succeeded` when `payment_status` is `paid`. That sends one email to `hello@excelsior-prt.com`. The thank-you page is not proof of payment.
-- After payment, Stripe sends the buyer to `/pages/paid/`. That page is not in the header. Cancel returns to `/#options`.
-- `tests/checkout.spec.js` covers the price lock, the starter limit, and the webhook. `tests/site.spec.js` covers the buttons and `plan_checkout_started`.
+- The browser posts JSON `{ plan, checkout_hp }` to `checkoutEndpoint` in `pages/home/checkout.js`. `plan` is `session`, `pack-6`, or `pack-12`. The Worker maps that name to a Stripe Price ID. A price or amount in the body is ignored. Stripe Checkout collects the email.
+- The Starter card has no Buy button and the Worker has no starter plan. The coach gives the buyer a coupon code after the Discovery Call. The buyer uses Pay-as-you-go, or enters the code on the Stripe page of a plan. Checkout shows a promotion code box (`allow_promotion_codes`). Coupons and promotion codes are made in Stripe, not in the repo.
+- There is no webhook. The coach checks Payments in Stripe. Do not add a webhook, a refund, or an email send unless asked.
+- `STRIPE_SECRET_KEY` is the only Worker secret. Do not put it in the repo or in `checkout/wrangler.toml`. The Price IDs in that file are the sandbox prices.
+- After payment, Stripe sends the buyer to `/pages/paid/`. That page is not in the header. Cancel returns to `/#options`. The thank-you page is not proof of payment.
+- `tests/checkout.spec.js` covers the price lock, the promotion code box, and that the starter has no checkout. `tests/site.spec.js` covers the buttons and `plan_checkout_started`.
 
 ## Scope
 

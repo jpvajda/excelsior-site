@@ -743,23 +743,34 @@ test("a plan buy starts Stripe checkout", async ({ page }) => {
     };
   });
 
-  await expect(page.locator("[data-plan-buy]")).toHaveCount(4);
-  const starter = page.locator("[data-plan-buy='starter']");
-  await expect(starter.getByLabel("Email")).toHaveCount(0);
+  await expect(page.locator("[data-plan-buy]")).toHaveCount(3);
+  const pack = page.locator("[data-plan-buy='pack-12']");
+  await expect(pack.getByLabel("Email")).toHaveCount(0);
   const posted = page.waitForRequest(checkoutEndpoint);
-  await starter.getByRole("button", { name: "Buy" }).click();
+  await pack.getByRole("button", { name: "Buy" }).click();
   const request = await posted;
   expect(request.method()).toBe("POST");
   expect(request.postDataJSON()).toEqual({
-    plan: "starter",
+    plan: "pack-12",
     checkout_hp: "",
   });
   await expect
     .poll(() => page.evaluate(() => window.__checkoutEvents))
-    .toEqual([{ name: "plan_checkout_started", plan: "starter" }]);
+    .toEqual([{ name: "plan_checkout_started", plan: "pack-12" }]);
   await expect
     .poll(() => page.evaluate(() => window.__assigned))
     .toBe("https://checkout.stripe.com/c/pay/cs_test");
+});
+
+test("the starter has no buy button and promises a coupon code", async ({ page }) => {
+  await openPage(page);
+
+  const intro = page.locator("#options .caption-intro");
+  await expect(intro).toContainText("Coupon code will be provided after Discovery Call.");
+  await expect(intro).not.toContainText("One purchase per email address.");
+  await expect(intro.getByRole("button")).toHaveCount(0);
+  await expect(intro.locator("[data-plan-buy]")).toHaveCount(0);
+  await expect(page.locator("#options").getByRole("button", { name: "Buy" })).toHaveCount(3);
 });
 
 test("a pay-as-you-go buy does not ask for an email first", async ({ page }) => {
@@ -855,7 +866,22 @@ test("the paid page sends the buyer to the scheduler", async ({ page }) => {
 test.describe("checkout on a phone", () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
-  test("the starter form fits", async ({ page }) => {
+  test("the starter shows the coupon line without a buy button", async ({ page }) => {
+    await openPage(page);
+    const intro = page.locator("#options .caption-intro");
+    await intro.scrollIntoViewIfNeeded();
+    await expect(intro).toContainText("Coupon code will be provided after Discovery Call.");
+    await expect(intro.getByRole("button")).toHaveCount(0);
+    const box = await intro.boundingBox();
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width).toBeLessThanOrEqual(390);
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    expect(overflow).toBeLessThanOrEqual(1);
+  });
+
+  test("the 12 pack form fits", async ({ page }) => {
     await page.route(checkoutEndpoint, (route) =>
       route.fulfill({
         status: 502,
@@ -864,7 +890,7 @@ test.describe("checkout on a phone", () => {
       }),
     );
     await openPage(page);
-    const form = page.locator("[data-plan-buy='starter']");
+    const form = page.locator("[data-plan-buy='pack-12']");
     await form.scrollIntoViewIfNeeded();
     await expect(form.getByRole("button", { name: "Buy" })).toBeVisible();
     await form.getByRole("button", { name: "Buy" }).click();

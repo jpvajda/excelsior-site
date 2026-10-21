@@ -37,7 +37,7 @@ The footer newsletter form posts to the Cloudflare Worker in `worker/`. Deploy c
 
 ## Checkout
 
-The option cards post to the Cloudflare Worker in `checkout/`. Deploy that Worker from `checkout/` with `npx wrangler deploy`, and only when asked. The Stripe secret key, the webhook secret, and the Resend API key are Worker secrets and are not in source. The starter session can be bought once per email address.
+The option cards post to the Cloudflare Worker in `checkout/`. Deploy that Worker from `checkout/` with `npx wrangler deploy`, and only when asked. The Stripe secret key is a Worker secret and is not in source. The Starter card has no Buy button. A coupon code is provided after the Discovery Call.
 
 ## Instrumentation
 

@@ -8,18 +8,10 @@ export function Options() {
       <p><b>First 60-minute session</b></p>
       <ul>
         <li>One-time first session, limited to one per person.</li>
-        <li>One purchase per email address.</li>
-         <li>Provides time to get a feel for the process.</li>
+        <li>Provides time to get a feel for the process.</li>
+        <li>Coupon code will be provided after Discovery Call.</li>
       </ul>
       <p class="options-price">$85.00</p>
-      <form class="plan-buy" data-plan-buy="starter">
-        <button class="button" type="submit">Buy</button>
-        <p class="plan-status" data-checkout-status role="status" aria-live="polite"></p>
-        <div class="plan-hp" aria-hidden="true">
-          <label for="starter-hp">Leave blank</label>
-          <input id="starter-hp" name="checkout_hp" type="text" tabindex="-1" autocomplete="off">
-        </div>
-      </form>
     </article>
     <article class="caption">
       <p class="plan-mark">Pay-as-you-go</p>
