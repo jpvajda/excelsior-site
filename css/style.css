@@ -605,6 +605,19 @@ figcaption,
   counter-reset: step;
 }
 
+.process-guide {
+  margin-top: var(--gutter);
+  text-align: center;
+}
+
+.process-guide .button {
+  width: max-content;
+  max-width: min(100%, 46rem);
+  line-height: 1.15;
+  text-align: center;
+  text-wrap: balance;
+}
+
 .step {
   position: relative;
   margin: 0;

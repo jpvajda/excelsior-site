@@ -28,6 +28,9 @@ export function Process() {
       <p>As your brain relearns safety, the alarm can quiet down and pain signals can turn down.</p>
     </li>
   </ol>
+  <div class="process-guide">
+    <a class="button" data-somatic-guide="process" href="files/5-minute-somatic-tracking-reset.pdf" target="_blank" rel="noopener noreferrer">Get your Free 5 min Somatic Tracking Reset Guide</a>
+  </div>
 </section>
 `;
 }
