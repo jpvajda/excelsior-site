@@ -13,6 +13,10 @@
 
 - [Book a free discovery call](https://scheduler.zoom.us/excelsior-llc/prt-discovery-call): 30 minutes by video.
 
+## Guide
+
+- [Free 5 min Somatic Tracking Reset Guide](https://excelsior-prt.com/files/5-minute-somatic-tracking-reset.pdf): A 5 minute PDF.
+
 ## Optional
 
 - [Sitemap](https://excelsior-prt.com/sitemap.xml): Every public page.

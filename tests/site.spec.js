@@ -25,6 +25,9 @@ const navLinks = [
 
 const zoomBooking =
   "https://scheduler.zoom.us/excelsior-llc/prt-discovery-call";
+const somaticGuidePath = "files/5-minute-somatic-tracking-reset.pdf";
+const somaticGuide = `https://excelsior-prt.com/${somaticGuidePath}`;
+const somaticGuideName = "Get your Free 5 min Somatic Tracking Reset Guide";
 
 async function openPage(page) {
   await page.goto("/");
@@ -103,6 +106,9 @@ test("agents can read the offer without running scripts", async ({ page }) => {
   const service = graph["@graph"].find((node) => node["@type"] === "ProfessionalService");
   expect(JSON.stringify(service.areaServed)).toContain("Boulder");
   expect(JSON.stringify(service.potentialAction)).toContain(zoomBooking);
+  expect(service.subjectOf.url).toBe(somaticGuide);
+  expect(service.subjectOf.name).toBe("Free 5 min Somatic Tracking Reset Guide");
+  expect(home).toContain(somaticGuideName);
   const person = graph["@graph"].find((node) => node["@type"] === "Person");
   expect(person.sameAs).toBe("https://www.linkedin.com/in/johnpvajda/");
   expect(person.hasCredential).toBeUndefined();
@@ -141,6 +147,7 @@ test("agents can read the offer without running scripts", async ({ page }) => {
   const llmsText = await llms.text();
   expect(llmsText.startsWith("# Excelsior LLC")).toBe(true);
   expect(llmsText).toContain("Boulder, Colorado");
+  expect(llmsText).toContain(somaticGuide);
 
   const links = [...llmsText.matchAll(/\]\((https?:\/\/[^)]+)\)/g)].map((match) => match[1]);
   expect(links.length).toBeGreaterThan(0);
@@ -158,6 +165,7 @@ test("agents can read the offer without running scripts", async ({ page }) => {
   const fullText = await full.text();
   expect(fullText).not.toContain("Pain Reprocessing Coaching Training");
   expect(fullText).toContain("https://www.linkedin.com/in/johnpvajda/");
+  expect(fullText).toContain(somaticGuide);
 
   const robots = await (await page.request.get("/robots.txt")).text();
   expect(robots).not.toMatch(/Disallow:\s*\//);
@@ -211,6 +219,52 @@ test("booking links record which spot was clicked", async ({ page }) => {
       { name: "discovery_call_clicked", placement: "header" },
       { name: "discovery_call_clicked", placement: "contact" },
     ]);
+});
+
+test("somatic tracking guide opens under the process steps", async ({ page }) => {
+  await openPage(page);
+
+  const guide = page.getByRole("link", { name: somaticGuideName });
+  await expect(guide).toBeVisible();
+  await expect(guide).toHaveAttribute("href", somaticGuidePath);
+  await expect(guide).toHaveAttribute("target", "_blank");
+  await expect(guide).toHaveAttribute("rel", /noopener/);
+  await expect(guide).toHaveCSS("background-color", "rgb(208, 18, 26)");
+  await expect(guide).toHaveCSS("font-family", /Bangers/);
+
+  const place = await page.evaluate(() => {
+    const payoff = document.querySelector("#process .step-payoff").getBoundingClientRect();
+    const link = document.querySelector("[data-somatic-guide='process']").getBoundingClientRect();
+    const steps = document.querySelector("#process .steps").getBoundingClientRect();
+    const fourth = document.querySelectorAll("#process .step")[3].getBoundingClientRect();
+    return {
+      belowPayoff: link.top >= payoff.bottom - 1,
+      belowFourth: link.top >= fourth.bottom - 1,
+      centered: Math.abs(
+        link.left + link.width / 2 - (steps.left + steps.width / 2),
+      ),
+      narrower: link.width < steps.width - 8,
+    };
+  });
+  expect(place.belowPayoff).toBe(true);
+  expect(place.belowFourth).toBe(true);
+  expect(place.centered).toBeLessThan(2);
+  expect(place.narrower).toBe(true);
+
+  await page.evaluate(() => {
+    window.__guideEvents = [];
+    const capture = window.posthog.capture.bind(window.posthog);
+    window.posthog.capture = (name, properties) => {
+      if (name === "somatic_guide_clicked") {
+        window.__guideEvents.push({ name, placement: properties.placement });
+      }
+      return capture(name, properties);
+    };
+  });
+  await guide.dispatchEvent("click", { bubbles: true });
+  await expect
+    .poll(() => page.evaluate(() => window.__guideEvents))
+    .toEqual([{ name: "somatic_guide_clicked", placement: "process" }]);
 });
 
 test("promo video stays a poster until play", async ({ page }) => {
@@ -966,6 +1020,50 @@ test.describe("phone layout", () => {
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
     );
     expect(openOverflow).toBeLessThanOrEqual(1);
+  });
+
+  test("somatic tracking guide stays under the payoff on a phone", async ({ page }) => {
+    await openPage(page);
+
+    const guide = page.getByRole("link", { name: somaticGuideName });
+    await expect(guide).toBeVisible();
+    await guide.scrollIntoViewIfNeeded();
+
+    const place = await page.evaluate(() => {
+      const payoff = document.querySelector("#process .step-payoff").getBoundingClientRect();
+      const link = document.querySelector("[data-somatic-guide='process']").getBoundingClientRect();
+      const steps = document.querySelector("#process .steps").getBoundingClientRect();
+      return {
+        belowPayoff: link.top >= payoff.bottom - 1,
+        centered: Math.abs(
+          link.left + link.width / 2 - (steps.left + steps.width / 2),
+        ),
+        inside: link.left >= 0 && link.right <= 391,
+      };
+    });
+    expect(place.belowPayoff).toBe(true);
+    expect(place.centered).toBeLessThan(2);
+    expect(place.inside).toBe(true);
+
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    expect(overflow).toBeLessThanOrEqual(1);
+
+    await page.evaluate(() => {
+      window.__guideEvents = [];
+      const capture = window.posthog.capture.bind(window.posthog);
+      window.posthog.capture = (name, properties) => {
+        if (name === "somatic_guide_clicked") {
+          window.__guideEvents.push({ name, placement: properties.placement });
+        }
+        return capture(name, properties);
+      };
+    });
+    await guide.dispatchEvent("click", { bubbles: true });
+    await expect
+      .poll(() => page.evaluate(() => window.__guideEvents))
+      .toEqual([{ name: "somatic_guide_clicked", placement: "process" }]);
   });
 
   test("booking button in the open menu records a header click", async ({ page }) => {

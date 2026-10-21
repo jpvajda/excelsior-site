@@ -36,6 +36,13 @@ export function bindTracking() {
         placement: video.getAttribute("data-promo-video"),
       });
     }
+
+    const guide = event.target.closest("[data-somatic-guide]");
+    if (guide) {
+      window.posthog.capture("somatic_guide_clicked", {
+        placement: guide.getAttribute("data-somatic-guide"),
+      });
+    }
   });
 }
 
