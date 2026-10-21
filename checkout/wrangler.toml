@@ -6,10 +6,10 @@ compatibility_date = "2026-10-20"
 ALLOWED_ORIGINS = "https://excelsior-prt.com,http://127.0.0.1:3000,http://localhost:3000"
 SUCCESS_URL = "https://excelsior-prt.com/pages/paid/"
 CANCEL_URL = "https://excelsior-prt.com/#options"
-# Sandbox prices. Replace these when the live account is verified.
-PRICE_SESSION = "price_1USktLE2v9L7aAJlIFISw0QE"
-PRICE_PACK_6 = "price_1USktME2v9L7aAJlRAGPhDdl"
-PRICE_PACK_12 = "price_1USktME2v9L7aAJl3Iz4T0L6"
+# Live prices. A test key cannot charge these.
+PRICE_SESSION = "price_1UT7kRE2v9L7aAJl8nOBIeZV"
+PRICE_PACK_6 = "price_1UT7kRE2v9L7aAJlT9rvJRPm"
+PRICE_PACK_12 = "price_1UT7kSE2v9L7aAJl9Sqil3yp"
 
 [observability.logs]
 enabled = true
