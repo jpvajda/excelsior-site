@@ -16,6 +16,18 @@ function json(body, status, origin, allowed) {
   return new Response(JSON.stringify(body), { status, headers });
 }
 
+function safeErrorName(detail) {
+  let name = "unknown";
+  try {
+    const parsed = JSON.parse(detail);
+    const value = parsed.name || parsed.message || parsed.error?.message || parsed.error?.type;
+    if (value) name = String(value);
+  } catch {
+    name = "unknown";
+  }
+  return name.replace(/[^\s@]+@[^\s@]+\.[^\s@]+/g, "[email]").slice(0, 120);
+}
+
 export default {
   async fetch(request, env) {
     const origin = request.headers.get("Origin");
@@ -43,6 +55,13 @@ export default {
     if (!allowed.includes(origin)) {
       return json({ ok: false }, 403, origin, allowed);
     }
+
+    if (!env.SIGNUP_RATE_LIMITER || typeof env.SIGNUP_RATE_LIMITER.limit !== "function") {
+      return json({ ok: false }, 500, origin, allowed);
+    }
+    const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+    const { success } = await env.SIGNUP_RATE_LIMITER.limit({ key: ip });
+    if (!success) return json({ ok: false }, 429, origin, allowed);
 
     let payload;
     try {
@@ -94,7 +113,7 @@ export default {
     console.log(
       JSON.stringify({
         resendStatus: resendResponse.status,
-        detail: detail.slice(0, 300),
+        error: safeErrorName(detail),
       }),
     );
     return json({ ok: false }, 502, origin, allowed);

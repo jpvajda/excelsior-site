@@ -106,6 +106,28 @@ test("each plan opens Stripe checkout with a promotion code box", async () => {
   }
 });
 
+test("a stripe error log drops the email", async () => {
+  const logs = [];
+  const originalError = console.error;
+  const originalFetch = globalThis.fetch;
+  console.error = (line) => logs.push(String(line));
+  globalThis.fetch = async () =>
+    new Response(JSON.stringify({ error: { message: "No such customer buyer@example.com" } }), {
+      status: 400,
+    });
+
+  try {
+    const response = await worker.fetch(post({ plan: "session", checkout_hp: "" }), env());
+    expect(response.status).toBe(502);
+    expect(await response.json()).toEqual({ ok: false });
+    expect(logs.join("")).not.toContain("@");
+    expect(logs.join("")).toContain("400");
+  } finally {
+    console.error = originalError;
+    globalThis.fetch = originalFetch;
+  }
+});
+
 test("the starter session has no checkout", async () => {
   const calls = [];
   const originalFetch = globalThis.fetch;
