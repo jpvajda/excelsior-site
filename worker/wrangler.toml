@@ -6,6 +6,14 @@ compatibility_date = "2026-10-19"
 SEGMENT_ID = "461c1f7e-405b-44e4-a778-5650d710e8c5"
 ALLOWED_ORIGINS = "https://excelsior-prt.com,http://127.0.0.1:3000,http://localhost:3000"
 
+[[ratelimits]]
+name = "SIGNUP_RATE_LIMITER"
+namespace_id = "1001"
+
+  [ratelimits.simple]
+  limit = 10
+  period = 60
+
 [observability.logs]
 enabled = true
 head_sampling_rate = 1

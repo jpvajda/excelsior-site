@@ -156,14 +156,15 @@ The footer form is on every page. Markup is in `shared/footer.js`. `shared/newsl
 
 - The browser posts JSON `{ email, signup_hp }` to `newsletterEndpoint` in `shared/newsletter.js`: `https://excelsior-signup.john-vajda.workers.dev`. Keep the `john-vajda` subdomain. `https://excelsior-signup.workers.dev` does not serve this Worker.
 - Deploy the Worker only when asked, and only from `worker/`: `npx wrangler deploy`. From the repo root, Wrangler offers a new static Worker named `excelsior-site`. Decline that. Editing `worker/` does not change the live Worker until this deploy. The static site still ships only when `main` is pushed.
-- `RESEND_API_KEY` is set with `npx wrangler secret put RESEND_API_KEY` from `worker/`. It stays a Cloudflare secret. Do not put it in the repo, in `wrangler.toml`, or in a committed `worker/.dev.vars`. The key needs Full access. A Sending access key cannot create contacts. No sending domain is required.
+- `RESEND_API_KEY` is set with `npx wrangler secret put RESEND_API_KEY` from `worker/`. It stays a Cloudflare secret. Do not put it in the repo, in `wrangler.toml`, or in a committed `worker/.dev.vars`. The key needs Full access. Resend only offers Full access or Sending access, and a Sending access key cannot create contacts. A copied Full access key can read contacts and send mail for the whole Resend account. No sending domain is required. Rotate the key in the Resend and Cloudflare dashboards if the Cloudflare account is shared or the key may have leaked.
 - `SEGMENT_ID` in `wrangler.toml` is the Resend Newsletter segment. It is a plain var, not a secret.
-- `ALLOWED_ORIGINS` is the exact `Origin` the browser sends. `http://127.0.0.1:3000` and `http://localhost:3000` are both local and both required. A missing origin gets 403 with no CORS header, and the form says "Could not sign up. Try again." Restarting `serve.py` does not change the list.
+- `ALLOWED_ORIGINS` is the exact `Origin` the browser sends. `http://127.0.0.1:3000` and `http://localhost:3000` are both local and both required. Those two origins are for local browser calls, and they are not caller authentication. A missing origin gets 403 with no CORS header, and the form says "Could not sign up. Try again." Restarting `serve.py` does not change the list.
+- One address can sign up 10 times per minute, counted by `CF-Connecting-IP`. The 11th POST returns 429 and does not call Resend. A missing `SIGNUP_RATE_LIMITER` binding returns 500. A Resend failure log stores the status and a short error name. It does not store the address.
 - The hidden field is `signup_hp`. If it is non-empty, the Worker returns success and does not call Resend. Do not name that field `company` or any other autofill name.
 - A contact Resend already has is treated as success.
 - Observability in `wrangler.toml` uses `[observability.logs]` and `[observability.issues]`. `issue_detection` is not a valid key.
 - Leave the `workers.dev` URL public. Do not put the Worker behind Cloudflare Access.
-- `tests/site.spec.js` covers the form, the posted body, and `newsletter_signup`. `tests/worker.spec.js` checks `ALLOWED_ORIGINS` and that only `signup_hp` skips Resend. Update both when those change.
+- `tests/site.spec.js` covers the form, the posted body, and `newsletter_signup`. `tests/worker.spec.js` checks `ALLOWED_ORIGINS`, that only `signup_hp` skips Resend, the per-address cap, and that a Resend error log drops the address. Update both when those change.
 
 ## Checkout
 
@@ -175,7 +176,7 @@ Buying a session pack uses a second Worker in `checkout/`. The newsletter Worker
 - `STRIPE_SECRET_KEY` is the only Worker secret. Do not put it in the repo or in `checkout/wrangler.toml`. The Price IDs in that file are the live prices. A test key cannot charge them. A Buy click on the local site charges a real card. The test card 4242 is declined.
 - Sandbox testing steps are in `tests/stripe_testing.md`. That file is gitignored. Do not commit it, and do not put a coupon code in the repo.
 - After payment, Stripe sends the buyer to `/pages/paid/`. That page is not in the header. Cancel returns to `/#options`. The thank-you page is not proof of payment.
-- `tests/checkout.spec.js` covers the price lock, the promotion code box, and that the starter has no checkout. `tests/site.spec.js` covers the buttons and `plan_checkout_started`.
+- `tests/checkout.spec.js` covers the price lock, the promotion code box, that the starter has no checkout, and that a Stripe error log drops the address. `tests/site.spec.js` covers the buttons and `plan_checkout_started`.
 
 ## Scope
 

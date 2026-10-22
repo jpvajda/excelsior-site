@@ -21,6 +21,18 @@ function json(body, status, origin, allowed) {
   return new Response(JSON.stringify(body), { status, headers });
 }
 
+function safeErrorName(detail) {
+  let name = "unknown";
+  try {
+    const parsed = JSON.parse(detail);
+    const value = parsed.name || parsed.message || parsed.error?.message || parsed.error?.type;
+    if (value) name = String(value);
+  } catch {
+    name = "unknown";
+  }
+  return name.replace(/[^\s@]+@[^\s@]+\.[^\s@]+/g, "[email]").slice(0, 120);
+}
+
 function integrationId() {
   const letters = "abcdefghijklmnopqrstuvwxyz";
   const bytes = crypto.getRandomValues(new Uint8Array(8));
@@ -42,6 +54,7 @@ async function createCheckoutSession(env, params) {
   const text = await response.text();
   if (!response.ok) {
     const error = new Error("stripe");
+    error.status = response.status;
     error.detail = text.slice(0, 300);
     throw error;
   }
@@ -83,7 +96,12 @@ async function createSession(request, env, origin, allowed) {
     if (!session.url) return json({ ok: false }, 502, origin, allowed);
     return json({ ok: true, url: session.url }, 200, origin, allowed);
   } catch (error) {
-    console.error(JSON.stringify({ stripe: String(error.detail || error.message).slice(0, 300) }));
+    console.error(
+      JSON.stringify({
+        stripeStatus: error.status || 0,
+        error: safeErrorName(String(error.detail || "")),
+      }),
+    );
     return json({ ok: false }, 502, origin, allowed);
   }
 }
