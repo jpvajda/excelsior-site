@@ -365,6 +365,10 @@ test("navigation and booking link are present", async ({ page }) => {
   await expect(story).toHaveAttribute("href", "/pages/my-story/");
   await expect(story).not.toHaveAttribute("aria-current", "page");
 
+  await expect(page.locator("#contact .email-line")).toHaveText(
+    "Start with a free 30-minute discovery call. We'll talk through your current experience with pain. I'll answer your questions, and we'll decide together whether coaching is a good fit and where to start.",
+  );
+
   const book = page.locator("#contact").getByRole("link", { name: "Book a call" });
   await expect(book).toBeVisible();
   await expect(book).toHaveAttribute("href", zoomBooking);
