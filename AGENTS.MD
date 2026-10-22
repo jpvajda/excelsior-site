@@ -9,10 +9,10 @@ Marketing site for Excelsior LLC. The owner is a Pain Reprocessing Therapy (PRT)
 - To view locally, run `python3 serve.py` and open http://127.0.0.1:3000. http://localhost:3000 is the same server with a different browser origin. See Newsletter. Do not use `python3 -m http.server`. That command shows Python's own error page for a bad address. Do not open `index.html` as a file. The browser blocks the modules from a `file://` address.
 - One CSS file at `css/style.css`.
 - No app framework, database, or build step. Vanilla JS, HTML, and CSS only. GitHub Pages publishes the static files. The footer signup Worker and the checkout Worker are separate deploys. See Newsletter and Checkout.
-- `pnpm install` installs Playwright and Wrangler from `package.json`. Deploy with `pnpm exec wrangler` from `worker/` or `checkout/`. Do not use `npx wrangler`. Keep `pnpm.onlyBuiltDependencies` for `esbuild` and `workerd`. Without those build scripts, Wrangler cannot bundle a Worker.
+- `pnpm install` installs Playwright and Wrangler from `package.json`. The `wrangler` script runs Wrangler in the folder where you invoked it. Deploy with `pnpm wrangler deploy` from `worker/`, from `checkout/`, or from a future Worker folder. Do not use `npx wrangler` or `pnpm exec wrangler`. Do not run it from the repo root: Wrangler offers a new static Worker named `excelsior-site`. Decline that. Keep `pnpm.onlyBuiltDependencies` for `esbuild` and `workerd`. Without those build scripts, Wrangler cannot bundle a Worker.
 - Relative URLs, so the site works as a project site and on a custom domain.
 - Keep `.nojekyll` so Pages does not run Jekyll.
-- Do not push or deploy unless asked. That includes `pnpm exec wrangler deploy`.
+- Do not push or deploy unless asked. That includes `pnpm wrangler deploy`.
 
 ## File layout
 
@@ -156,8 +156,8 @@ When a new control is added, send a PostHog event for it in the same change. Boo
 The footer form is on every page. Markup is in `shared/footer.js`. `shared/newsletter.js` posts the address. `pages/home/page.js` and `pages/my-story/page.js` call `bindNewsletter()`.
 
 - The browser posts JSON `{ email, signup_hp }` to `newsletterEndpoint` in `shared/newsletter.js`: `https://excelsior-signup.john-vajda.workers.dev`. Keep the `john-vajda` subdomain. `https://excelsior-signup.workers.dev` does not serve this Worker.
-- Deploy the Worker only when asked, and only from `worker/`: `pnpm exec wrangler deploy`. Do not use `npx wrangler`. From the repo root, Wrangler offers a new static Worker named `excelsior-site`. Decline that. Editing `worker/` does not change the live Worker until this deploy. The static site still ships only when `main` is pushed.
-- `RESEND_API_KEY` is set with `pnpm exec wrangler secret put RESEND_API_KEY` from `worker/`. It stays a Cloudflare secret. Do not put it in the repo, in `wrangler.toml`, or in a committed `worker/.dev.vars`. The key needs Full access. Resend only offers Full access or Sending access, and a Sending access key cannot create contacts. A copied Full access key can read contacts and send mail for the whole Resend account. No sending domain is required. Rotate the key in the Resend and Cloudflare dashboards if the Cloudflare account is shared or the key may have leaked.
+- Deploy the Worker only when asked, from `worker/`: `pnpm wrangler deploy`. Do not use `npx wrangler` or `pnpm exec wrangler`. Editing `worker/` does not change the live Worker until this deploy. The static site still ships only when `main` is pushed.
+- `RESEND_API_KEY` is set with `pnpm wrangler secret put RESEND_API_KEY` from `worker/`. It stays a Cloudflare secret. Do not put it in the repo, in `wrangler.toml`, or in a committed `worker/.dev.vars`. The key needs Full access. Resend only offers Full access or Sending access, and a Sending access key cannot create contacts. A copied Full access key can read contacts and send mail for the whole Resend account. No sending domain is required. Rotate the key in the Resend and Cloudflare dashboards if the Cloudflare account is shared or the key may have leaked.
 - `SEGMENT_ID` in `wrangler.toml` is the Resend Newsletter segment. It is a plain var, not a secret.
 - `ALLOWED_ORIGINS` is the exact `Origin` the browser sends. `http://127.0.0.1:3000` and `http://localhost:3000` are both local and both required. Those two origins are for local browser calls, and they are not caller authentication. A missing origin gets 403 with no CORS header, and the form says "Could not sign up. Try again." Restarting `serve.py` does not change the list.
 - One address can sign up 10 times per minute, counted by `CF-Connecting-IP`. The 11th POST returns 429 and does not call Resend. A missing `SIGNUP_RATE_LIMITER` binding returns 500. A Resend failure log stores the status and a short error name. It does not store the address.
@@ -165,11 +165,11 @@ The footer form is on every page. Markup is in `shared/footer.js`. `shared/newsl
 - A contact Resend already has is treated as success.
 - Observability in `wrangler.toml` uses `[observability.logs]` and `[observability.issues]`. `issue_detection` is not a valid key.
 - Leave the `workers.dev` URL public. Do not put the Worker behind Cloudflare Access.
-- `tests/site.spec.js` covers the form, the posted body, and `newsletter_signup`. `tests/worker.spec.js` checks `ALLOWED_ORIGINS`, that only `signup_hp` skips Resend, the per-address cap, and that a Resend error log drops the address. Update both when those change.
+- `tests/site.spec.js` covers the form, the posted body, and `newsletter_signup`. `tests/worker.spec.js` checks `ALLOWED_ORIGINS`, that only `signup_hp` skips Resend, the per-address cap, that a Resend error log drops the address, and that `pnpm wrangler` stays in the folder where it was run. Update both when those change.
 
 ## Checkout
 
-Buying a session pack uses a second Worker in `checkout/`. The newsletter Worker stays as it is. Deploy this Worker only when asked, from `checkout/`: `pnpm exec wrangler deploy`. Do not use `npx wrangler`.
+Buying a session pack uses a second Worker in `checkout/`. The newsletter Worker stays as it is. Deploy this Worker only when asked, from `checkout/`: `pnpm wrangler deploy`. Do not use `npx wrangler` or `pnpm exec wrangler`.
 
 - The browser posts JSON `{ plan, checkout_hp }` to `checkoutEndpoint` in `pages/home/checkout.js`. `plan` is `session`, `pack-6`, or `pack-12`. The Worker maps that name to a Stripe Price ID. A price or amount in the body is ignored. Stripe Checkout collects the email.
 - The Starter card has no Buy button and the Worker has no starter plan. The coach gives the buyer a coupon code after the Discovery Call. The buyer uses Pay-as-you-go, or enters the code on the Stripe page of a plan. Checkout shows a promotion code box (`allow_promotion_codes`). Coupons and promotion codes are made in Stripe, not in the repo.

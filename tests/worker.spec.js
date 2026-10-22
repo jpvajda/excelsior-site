@@ -162,6 +162,13 @@ test("a resend error log drops the email", async () => {
   }
 });
 
+test("pnpm wrangler stays in the folder where it was run", () => {
+  const pkg = JSON.parse(readFileSync("package.json", "utf8"));
+  expect(pkg.devDependencies.wrangler).toBeTruthy();
+  expect(pkg.scripts.wrangler).toBe('cd "$INIT_CWD" && wrangler');
+  expect(pkg.pnpm.onlyBuiltDependencies).toEqual(expect.arrayContaining(["esbuild", "workerd"]));
+});
+
 test("a missing rate limiter does not call Resend", async () => {
   const calls = [];
   const originalFetch = globalThis.fetch;

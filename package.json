@@ -2,7 +2,8 @@
   "name": "excelsior-site",
   "private": true,
   "scripts": {
-    "test": "playwright test"
+    "test": "playwright test",
+    "wrangler": "cd \"$INIT_CWD\" && wrangler"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.0",

@@ -8,6 +8,10 @@ Home page for Pain Reprocessing Therapy & Somatic Coaching.
 
 ## Development
 
+```bash
+pnpm install
+```
+
 Run it locally from this folder:
 
 ```bash
@@ -22,7 +26,6 @@ Then open http://127.0.0.1:3000.
 Install the tools once, then run the checks:
 
 ```bash
-pnpm install
 pnpm test
 ```
 
@@ -34,11 +37,16 @@ GitHub Pages: Settings → Pages → Deploy from a branch → `main` → `/ (roo
 
 ## Workers
 
-Deploy after `pnpm install`. Run this from the repo root. Signup first, then checkout. Do not use `npx wrangler`.
+Deploy after `pnpm install`. `cd` into the Worker folder, then run the same command. Signup first, then checkout.
 
 ```bash
-cd worker && pnpm exec wrangler deploy
-cd ../checkout && pnpm exec wrangler deploy
+cd worker
+pnpm wrangler deploy
+```
+
+```bash
+cd checkout
+pnpm wrangler deploy
 ```
 
 The Resend and Stripe keys stay in Cloudflare. They are not in the repo. A deploy does not ask for them again.
