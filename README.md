@@ -8,6 +8,10 @@ Home page for Pain Reprocessing Therapy & Somatic Coaching.
 
 ## Development
 
+```bash
+pnpm install
+```
+
 Run it locally from this folder:
 
 ```bash
@@ -19,25 +23,41 @@ Then open http://127.0.0.1:3000.
 
 ## Testing
 
-Run the checks:
+Install the tools once, then run the checks:
 
 ```bash
 pnpm test
 ```
 
-GitHub runs these on every pull request.
+GitHub runs these checks on every pull request.
 
 Each page lives in a folder under `pages/`. Edit a section there. Each file is a JavaScript function for that part of the page. The folder map is in `AGENTS.MD`.
 
-GitHub Pages: Settings → Pages → Deploy from a branch → `main` → `/ (root)`.
+GitHub Pages: Settings → Pages → Deploy from a branch → `main` → `/ (root)`. Pushing `main` publishes the site. It does not update the Workers.
+
+## Workers
+
+Deploy after `pnpm install`. `cd` into the Worker folder, then run the same command. Signup first, then checkout.
+
+```bash
+cd worker
+pnpm wrangler deploy
+```
+
+```bash
+cd checkout
+pnpm wrangler deploy
+```
+
+The Resend and Stripe keys stay in Cloudflare. They are not in the repo. A deploy does not ask for them again.
 
 ## Newsletter Signup
 
-The footer newsletter form posts to the Cloudflare Worker in `worker/`. Deploy changes to that Worker from `worker/` with `npx wrangler deploy`, and only when asked. The Resend API key is a Worker secret and is not in source.
+The footer newsletter form posts to the Cloudflare Worker in `worker/`.
 
 ## Checkout
 
-The option cards post to the Cloudflare Worker in `checkout/`. Deploy that Worker from `checkout/` with `npx wrangler deploy`, and only when asked. The Stripe secret key is a Worker secret and is not in source. The Starter card has no Buy button. A coupon code is provided after the Discovery Call.
+The option cards post to the Cloudflare Worker in `checkout/`. The Stripe secret key is a Worker secret and is not in source. The Starter card has no Buy button. A coupon code is provided after the Discovery Call.
 
 ## Instrumentation
 
