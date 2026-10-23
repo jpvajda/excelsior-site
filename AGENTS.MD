@@ -141,7 +141,16 @@ The home page is built in the browser. Agents that do not run JavaScript only se
 
 `llms-full.txt` is one file with the offer, who it is for, the process, the session options, the questions, and the bio. The August 2026 spec no longer requires this expanded file. Keep it. This site has no per-page `.md` copies, and one fetch is how an agent reads the facts without JavaScript. Link it from `llms.txt`. Do not delete it, and do not add `/.well-known/` agent files. GitHub Pages cannot set `Link` headers.
 
-The `<noscript>` blocks, the JSON-LD, `llms.txt`, and `llms-full.txt` must state the same facts as the visible page. When the offer, location, process, session options, or questions change, update all four in the same change. The home JSON-LD `FAQPage` questions and answers must match the `#questions` caption text. The test `agents can read the offer without running scripts` fails when they drift.
+The `<noscript>` blocks, the JSON-LD, `llms.txt`, and `llms-full.txt` must state the same facts as the visible page. When the offer, location, process, session options, or questions change, update all four in the same change. The home JSON-LD `FAQPage` questions and answers must match the `#questions` caption text. The test `agents can read the offer without running scripts` fails when they drift. The test `llms-full.txt lists every question and price shown on the page` fails when a question or a price on the page is missing from `llms-full.txt`.
+
+Diff check. After any change to copy, prices, or the offer, list the lines you changed and answer four questions in the final message, each pass or fail with one sentence:
+
+1. Claims: does the diff promise a cure, eliminated pain, or a guaranteed result, or call coaching medical care? Quoting the NIH title or saying coaching is not a substitute for medical treatment passes.
+2. New facts: does the diff add a price, credential, year, training name, city, statistic, or client name the owner did not give in the request?
+3. One offer: does the diff add a second program, product, or paid lead magnet?
+4. Same facts everywhere: is every changed fact also updated in the visible section, `<noscript>`, JSON-LD, `llms.txt`, and `llms-full.txt`? For a price change, is the matching Stripe Price ID in `checkout/wrangler.toml` still the right amount? Say so if it is not updated yet.
+
+Any fail means the change is not done.
 
 `robots.txt` stays `Allow: /` for `*` and for the named search and answer bots. Do not add `Disallow: /`. Keep the `Sitemap:` line.
 

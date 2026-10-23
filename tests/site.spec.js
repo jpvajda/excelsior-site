@@ -175,6 +175,28 @@ test("agents can read the offer without running scripts", async ({ page }) => {
   expect(existsSync("llms-full.txt")).toBe(true);
 });
 
+test("llms-full.txt lists every question and price shown on the page", async ({ page }) => {
+  await openPage(page);
+  const fullText = await (await page.request.get("/llms-full.txt")).text();
+
+  const questions = await page
+    .locator("#questions .caption h3")
+    .evaluateAll((nodes) => nodes.map((node) => node.textContent.trim()));
+  expect(questions.length).toBeGreaterThan(0);
+  for (const question of questions) {
+    expect(fullText, `llms-full.txt is missing the question "${question}"`).toContain(question);
+  }
+
+  const prices = await page
+    .locator("#options .options-price")
+    .evaluateAll((nodes) => nodes.map((node) => node.textContent.trim()));
+  expect(prices).toHaveLength(4);
+  for (const price of prices) {
+    const short = `${price.replace(/\.00$/, "")}.`;
+    expect(fullText, `llms-full.txt is missing the price ${price}`).toContain(short);
+  }
+});
+
 async function watchDiscoveryClicks(page) {
   await page.evaluate(() => {
     window.__discoveryEvents = [];
