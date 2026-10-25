@@ -1219,7 +1219,7 @@ test("my story is its own page", async ({ page }) => {
   );
   await expect(page.locator(".story-banner img")).toHaveAttribute(
     "src",
-    "../../images/comic_hero_banner.png",
+    "../../images/excelsior-retro-banner.png",
   );
   await expect(page.locator("#working-in-tech img")).toHaveAttribute(
     "src",
