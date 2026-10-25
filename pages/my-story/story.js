@@ -2,7 +2,7 @@ export function Story() {
   return `
 <article class="story">
   <figure class="story-banner">
-    <img src="../../images/comic_hero_banner.png" alt="Comic banner of John P. Vajda in a blue suit and red cape, with Excelsior LLC and PRT for a better tomorrow." width="2170" height="725">
+    <img src="../../images/excelsior-retro-banner.png" alt="Excelsior LLC comic banner: a flying figure in a blue suit, red cape, and red beanie, over a yellow burst." width="2155" height="730">
   </figure>
   <div class="story-body">
     <h1 id="story-title">My Story</h1>
