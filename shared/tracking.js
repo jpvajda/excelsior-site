@@ -16,6 +16,20 @@ export function bindTracking() {
       });
     }
 
+    const workshops = event.target.closest("[data-workshops]");
+    if (workshops) {
+      window.posthog.capture("workshops_clicked", {
+        placement: workshops.getAttribute("data-workshops"),
+      });
+    }
+
+    const interest = event.target.closest("[data-workshop-signup]");
+    if (interest) {
+      window.posthog.capture("workshop_interest_clicked", {
+        placement: interest.getAttribute("data-workshop-signup"),
+      });
+    }
+
     const dataSection = event.target.closest("[data-data-section]");
     if (dataSection) {
       window.posthog.capture("data_section_clicked", {

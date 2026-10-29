@@ -43,7 +43,8 @@ li {
 #questions .caption p,
 #who li,
 .contact-card p,
-#about .about-grid p {
+#about .about-grid p,
+.workshop-intro {
   max-width: none;
 }
 
@@ -584,6 +585,117 @@ figcaption,
   z-index: 1;
 }
 
+.workshop-heading {
+  display: inline-block;
+  margin-bottom: 0.85rem;
+  font-size: clamp(2.4rem, 8vw, 4.75rem);
+}
+
+.workshop-intro {
+  margin-bottom: 1.1rem;
+}
+
+.workshop-intro::after {
+  content: "";
+  display: block;
+  clear: both;
+}
+
+.workshop-intro img {
+  float: left;
+  width: 9.5rem;
+  height: auto;
+  margin: 0.15rem 1rem 0.35rem 0;
+  filter: drop-shadow(4px 4px 0 var(--ink));
+}
+
+.workshop-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--gutter);
+}
+
+.workshop-card h2 {
+  font-size: clamp(1.65rem, 3vw, 2.4rem);
+  text-wrap: balance;
+}
+
+.workshop-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  column-gap: 1.75rem;
+  align-items: stretch;
+}
+
+.workshop-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.workshop-soon {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.25rem;
+}
+
+.workshop-soon h2 {
+  margin-bottom: 0;
+}
+
+.workshop-soon .workshop-body {
+  display: block;
+  flex: 1;
+  min-width: 12rem;
+}
+
+.workshop-card h3 {
+  margin-top: 0;
+}
+
+.workshop-meta {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.4rem;
+  margin: 0 0 2.4rem;
+  padding: 0;
+  list-style: none;
+}
+
+.workshop-meta li,
+.workshop-meta li + li {
+  margin: 0;
+  padding: 0.1rem 0.45rem 0;
+  border: var(--border);
+  background: var(--yellow);
+  font-weight: 700;
+}
+
+.workshop-meta li.workshop-meta-date {
+  background: var(--red);
+  color: var(--paper);
+}
+
+.workshop-card ul {
+  margin-bottom: 0.35rem;
+}
+
+.workshop-card .workshop-copy .button {
+  margin-top: auto;
+}
+
+.workshop-card .button:disabled {
+  opacity: 1;
+  cursor: not-allowed;
+  color: var(--paper);
+  background: var(--red);
+}
+
+.workshop-signup-note {
+  margin: 1.15rem 0 0;
+}
+
 .best-value-badge {
   position: absolute;
   z-index: 2;
@@ -1083,8 +1195,34 @@ figcaption {
   .steps,
   .bubbles,
   .about-grid,
-  .pain-row {
+  .pain-row,
+  .workshop-list {
     grid-template-columns: 1fr;
+  }
+
+  .workshop-body,
+  .workshop-soon {
+    display: block;
+  }
+
+  .workshop-soon h2 {
+    margin-bottom: 0.85rem;
+  }
+
+  .workshop-card h3 {
+    margin-top: 1.35rem;
+  }
+
+  .workshop-card .workshop-copy .button {
+    margin-top: 1.45rem;
+  }
+
+  .workshop-meta {
+    flex-wrap: wrap;
+  }
+
+  .workshop-intro img {
+    width: 6.25rem;
   }
 
   .caption {

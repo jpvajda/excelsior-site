@@ -165,6 +165,7 @@ tests/stripe_testing.md
 
 # Videos and design files
 *.mp4
+videos/claude-video-prompt.md
 comic-video-storyboard.png
 bookmark-front.png
 bookmark-back.png
@@ -172,3 +173,6 @@ bookmark-back.png
 
 # Mac
 .DS_Store
+
+# Workshop files
+/workshops/
