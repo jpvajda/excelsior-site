@@ -4,6 +4,7 @@ import { expect, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { newsletterEndpoint } from "../shared/newsletter.js";
 import { checkoutEndpoint } from "../pages/home/checkout.js";
+import { workshopInterestForm } from "../pages/workshops/workshops.js";
 
 const sectionHeadings = [
   "Excelsior",
@@ -20,7 +21,6 @@ const sectionHeadings = [
 const navLinks = [
   ["Options", "#options"],
   ["The Process", "#process"],
-  ["About", "#about"],
 ];
 
 const zoomBooking =
@@ -387,6 +387,11 @@ test("navigation and booking link are present", async ({ page }) => {
   await expect(story).toHaveAttribute("href", "/pages/my-story/");
   await expect(story).not.toHaveAttribute("aria-current", "page");
 
+  const workshops = nav.getByRole("link", { name: "Workshops", exact: true });
+  await expect(workshops).toHaveAttribute("href", "/pages/workshops/");
+  await expect(workshops).not.toHaveAttribute("aria-current", "page");
+  await expect(nav.getByRole("link", { name: "About", exact: true })).toHaveCount(0);
+
   await expect(page.locator("#contact .email-line")).toHaveText(
     "Start with a free 30-minute discovery call. We'll talk through your current experience with pain. I'll answer your questions, and we'll decide together whether coaching is a good fit and where to start.",
   );
@@ -484,6 +489,26 @@ test("my story link records a header click", async ({ page }) => {
   await expect
     .poll(() => page.evaluate(() => window.__storyEvents))
     .toEqual([{ name: "my_story_clicked", placement: "header" }]);
+});
+
+test("workshops link records a header click", async ({ page }) => {
+  await openPage(page);
+  await page.evaluate(() => {
+    window.__workshopEvents = [];
+    const capture = window.posthog.capture.bind(window.posthog);
+    window.posthog.capture = (name, properties) => {
+      if (name === "workshops_clicked") {
+        window.__workshopEvents.push({ name, placement: properties.placement });
+      }
+      return capture(name, properties);
+    };
+  });
+
+  await clickWithoutLeaving(page.locator("[data-workshops='header']"));
+
+  await expect
+    .poll(() => page.evaluate(() => window.__workshopEvents))
+    .toEqual([{ name: "workshops_clicked", placement: "header" }]);
 });
 
 test("each option has a plan mark in the corner", async ({ page }) => {
@@ -1116,6 +1141,10 @@ test.describe("phone layout", () => {
     const link = page.locator("#site-nav").getByRole("link", { name: "My Story" });
     await expect(link).toBeVisible();
     await expect(link).toHaveAttribute("href", "/pages/my-story/");
+    await expect(page.locator("#site-nav").getByRole("link", { name: "Workshops" })).toHaveAttribute(
+      "href",
+      "/pages/workshops/",
+    );
     await clickWithoutLeaving(link);
 
     await expect
@@ -1324,9 +1353,9 @@ test("my story is its own page", async ({ page }) => {
     "href",
     "../../#process",
   );
-  await expect(nav.getByRole("link", { name: "About", exact: true })).toHaveAttribute(
+  await expect(nav.getByRole("link", { name: "Workshops", exact: true })).toHaveAttribute(
     "href",
-    "../../#about",
+    "/pages/workshops/",
   );
   await expect(page.locator(".corner-box")).toHaveAttribute("href", "../../");
 
@@ -1410,6 +1439,177 @@ test.describe("my story on a phone", () => {
   });
 });
 
+test("workshops page lists the free introduction and a later slot", async ({ page }) => {
+  await page.goto("/pages/workshops/");
+  await expect(page.locator("h1")).toHaveText("Workshops");
+
+  await expect(page.locator(".workshop-intro")).toHaveText(
+    "Free live workshops on Pain Reprocessing Therapy (PRT) and Somatic Therapy to introduce you to the basics of the practice and to provide a community for connection and healing.",
+  );
+  const titleMark = page.locator(".workshop-intro img");
+  await expect(titleMark).toBeVisible();
+  await expect(titleMark).toHaveAttribute("src", "../../images/workshop-lightbulb-icon.png");
+  const wrapped = await page.evaluate(() => {
+    const image = document.querySelector(".workshop-intro img").getBoundingClientRect();
+    const heading = document.querySelector("h1").getBoundingClientRect();
+    const text = [...document.querySelector(".workshop-intro").childNodes].find(
+      (node) => node.nodeType === Node.TEXT_NODE && node.textContent.trim(),
+    );
+    const range = document.createRange();
+    range.selectNodeContents(text);
+    const beside = [...range.getClientRects()].some(
+      (rect) => rect.left >= image.right - 2 && rect.top < image.bottom && rect.bottom > image.top,
+    );
+    const introBox = document.querySelector(".workshop-intro").getBoundingClientRect();
+    const panelEl = document.querySelector("#workshops");
+    const panel = panelEl.getBoundingClientRect();
+    const style = getComputedStyle(panelEl);
+    const inset = parseFloat(style.paddingRight) + parseFloat(style.borderRightWidth);
+    const reachesEdge = Math.abs(panel.right - inset - introBox.right) < 2;
+    const list = document.querySelector(".workshop-list").getBoundingClientRect();
+    return image.top >= heading.bottom - 1 && beside && reachesEdge && list.top >= image.bottom - 1;
+  });
+  expect(wrapped).toBe(true);
+
+  const intro = page.locator("#prt-intro");
+  await expect(intro.locator("h2")).toHaveText(
+    "W1: Introduction to Pain Reprocessing Therapy and Somatic Therapy",
+  );
+  await expect(intro).toContainText(
+    "This workshop is an introduction to Pain Reprocessing Therapy (PRT) and Somatic Therapy.",
+  );
+  await expect(intro.locator("li")).toHaveText([
+    "Free",
+    "60 minutes",
+    "Live on Zoom",
+    "Date TBD",
+    "A short somatic practice to connect with our bodies",
+    "Learn about what neuroplastic pain is",
+    "Learn the fundamentals of Pain Reprocessing Therapy (PRT) and Somatic Therapy",
+    "One volunteer will be coached through a live demo",
+    "Q&A",
+  ]);
+
+  const signup = intro.getByRole("link", { name: "Get on the list" });
+  await expect(signup).toBeVisible();
+  await expect(signup).toHaveAttribute("href", workshopInterestForm);
+  await expect(signup).toHaveAttribute("target", "_blank");
+  await expect(signup).toHaveAttribute("rel", /noopener/);
+  const dateChip = intro.locator(".workshop-meta-date");
+  await expect(dateChip).toHaveCSS("background-color", "rgb(208, 18, 26)");
+  await expect(dateChip).toHaveCSS("color", "rgb(255, 253, 246)");
+  await expect(page.locator("#prt-intro-signup")).toHaveCount(0);
+
+  const across = await page.evaluate(() => {
+    const cards = [...document.querySelectorAll(".workshop-card")];
+    const first = cards[0].getBoundingClientRect();
+    const second = cards[1].getBoundingClientRect();
+    const panel = document.querySelector("#workshops").getBoundingClientRect();
+    const style = getComputedStyle(document.querySelector("#workshops"));
+    const inset = parseFloat(style.paddingLeft) + parseFloat(style.borderLeftWidth);
+    const zoom = document.querySelector("#prt-intro .workshop-meta li:nth-child(3)").getBoundingClientRect();
+    const date = document.querySelector(".workshop-meta-date").getBoundingClientRect();
+    const summary = document.querySelector("#prt-intro .workshop-copy").getBoundingClientRect();
+    const agenda = document.querySelector("#prt-intro .workshop-agenda").getBoundingClientRect();
+    const button = document.querySelector("#prt-intro .button").getBoundingClientRect();
+    return (
+      Math.abs(first.left - (panel.left + inset)) < 2 &&
+      Math.abs(second.left - first.left) < 2 &&
+      Math.abs(second.right - first.right) < 2 &&
+      second.top >= first.bottom - 1 &&
+      Math.abs(date.top - zoom.top) < 2 &&
+      agenda.left >= summary.right - 1 &&
+      Math.abs(button.left - summary.left) < 2 &&
+      Math.abs(button.bottom - summary.bottom) < 2
+    );
+  });
+  expect(across).toBe(true);
+
+  await page.evaluate(() => {
+    window.__interestEvents = [];
+    const capture = window.posthog.capture.bind(window.posthog);
+    window.posthog.capture = (name, properties) => {
+      if (name === "workshop_interest_clicked") {
+        window.__interestEvents.push({ name, placement: properties.placement });
+      }
+      return capture(name, properties);
+    };
+  });
+  await clickWithoutLeaving(signup);
+  await expect
+    .poll(() => page.evaluate(() => window.__interestEvents))
+    .toEqual([{ name: "workshop_interest_clicked", placement: "prt-intro" }]);
+
+  await expect(page.locator("#coming-soon h2")).toHaveText("Coming soon");
+  await expect(page.locator("#coming-soon")).toContainText(
+    "Additional workshops will be made available soon!",
+  );
+  await expect(page.locator("#coming-soon .button")).toHaveCount(0);
+
+  const nav = page.getByRole("navigation", { name: "Site" });
+  await expect(nav.getByRole("link", { name: "Workshops", exact: true })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
+
+  const results = await new AxeBuilder({ page }).analyze();
+  const blocking = seriousViolations(results);
+  expect(blocking, formatViolations(blocking)).toEqual([]);
+});
+
+test.describe("workshops on a phone", () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test("cards stack and the menu opens", async ({ page }) => {
+    await page.goto("/pages/workshops/");
+    await expect(page.locator("h1")).toHaveText("Workshops");
+
+    const wrapped = await page.evaluate(() => {
+      const image = document.querySelector(".workshop-intro img").getBoundingClientRect();
+      const heading = document.querySelector("h1").getBoundingClientRect();
+      const text = [...document.querySelector(".workshop-intro").childNodes].find(
+        (node) => node.nodeType === Node.TEXT_NODE && node.textContent.trim(),
+      );
+      const range = document.createRange();
+      range.selectNodeContents(text);
+      const beside = [...range.getClientRects()].some(
+        (rect) => rect.left >= image.right - 2 && rect.top < image.bottom && rect.bottom > image.top,
+      );
+      return image.top >= heading.bottom - 1 && beside;
+    });
+    expect(wrapped).toBe(true);
+
+    const stacked = await page.evaluate(() => {
+      const cards = [...document.querySelectorAll(".workshop-card")];
+      const first = cards[0].getBoundingClientRect();
+      const second = cards[1].getBoundingClientRect();
+      return second.top >= first.bottom - 1 && first.left === second.left;
+    });
+    expect(stacked).toBe(true);
+
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    expect(overflow).toBeLessThanOrEqual(1);
+
+    const signup = page.locator("#prt-intro").getByRole("link", { name: "Get on the list" });
+    await signup.scrollIntoViewIfNeeded();
+    const signupBox = await signup.boundingBox();
+    expect(signupBox.width).toBeGreaterThan(0);
+    expect(signupBox.x).toBeGreaterThanOrEqual(0);
+    expect(signupBox.x + signupBox.width).toBeLessThanOrEqual(390);
+
+    const menu = page.locator(".menu-toggle");
+    await menu.focus();
+    await page.keyboard.press("Enter");
+    const link = page.locator("#site-nav").getByRole("link", { name: "Workshops" });
+    await expect(link).toBeVisible();
+    await expect(link).toHaveAttribute("aria-current", "page");
+    await page.keyboard.press("Escape");
+    await expect(menu).toHaveAttribute("aria-expanded", "false");
+  });
+});
+
 const pages = [
   { name: "home", url: "/", script: "pages/home/page.js", stylesheet: "css/style.css" },
   {
@@ -1421,6 +1621,12 @@ const pages = [
   {
     name: "paid",
     url: "/pages/paid/",
+    script: "page.js",
+    stylesheet: "../../css/style.css",
+  },
+  {
+    name: "workshops",
+    url: "/pages/workshops/",
     script: "page.js",
     stylesheet: "../../css/style.css",
   },
