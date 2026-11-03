@@ -480,6 +480,24 @@ test("support email opens a mail message", async ({ page }) => {
     .toEqual([{ name: "support_email_clicked", placement: "questions" }]);
 });
 
+test("about section links to my story", async ({ page }) => {
+  await openPage(page);
+  await watchStoryClicks(page);
+
+  const about = page.locator("#about");
+  await expect(about).toContainText("Read my story for more information.");
+  const link = about.getByRole("link", { name: "my story" });
+  await expect(link).toHaveAttribute("href", "/pages/my-story/");
+  await expect(link).not.toHaveAttribute("target", "_blank");
+  await expect(about.getByRole("link", { name: "LinkedIn" })).toHaveCount(0);
+
+  await clickWithoutLeaving(link);
+
+  await expect
+    .poll(() => page.evaluate(() => window.__storyEvents))
+    .toEqual([{ name: "my_story_clicked", placement: "about" }]);
+});
+
 test("my story link records a header click", async ({ page }) => {
   await openPage(page);
   await watchStoryClicks(page);
@@ -1227,6 +1245,17 @@ test.describe("phone layout", () => {
       );
     });
     expect(centerDelta).toBeLessThanOrEqual(1);
+  });
+
+  test("about story link stays on the page", async ({ page }) => {
+    await openPage(page);
+
+    const link = page.locator("#about").getByRole("link", { name: "my story" });
+    await expect(link).toBeVisible();
+    await expect(link).toHaveAttribute("href", "/pages/my-story/");
+    await link.click();
+    await expect(page).toHaveURL(/\/pages\/my-story\/$/);
+    await expect(page.locator("h1")).toHaveText("My Story");
   });
 });
 

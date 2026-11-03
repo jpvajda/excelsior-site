@@ -8,7 +8,7 @@ export function About() {
       <p>Based in <b>Boulder, Colorado</b>. Coaching by video anywhere.</p>
       <!-- SLOT: bio -->
       <p>I'm a certified <b>Pain Reprocessing Therapy and Somatic Coach</b>. I've lived with chronic pain at different levels for most of my 20-year career in technology, and through years of cycling and CrossFit. For a long time I assumed it was just part of life and getting older. Then I learned about PRT and somatic approaches, and I saw a real path to recovery and a better quality of life. Now I'm passionate about helping others to recover and unlearn their pain.</p>
-      <p>Find me on <a href="https://www.linkedin.com/in/johnpvajda/" target="_blank" rel="noopener noreferrer">LinkedIn</a>.</p>
+      <p>Read <a href="/pages/my-story/" data-my-story="about">my story</a> for more information.</p>
     </div>
     <img class="photo-frame" src="images/jv_comic_book_profile_vibrant.png" alt="Comic portrait of John Vajda" width="1254" height="1254">
   </div>
