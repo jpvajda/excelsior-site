@@ -165,7 +165,7 @@ tests/stripe_testing.md
 
 # Videos and design files
 *.mp4
-videos/claude-video-prompt.md
+/videos/
 comic-video-storyboard.png
 bookmark-front.png
 bookmark-back.png
@@ -176,3 +176,6 @@ bookmark-back.png
 
 # Workshop files
 /workshops/
+
+# Local notes, not for the public repo
+/knowledge/
