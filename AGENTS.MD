@@ -92,7 +92,7 @@ One page. Sticky header. In-page links. Sections stay in this order:
 4. Options. Three short caption boxes.
 5. The Process. Five numbered panels and a red payoff panel. Three across on desktop, stacked on a phone.
 6. Who it is for. One panel.
-7. About the coach. Name slot, role “Pain Reprocessing Therapy Coach”, the Boulder sentence, bio, and the LinkedIn link.
+7. About the coach. Name slot, role “Pain Reprocessing Therapy Coach”, the Boulder sentence, bio, and a link to My Story.
 8. Data. Four speech bubbles. Each holds a sourced NIH finding or quote and links to the NIH article. No fake client names.
 9. Questions. FAQ caption boxes, including where coaching happens and whether it is remote.
 10. Contact. Button “Book a call” links to the Google Calendar booking page and opens in a new tab. Email line stays a placeholder. No fake address.
