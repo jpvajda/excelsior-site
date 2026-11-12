@@ -23,6 +23,13 @@ export function bindTracking() {
       });
     }
 
+    const survey = event.target.closest("[data-prt-survey]");
+    if (survey) {
+      window.posthog.capture("prt_survey_clicked", {
+        placement: survey.getAttribute("data-prt-survey"),
+      });
+    }
+
     const interest = event.target.closest("[data-workshop-signup]");
     if (interest) {
       window.posthog.capture("workshop_interest_clicked", {
@@ -68,6 +75,12 @@ export function trackNewsletterSignup() {
 export function trackPlanCheckout(plan) {
   if (!window.posthog) return;
   window.posthog.capture("plan_checkout_started", { plan });
+}
+
+export function trackPrtSurveyCompleted(band) {
+  if (!window.posthog) return;
+  if (band !== "strong" && band !== "possible" && band !== "unlikely") return;
+  window.posthog.capture("prt_survey_completed", { band });
 }
 
 export function trackFormErrorShown({ placement, reason, plan } = {}) {

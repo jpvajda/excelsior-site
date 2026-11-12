@@ -5,6 +5,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { newsletterEndpoint } from "../shared/newsletter.js";
 import { checkoutEndpoint } from "../pages/home/checkout.js";
 import { workshopInterestForm } from "../pages/workshops/workshops.js";
+import { QUESTIONS, resultForYesCount } from "../pages/prt-survey/score.js";
 
 const sectionHeadings = [
   "Excelsior",
@@ -28,6 +29,7 @@ const zoomBooking =
 const somaticGuidePath = "files/5-minute-somatic-tracking-reset.pdf";
 const somaticGuide = `https://excelsior-prt.com/${somaticGuidePath}`;
 const somaticGuideName = "Get your Free 5 min Somatic Tracking Reset Guide";
+const surveyCtaName = "Take the Survey: Is Pain Reprocessing Therapy Right for Me?";
 
 async function openPage(page) {
   await page.goto("/");
@@ -390,6 +392,9 @@ test("navigation and booking link are present", async ({ page }) => {
   const workshops = nav.getByRole("link", { name: "Workshops", exact: true });
   await expect(workshops).toHaveAttribute("href", "/pages/workshops/");
   await expect(workshops).not.toHaveAttribute("aria-current", "page");
+
+  await expect(nav.getByRole("link", { name: "PRT Survey", exact: true })).toHaveCount(0);
+  await expect(nav.getByRole("link", { name: "Fit Check", exact: true })).toHaveCount(0);
   await expect(nav.getByRole("link", { name: "About", exact: true })).toHaveCount(0);
 
   await expect(page.locator("#contact .email-line")).toHaveText(
@@ -1135,6 +1140,32 @@ test.describe("phone layout", () => {
       .toEqual([{ name: "somatic_guide_clicked", placement: "process" }]);
   });
 
+  test("the survey button stays under the pain icons", async ({ page }) => {
+    await openPage(page);
+
+    const survey = page.getByRole("link", { name: surveyCtaName });
+    await expect(survey).toBeVisible();
+    await survey.scrollIntoViewIfNeeded();
+
+    const place = await page.evaluate(() => {
+      const cards = document.querySelector("#understanding .pain-row").getBoundingClientRect();
+      const link = document.querySelector("[data-prt-survey='understanding']").getBoundingClientRect();
+      return {
+        belowCards: link.top >= cards.bottom - 1,
+        centered: Math.abs(link.left + link.width / 2 - (cards.left + cards.width / 2)),
+        inside: link.left >= 0 && link.right <= 391,
+      };
+    });
+    expect(place.belowCards).toBe(true);
+    expect(place.centered).toBeLessThan(2);
+    expect(place.inside).toBe(true);
+
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    expect(overflow).toBeLessThanOrEqual(1);
+  });
+
   test("booking button in the open menu records a header click", async ({ page }) => {
     await openPage(page);
     await watchDiscoveryClicks(page);
@@ -1639,6 +1670,295 @@ test.describe("workshops on a phone", () => {
   });
 });
 
+const fitBands = [
+  [0, "unlikely"],
+  [1, "unlikely"],
+  [2, "unlikely"],
+  [3, "unlikely"],
+  [4, "possible"],
+  [5, "possible"],
+  [6, "possible"],
+  [7, "strong"],
+  [8, "strong"],
+  [9, "strong"],
+  [10, "strong"],
+  [11, "strong"],
+  [12, "strong"],
+  [13, "strong"],
+];
+
+test("prt survey scores yes answers into three bands", () => {
+  expect(QUESTIONS).toHaveLength(13);
+  expect(new Set(QUESTIONS.map((question) => question.id)).size).toBe(13);
+  const withNa = QUESTIONS.filter((question) =>
+    (question.choices || []).some((choice) => choice.value === "na"),
+  );
+  expect(withNa.map((question) => question.id)).toEqual(["past-healing"]);
+
+  for (const [count, band] of fitBands) {
+    const result = resultForYesCount(count);
+    expect(result.band, `${count} yes`).toBe(band);
+    expect(result.body).toContain(`You answered yes to ${count} of 13.`);
+    if (band === "unlikely") {
+      expect(result.title).toBe("Not a good candidate");
+      expect(result.body).toBe(
+        `You answered yes to ${count} of 13. You are not a good candidate for this type of coaching.`,
+      );
+    } else {
+      expect(result.body).toContain("This is not a diagnosis and not a guarantee.");
+      expect(result.body).toContain("Coaching is not medical care.");
+    }
+  }
+
+  expect(resultForYesCount(-1)).toBeNull();
+  expect(resultForYesCount(14)).toBeNull();
+  expect(resultForYesCount(1.5)).toBeNull();
+});
+
+async function answerFitCheck(page, yesCount) {
+  const questions = page.locator(".fit-question");
+  await expect(questions).toHaveCount(QUESTIONS.length);
+  for (let index = 0; index < QUESTIONS.length; index += 1) {
+    const choice = index < yesCount ? "Yes" : "No";
+    await questions.nth(index).getByRole("radio", { name: choice, exact: true }).check();
+  }
+}
+
+test("prt survey returns a result without storing answers", async ({ page }) => {
+  const leaks = [];
+  page.on("request", (request) => {
+    const body = request.postData() || "";
+    if (body.includes("no-injury") || body.includes("past-healing") || body.includes("people pleaser")) {
+      leaks.push(request.url());
+    }
+  });
+
+  await page.goto("/pages/prt-survey/");
+  await expect(page.locator("h1")).toHaveText("PRT Survey");
+  await expect(page.locator("#prt-survey")).toContainText(
+    "Your answers only occur on this page and are not stored, saved, or sent anywhere.",
+  );
+  await expect(page.locator("#prt-survey")).toContainText(
+    "This is not medical care and not a diagnosis.",
+  );
+  await expect(page.locator("#fit-form input[type='email'], #fit-form input[type='text']")).toHaveCount(0);
+  const questionBox = await page.evaluate(() => {
+    const field = document.querySelector(".fit-question");
+    const legend = field.querySelector("legend").getBoundingClientRect();
+    const box = field.getBoundingClientRect();
+    const style = getComputedStyle(field);
+    const border = parseFloat(style.borderTopWidth);
+    const padLeft = parseFloat(style.paddingLeft);
+    return (
+      legend.top >= box.top + border - 1 &&
+      legend.bottom <= box.bottom - border + 1 &&
+      legend.left >= box.left + border + padLeft - 1 &&
+      legend.right <= box.right - border + 1
+    );
+  });
+  expect(questionBox).toBe(true);
+  await expect(page.locator("#fit-form")).not.toHaveAttribute("action", /.+/);
+  await expect(page.locator("#fit-result")).toBeHidden();
+
+  const source = await (await page.request.get("/pages/prt-survey/")).text();
+  for (const question of QUESTIONS) {
+    expect(source, question.id).toContain(question.text);
+  }
+  const fullText = await (await page.request.get("/llms-full.txt")).text();
+  for (const question of QUESTIONS) {
+    expect(fullText, question.id).toContain(question.text);
+  }
+
+  await page.evaluate(() => {
+    window.__storageWrites = [];
+    const remember = Storage.prototype.setItem;
+    Storage.prototype.setItem = function (key, value) {
+      window.__storageWrites.push(String(key));
+      return remember.call(this, key, value);
+    };
+    window.__fitEvents = [];
+    const capture = window.posthog.capture.bind(window.posthog);
+    window.posthog.capture = (name, properties) => {
+      if (name === "prt_survey_completed" || name === "form_error_shown") {
+        window.__fitEvents.push({ name, ...properties });
+      }
+      return capture(name, properties);
+    };
+  });
+
+  await expect(page.getByRole("radio", { name: "N/A", exact: true })).toHaveCount(1);
+  const questions = page.locator(".fit-question");
+  for (let index = 0; index < QUESTIONS.length - 1; index += 1) {
+    await questions.nth(index).getByRole("radio", { name: "Yes", exact: true }).check();
+  }
+  await page.getByRole("button", { name: "See my result" }).click();
+  await expect(page.locator("#fit-status")).toContainText("Answer every question.");
+  await expect(page.locator("#fit-result")).toBeHidden();
+  await expect.poll(() => page.evaluate(() => window.__fitEvents)).toEqual([
+    { name: "form_error_shown", placement: "prt-survey", reason: "incomplete" },
+  ]);
+
+  await questions.nth(QUESTIONS.length - 1).getByRole("radio", { name: "No", exact: true }).check();
+  await page.getByRole("button", { name: "See my result" }).click();
+
+  const strong = resultForYesCount(QUESTIONS.length - 1);
+  const result = page.locator("#fit-result");
+  await expect(result).toBeVisible();
+  await expect(result).toHaveAttribute("data-band", "strong");
+  await expect(result.locator("h2")).toHaveText(strong.title);
+  await expect(result).toContainText(strong.body);
+  await expect(page).toHaveURL(/\/pages\/prt-survey\/$/);
+  await expect(result.getByRole("link", { name: "Book a free discovery call" })).toHaveAttribute(
+    "href",
+    zoomBooking,
+  );
+
+  await page.locator(".fit-question").first().getByRole("radio", { name: "No", exact: true }).check();
+  await expect(result).toBeHidden();
+
+  for (const [count, band] of [
+    [7, "strong"],
+    [6, "possible"],
+    [4, "possible"],
+    [3, "unlikely"],
+    [0, "unlikely"],
+  ]) {
+    await answerFitCheck(page, count);
+    await page.getByRole("button", { name: "See my result" }).click();
+    const scored = resultForYesCount(count);
+    await expect(result).toHaveAttribute("data-band", band);
+    await expect(result.locator("h2")).toHaveText(scored.title);
+    await expect(result).toContainText(scored.body);
+    await expect(result.locator("[data-fit-body] strong")).toHaveText(`${count} of 13`);
+    await expect(result.locator("[data-fit-doctor]")).toHaveCount(0);
+  }
+
+  await questions.nth(1).getByRole("radio", { name: "N/A", exact: true }).check();
+  for (let index = 0; index < QUESTIONS.length; index += 1) {
+    if (index === 1) continue;
+    await questions.nth(index).getByRole("radio", { name: "Yes", exact: true }).check();
+  }
+  await page.getByRole("button", { name: "See my result" }).click();
+  const withNa = resultForYesCount(QUESTIONS.length - 1);
+  await expect(result).toHaveAttribute("data-band", "strong");
+  await expect(result).toContainText("You answered yes to 12 of 13.");
+  await expect(result).toContainText(withNa.body);
+
+  await page.getByRole("button", { name: "Start over" }).click();
+  await expect(result).toBeHidden();
+  await expect(page.locator(".fit-question input:checked")).toHaveCount(0);
+
+  expect(leaks).toEqual([]);
+  const writes = await page.evaluate(() => window.__storageWrites);
+  expect(writes.filter((key) => !key.startsWith("ph_"))).toEqual([]);
+
+  const events = await page.evaluate(() => window.__fitEvents);
+  const completed = events.filter((event) => event.name === "prt_survey_completed");
+  expect(completed.map((event) => event.band)).toEqual([
+    "strong",
+    "strong",
+    "possible",
+    "possible",
+    "unlikely",
+    "unlikely",
+    "strong",
+  ]);
+  for (const event of completed) {
+    expect(Object.keys(event).sort()).toEqual(["band", "name"]);
+  }
+
+  const nav = page.getByRole("navigation", { name: "Site" });
+  await expect(nav.getByRole("link", { name: "PRT Survey" })).toHaveCount(0);
+  await expect(nav.getByRole("link", { name: "My Story", exact: true })).not.toHaveAttribute(
+    "aria-current",
+    "page",
+  );
+
+  const results = await new AxeBuilder({ page }).analyze();
+  const blocking = seriousViolations(results);
+  expect(blocking, formatViolations(blocking)).toEqual([]);
+});
+
+test("the survey link sits under the pain icons", async ({ page }) => {
+  await openPage(page);
+
+  const survey = page.getByRole("link", { name: surveyCtaName });
+  await expect(survey).toBeVisible();
+  await expect(survey).toHaveAttribute("href", "/pages/prt-survey/");
+  await expect(survey).toHaveCSS("background-color", "rgb(208, 18, 26)");
+  await expect(survey).toHaveCSS("font-family", /Bangers/);
+
+  const place = await page.evaluate(() => {
+    const cards = document.querySelector("#understanding .pain-row").getBoundingClientRect();
+    const link = document.querySelector("[data-prt-survey='understanding']").getBoundingClientRect();
+    return {
+      belowCards: link.top >= cards.bottom - 1,
+      centered: Math.abs(link.left + link.width / 2 - (cards.left + cards.width / 2)),
+      narrower: link.width < cards.width - 8,
+    };
+  });
+  expect(place.belowCards).toBe(true);
+  expect(place.centered).toBeLessThan(2);
+  expect(place.narrower).toBe(true);
+
+  await page.evaluate(() => {
+    window.__surveyNav = [];
+    const capture = window.posthog.capture.bind(window.posthog);
+    window.posthog.capture = (name, properties) => {
+      if (name === "prt_survey_clicked") {
+        window.__surveyNav.push({ name, placement: properties.placement });
+      }
+      return capture(name, properties);
+    };
+  });
+  await clickWithoutLeaving(survey);
+  await expect
+    .poll(() => page.evaluate(() => window.__surveyNav))
+    .toEqual([{ name: "prt_survey_clicked", placement: "understanding" }]);
+});
+
+test.describe("prt survey on a phone", () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test("the questions fit and the menu opens", async ({ page }) => {
+    await page.goto("/pages/prt-survey/");
+    await expect(page.locator("h1")).toHaveText("PRT Survey");
+
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    expect(overflow).toBeLessThanOrEqual(1);
+
+    await answerFitCheck(page, 5);
+    await page.getByRole("button", { name: "See my result" }).click();
+    const result = page.locator("#fit-result");
+    await expect(result).toHaveAttribute("data-band", "possible");
+    await expect(result).toContainText(resultForYesCount(5).body);
+
+    const call = result.getByRole("link", { name: "Book a free discovery call" });
+    await call.scrollIntoViewIfNeeded();
+    const box = await call.boundingBox();
+    expect(box.width).toBeGreaterThan(0);
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width).toBeLessThanOrEqual(390);
+
+    const after = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    expect(after).toBeLessThanOrEqual(1);
+
+    const menu = page.locator(".menu-toggle");
+    await menu.focus();
+    await page.keyboard.press("Enter");
+    await expect(page.locator("#site-nav").getByRole("link", { name: "PRT Survey" })).toHaveCount(0);
+    const link = page.locator("#site-nav").getByRole("link", { name: "My Story" });
+    await expect(link).toBeVisible();
+    await expect(link).not.toHaveAttribute("aria-current", "page");
+    await page.keyboard.press("Escape");
+    await expect(menu).toHaveAttribute("aria-expanded", "false");
+  });
+});
+
 const pages = [
   { name: "home", url: "/", script: "pages/home/page.js", stylesheet: "css/style.css" },
   {
@@ -1656,6 +1976,12 @@ const pages = [
   {
     name: "workshops",
     url: "/pages/workshops/",
+    script: "page.js",
+    stylesheet: "../../css/style.css",
+  },
+  {
+    name: "prt-survey",
+    url: "/pages/prt-survey/",
     script: "page.js",
     stylesheet: "../../css/style.css",
   },
