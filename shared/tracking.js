@@ -23,10 +23,10 @@ export function bindTracking() {
       });
     }
 
-    const fitCheck = event.target.closest("[data-fit-check]");
-    if (fitCheck) {
-      window.posthog.capture("fit_check_clicked", {
-        placement: fitCheck.getAttribute("data-fit-check"),
+    const survey = event.target.closest("[data-prt-survey]");
+    if (survey) {
+      window.posthog.capture("prt_survey_clicked", {
+        placement: survey.getAttribute("data-prt-survey"),
       });
     }
 
@@ -77,10 +77,10 @@ export function trackPlanCheckout(plan) {
   window.posthog.capture("plan_checkout_started", { plan });
 }
 
-export function trackFitCheckCompleted(band) {
+export function trackPrtSurveyCompleted(band) {
   if (!window.posthog) return;
   if (band !== "strong" && band !== "possible" && band !== "unlikely") return;
-  window.posthog.capture("fit_check_completed", { band });
+  window.posthog.capture("prt_survey_completed", { band });
 }
 
 export function trackFormErrorShown({ placement, reason, plan } = {}) {

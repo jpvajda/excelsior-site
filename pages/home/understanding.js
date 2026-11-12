@@ -25,6 +25,9 @@ export function Understanding() {
       <p>The brain can learn a new pattern. PRT uses that ability to bring back a sense of safety, so fear stops keeping the pain going.</p>
     </article>
   </div>
+  <div class="section-cta">
+    <a class="button" data-prt-survey="understanding" href="/pages/prt-survey/">Take the Survey: Is Pain Reprocessing Therapy Right for Me?</a>
+  </div>
 </section>
 `;
 }

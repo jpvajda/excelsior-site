@@ -1,12 +1,13 @@
 import { clearFormStatus, showFormError } from "../../shared/form-error.js";
-import { trackFitCheckCompleted } from "../../shared/tracking.js";
-import { QUESTIONS, resultForYesCount } from "./score.js";
+import { trackPrtSurveyCompleted } from "../../shared/tracking.js";
+import { QUESTIONS, choicesFor, resultForYesCount } from "./score.js";
 
 function readYesCount(form) {
   let yes = 0;
   for (const question of QUESTIONS) {
     const selected = form.querySelector(`input[name="q-${question.id}"]:checked`);
-    if (!selected || (selected.value !== "yes" && selected.value !== "no")) return null;
+    const allowed = new Set(choicesFor(question).map((choice) => choice.value));
+    if (!selected || !allowed.has(selected.value)) return null;
     if (selected.value === "yes") yes += 1;
   }
   return yes;
@@ -33,7 +34,7 @@ export function bindSurvey() {
     const scored = yesCount === null ? null : resultForYesCount(yesCount);
     if (!scored) {
       showFormError(status, "Answer every question.", {
-        placement: "fit-check",
+        placement: "prt-survey",
         reason: "incomplete",
       });
       result.hidden = true;
@@ -47,7 +48,7 @@ export function bindSurvey() {
     body.textContent = scored.body;
     result.dataset.band = scored.band;
     result.hidden = false;
-    trackFitCheckCompleted(scored.band);
+    trackPrtSurveyCompleted(scored.band);
     title.focus();
   });
 

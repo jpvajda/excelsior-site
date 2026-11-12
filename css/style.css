@@ -44,7 +44,9 @@ li {
 #who li,
 .contact-card p,
 #about .about-grid p,
-.workshop-intro {
+.workshop-intro,
+#prt-survey > p,
+.fit-result p {
   max-width: none;
 }
 
@@ -849,12 +851,14 @@ figcaption,
   counter-reset: step;
 }
 
-.process-guide {
+.process-guide,
+.section-cta {
   margin-top: var(--gutter);
   text-align: center;
 }
 
-.process-guide .button {
+.process-guide .button,
+.section-cta .button {
   width: max-content;
   max-width: min(100%, 46rem);
   line-height: 1.15;

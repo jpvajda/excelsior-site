@@ -10,8 +10,8 @@ import { bindSurvey } from "./bind-survey.js";
 const app = document.querySelector("#app");
 
 app.innerHTML = [
-  PromoBanner("fit-check"),
-  Header("fit-check"),
+  PromoBanner("prt-survey"),
+  Header("prt-survey"),
   `<main id="top">${Survey()}</main>`,
   Footer(),
 ].join("\n");
