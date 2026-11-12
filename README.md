@@ -61,4 +61,4 @@ The option cards post to the Cloudflare Worker in `checkout/`. The Stripe secret
 
 ## Instrumentation
 
-[PostHog](https://posthog.com) records page views, clicks, and booking clicks. The snippet lives in `index.html` and in each page under `pages/`. A plan buy sends `plan_checkout_started` with the plan name. A form error sends `form_error_shown`, and closing it sends `form_error_dismissed`.
+[PostHog](https://posthog.com) records page views, clicks, and booking clicks. The snippet is `shared/posthog.js`, loaded from each HTML page. A plan buy sends `plan_checkout_started` with the plan name. A form error sends `form_error_shown`, and closing it sends `form_error_dismissed`.

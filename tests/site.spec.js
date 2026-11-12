@@ -213,6 +213,21 @@ async function watchDiscoveryClicks(page) {
 }
 
 test("analytics snippet sends visits through the reverse proxy", async ({ page }) => {
+  const htmlFiles = [
+    "index.html",
+    "404.html",
+    ...pages
+      .filter((entry) => entry.name !== "home")
+      .map((entry) => `pages/${entry.name}/index.html`),
+  ];
+  for (const file of htmlFiles) {
+    const html = readFileSync(file, "utf8");
+    const tags = html.match(/<script\b[^>]*\bsrc="[^"]*posthog\.js"[^>]*>/g) || [];
+    expect(tags, file).toHaveLength(1);
+    expect(tags[0], file).not.toMatch(/\s(?:defer|async|type="module")\b/);
+    expect(html, file).not.toMatch(/posthog\.init/);
+  }
+
   const hit = page.waitForRequest((request) =>
     request.url().includes("e.excelsior-prt.com"),
   );
@@ -2012,7 +2027,7 @@ test("files live in the documented folders", async () => {
   expect(
     list("shared").map((entry) => entry.name).sort(),
     "shared/ holds only code used by every page",
-  ).toEqual(["footer.js", "form-error.js", "header.js", "menu.js", "newsletter.js", "promo-banner.js", "tracking.js"]);
+  ).toEqual(["footer.js", "form-error.js", "header.js", "menu.js", "newsletter.js", "posthog.js", "promo-banner.js", "tracking.js"]);
 
   const pageFolders = list("pages");
   expect(pageFolders.filter((entry) => entry.isFile()), "pages/ holds only page folders").toEqual([]);
