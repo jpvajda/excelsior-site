@@ -5,6 +5,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { newsletterEndpoint } from "../shared/newsletter.js";
 import { checkoutEndpoint } from "../pages/home/checkout.js";
 import { workshopInterestForm } from "../pages/workshops/workshops.js";
+import { QUESTIONS, resultForYesCount } from "../pages/fit-check/score.js";
 
 const sectionHeadings = [
   "Excelsior",
@@ -390,6 +391,10 @@ test("navigation and booking link are present", async ({ page }) => {
   const workshops = nav.getByRole("link", { name: "Workshops", exact: true });
   await expect(workshops).toHaveAttribute("href", "/pages/workshops/");
   await expect(workshops).not.toHaveAttribute("aria-current", "page");
+
+  const fitCheck = nav.getByRole("link", { name: "Fit Check", exact: true });
+  await expect(fitCheck).toHaveAttribute("href", "/pages/fit-check/");
+  await expect(fitCheck).not.toHaveAttribute("aria-current", "page");
   await expect(nav.getByRole("link", { name: "About", exact: true })).toHaveCount(0);
 
   await expect(page.locator("#contact .email-line")).toHaveText(
@@ -1639,6 +1644,244 @@ test.describe("workshops on a phone", () => {
   });
 });
 
+const fitBands = [
+  [0, "unlikely"],
+  [1, "unlikely"],
+  [2, "unlikely"],
+  [3, "unlikely"],
+  [4, "possible"],
+  [5, "possible"],
+  [6, "possible"],
+  [7, "strong"],
+  [8, "strong"],
+  [9, "strong"],
+  [10, "strong"],
+];
+
+test("fit check scores yes answers into three bands", () => {
+  expect(QUESTIONS).toHaveLength(10);
+  expect(new Set(QUESTIONS.map((question) => question.id)).size).toBe(10);
+
+  for (const [count, band] of fitBands) {
+    const result = resultForYesCount(count);
+    expect(result.band, `${count} yes`).toBe(band);
+    expect(result.body).toContain(`You answered yes to ${count} of 10.`);
+    expect(result.body).toContain("This is not a diagnosis and not a guarantee.");
+    expect(result.body).toContain("Coaching is not medical care.");
+  }
+
+  expect(resultForYesCount(-1)).toBeNull();
+  expect(resultForYesCount(11)).toBeNull();
+  expect(resultForYesCount(1.5)).toBeNull();
+});
+
+async function answerFitCheck(page, yesCount) {
+  const questions = page.locator(".fit-question");
+  await expect(questions).toHaveCount(10);
+  for (let index = 0; index < 10; index += 1) {
+    const choice = index < yesCount ? "Yes" : "No";
+    await questions.nth(index).getByRole("radio", { name: choice, exact: true }).check();
+  }
+}
+
+test("fit check returns a result without storing answers", async ({ page }) => {
+  const leaks = [];
+  page.on("request", (request) => {
+    const body = request.postData() || "";
+    if (body.includes("ongoing-pain") || body.includes("q-video") || body.includes("hyper-vigilance")) {
+      leaks.push(request.url());
+    }
+  });
+
+  await page.goto("/pages/fit-check/");
+  await expect(page.locator("h1")).toHaveText("Fit Check");
+  await expect(page.locator("#fit-check")).toContainText(
+    "Your answers stay on this page. They are not saved, and they are not sent.",
+  );
+  await expect(page.locator("#fit-check")).toContainText(
+    "This is not medical care and not a diagnosis.",
+  );
+  await expect(page.locator("#fit-form input[type='email'], #fit-form input[type='text']")).toHaveCount(0);
+  const questionBox = await page.evaluate(() => {
+    const field = document.querySelector(".fit-question");
+    const legend = field.querySelector("legend").getBoundingClientRect();
+    const box = field.getBoundingClientRect();
+    const style = getComputedStyle(field);
+    const border = parseFloat(style.borderTopWidth);
+    const padLeft = parseFloat(style.paddingLeft);
+    return (
+      legend.top >= box.top + border - 1 &&
+      legend.bottom <= box.bottom - border + 1 &&
+      legend.left >= box.left + border + padLeft - 1 &&
+      legend.right <= box.right - border + 1
+    );
+  });
+  expect(questionBox).toBe(true);
+  await expect(page.locator("#fit-form")).not.toHaveAttribute("action", /.+/);
+  await expect(page.locator("#fit-result")).toBeHidden();
+
+  const source = await (await page.request.get("/pages/fit-check/")).text();
+  for (const question of QUESTIONS) {
+    expect(source, question.id).toContain(question.text);
+  }
+  const fullText = await (await page.request.get("/llms-full.txt")).text();
+  for (const question of QUESTIONS) {
+    expect(fullText, question.id).toContain(question.text);
+  }
+
+  await page.evaluate(() => {
+    window.__storageWrites = [];
+    const remember = Storage.prototype.setItem;
+    Storage.prototype.setItem = function (key, value) {
+      window.__storageWrites.push(String(key));
+      return remember.call(this, key, value);
+    };
+    window.__fitEvents = [];
+    const capture = window.posthog.capture.bind(window.posthog);
+    window.posthog.capture = (name, properties) => {
+      if (name === "fit_check_completed" || name === "form_error_shown") {
+        window.__fitEvents.push({ name, ...properties });
+      }
+      return capture(name, properties);
+    };
+  });
+
+  const questions = page.locator(".fit-question");
+  for (let index = 0; index < 9; index += 1) {
+    await questions.nth(index).getByRole("radio", { name: "Yes", exact: true }).check();
+  }
+  await page.getByRole("button", { name: "See my result" }).click();
+  await expect(page.locator("#fit-status")).toContainText("Answer every question.");
+  await expect(page.locator("#fit-result")).toBeHidden();
+  await expect.poll(() => page.evaluate(() => window.__fitEvents)).toEqual([
+    { name: "form_error_shown", placement: "fit-check", reason: "incomplete" },
+  ]);
+
+  await questions.nth(9).getByRole("radio", { name: "No", exact: true }).check();
+  await page.getByRole("button", { name: "See my result" }).click();
+
+  const strong = resultForYesCount(9);
+  const result = page.locator("#fit-result");
+  await expect(result).toBeVisible();
+  await expect(result).toHaveAttribute("data-band", "strong");
+  await expect(result.locator("h2")).toHaveText(strong.title);
+  await expect(result).toContainText(strong.body);
+  await expect(page).toHaveURL(/\/pages\/fit-check\/$/);
+  await expect(result.getByRole("link", { name: "Book a free discovery call" })).toHaveAttribute(
+    "href",
+    zoomBooking,
+  );
+
+  await page.locator(".fit-question").first().getByRole("radio", { name: "No", exact: true }).check();
+  await expect(result).toBeHidden();
+
+  for (const [count, band] of [
+    [7, "strong"],
+    [6, "possible"],
+    [4, "possible"],
+    [3, "unlikely"],
+    [0, "unlikely"],
+  ]) {
+    await answerFitCheck(page, count);
+    await page.getByRole("button", { name: "See my result" }).click();
+    const scored = resultForYesCount(count);
+    await expect(result).toHaveAttribute("data-band", band);
+    await expect(result.locator("h2")).toHaveText(scored.title);
+    await expect(result).toContainText(scored.body);
+  }
+
+  await page.getByRole("button", { name: "Start over" }).click();
+  await expect(result).toBeHidden();
+  await expect(page.locator(".fit-question input:checked")).toHaveCount(0);
+
+  expect(leaks).toEqual([]);
+  const writes = await page.evaluate(() => window.__storageWrites);
+  expect(writes.filter((key) => !key.startsWith("ph_"))).toEqual([]);
+
+  const events = await page.evaluate(() => window.__fitEvents);
+  const completed = events.filter((event) => event.name === "fit_check_completed");
+  expect(completed.map((event) => event.band)).toEqual([
+    "strong",
+    "strong",
+    "possible",
+    "possible",
+    "unlikely",
+    "unlikely",
+  ]);
+  for (const event of completed) {
+    expect(Object.keys(event).sort()).toEqual(["band", "name"]);
+  }
+
+  const nav = page.getByRole("navigation", { name: "Site" });
+  await expect(nav.getByRole("link", { name: "Fit Check", exact: true })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
+
+  const results = await new AxeBuilder({ page }).analyze();
+  const blocking = seriousViolations(results);
+  expect(blocking, formatViolations(blocking)).toEqual([]);
+});
+
+test("fit check link records a header click", async ({ page }) => {
+  await openPage(page);
+  await page.evaluate(() => {
+    window.__fitNav = [];
+    const capture = window.posthog.capture.bind(window.posthog);
+    window.posthog.capture = (name, properties) => {
+      if (name === "fit_check_clicked") {
+        window.__fitNav.push({ name, placement: properties.placement });
+      }
+      return capture(name, properties);
+    };
+  });
+  await clickWithoutLeaving(page.locator("[data-fit-check='header']"));
+  await expect
+    .poll(() => page.evaluate(() => window.__fitNav))
+    .toEqual([{ name: "fit_check_clicked", placement: "header" }]);
+});
+
+test.describe("fit check on a phone", () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test("the questions fit and the menu opens", async ({ page }) => {
+    await page.goto("/pages/fit-check/");
+    await expect(page.locator("h1")).toHaveText("Fit Check");
+
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    expect(overflow).toBeLessThanOrEqual(1);
+
+    await answerFitCheck(page, 5);
+    await page.getByRole("button", { name: "See my result" }).click();
+    const result = page.locator("#fit-result");
+    await expect(result).toHaveAttribute("data-band", "possible");
+    await expect(result).toContainText(resultForYesCount(5).body);
+
+    const call = result.getByRole("link", { name: "Book a free discovery call" });
+    await call.scrollIntoViewIfNeeded();
+    const box = await call.boundingBox();
+    expect(box.width).toBeGreaterThan(0);
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width).toBeLessThanOrEqual(390);
+
+    const after = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    expect(after).toBeLessThanOrEqual(1);
+
+    const menu = page.locator(".menu-toggle");
+    await menu.focus();
+    await page.keyboard.press("Enter");
+    const link = page.locator("#site-nav").getByRole("link", { name: "Fit Check" });
+    await expect(link).toBeVisible();
+    await expect(link).toHaveAttribute("aria-current", "page");
+    await page.keyboard.press("Escape");
+    await expect(menu).toHaveAttribute("aria-expanded", "false");
+  });
+});
+
 const pages = [
   { name: "home", url: "/", script: "pages/home/page.js", stylesheet: "css/style.css" },
   {
@@ -1656,6 +1899,12 @@ const pages = [
   {
     name: "workshops",
     url: "/pages/workshops/",
+    script: "page.js",
+    stylesheet: "../../css/style.css",
+  },
+  {
+    name: "fit-check",
+    url: "/pages/fit-check/",
     script: "page.js",
     stylesheet: "../../css/style.css",
   },
