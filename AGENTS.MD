@@ -32,6 +32,7 @@ shared/                     code used by two or more pages
   header.js, footer.js      markup
   menu.js                   mobile menu behavior
   newsletter.js             newsletter signup behavior
+  posthog.js                PostHog visit snippet. Classic script, no export
   tracking.js               PostHog click events
 worker/                     Cloudflare Worker for the footer signup. Holds no API key. Deploy from this folder only
   index.js                  request handler
@@ -66,7 +67,7 @@ To add a section to a page:
 
 To add a page (only when asked):
 1. Copy `pages/my-story/` to `pages/<name>/`. Rename `story.js` and rewrite it as the new content.
-2. In the new `index.html`, change the title, description, canonical URL, `og:url`, and the `url` in the JSON-LD. Keep the PostHog snippet and the `../../` paths. In `page.js`, import the new content and call `Header("<name>")`.
+2. In the new `index.html`, change the title, description, canonical URL, `og:url`, and the `url` in the JSON-LD. Keep `<script src="../../shared/posthog.js"></script>` and the `../../` paths. In `page.js`, import the new content and call `Header("<name>")`.
 3. Add the link in `shared/header.js`, using `prefix` for the href, and add a `<loc>` for `https://excelsior-prt.com/pages/<name>/` to `sitemap.xml`.
 4. In `tests/site.spec.js`, add the page to the `pages` list and add a test for what a visitor can do there. The folder check fails until you do.
 5. If the page adds a control, send a PostHog event for it (see Instrumentation).
@@ -156,7 +157,7 @@ Any fail means the change is not done.
 
 ## Instrumentation
 
-PostHog records visits and clicks. The snippet is in `index.html` and in every `pages/<name>/index.html`. Click handlers live in `shared/tracking.js`. Do not add a second analytics tool, and do not write the project key, host account, or dashboard names into the repo docs.
+PostHog records visits and clicks. The visit snippet is `shared/posthog.js`. `index.html` loads it with `<script src="shared/posthog.js"></script>`. `404.html` loads it with `<script src="/shared/posthog.js"></script>` because that page is served at the missing address. Each `pages/<name>/index.html` loads it with `<script src="../../shared/posthog.js"></script>`. Do not add `defer`, `async`, or `type="module"`, and do not paste a second `posthog.init`. Click handlers live in `shared/tracking.js`. Do not add a second analytics tool, and do not write the project key, host account, or dashboard names into the repo docs.
 
 When a new control is added, send a PostHog event for it in the same change. Booking links already share one event, `discovery_call_clicked`, with a `placement` property for where it was clicked. Follow that pattern: one event name, plus a property when the same action appears in more than one place. The newsletter form sends `newsletter_signup` with `placement` set to `footer` only after the signup is accepted. A plan buy sends `plan_checkout_started` with `plan` only after the checkout Worker accepts it. A form error sends `form_error_shown` with `placement` and `reason`, and dismissing it sends `form_error_dismissed` with the same properties. Cover the event in `tests/`.
 
