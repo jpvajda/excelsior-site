@@ -1829,6 +1829,7 @@ test("prt survey returns a result without storing answers", async ({ page }) => 
     await expect(result).toHaveAttribute("data-band", band);
     await expect(result.locator("h2")).toHaveText(scored.title);
     await expect(result).toContainText(scored.body);
+    await expect(result.locator("[data-fit-body] strong")).toHaveText(`${count} of 13`);
     await expect(result.locator("[data-fit-doctor]")).toHaveCount(0);
   }
 

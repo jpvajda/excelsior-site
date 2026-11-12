@@ -801,6 +801,10 @@ figcaption,
   text-wrap: balance;
 }
 
+.fit-result strong {
+  font-weight: 700;
+}
+
 .fit-actions {
   display: flex;
   flex-wrap: wrap;

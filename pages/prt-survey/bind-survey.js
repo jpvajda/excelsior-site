@@ -2,6 +2,22 @@ import { clearFormStatus, showFormError } from "../../shared/form-error.js";
 import { trackPrtSurveyCompleted } from "../../shared/tracking.js";
 import { QUESTIONS, choicesFor, resultForYesCount } from "./score.js";
 
+function fillResultBody(body, yesCount, text) {
+  const countLabel = `${yesCount} of ${QUESTIONS.length}`;
+  const lead = `You answered yes to ${countLabel}`;
+  const count = document.createElement("strong");
+  count.textContent = countLabel;
+  if (!text.startsWith(lead)) {
+    body.textContent = text;
+    return;
+  }
+  body.replaceChildren(
+    document.createTextNode("You answered yes to "),
+    count,
+    document.createTextNode(text.slice(lead.length)),
+  );
+}
+
 function readYesCount(form) {
   let yes = 0;
   for (const question of QUESTIONS) {
@@ -45,7 +61,7 @@ export function bindSurvey() {
 
     clearFormStatus(status);
     title.textContent = scored.title;
-    body.textContent = scored.body;
+    fillResultBody(body, yesCount, scored.body);
     result.dataset.band = scored.band;
     result.hidden = false;
     trackPrtSurveyCompleted(scored.band);
