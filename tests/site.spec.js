@@ -1935,6 +1935,32 @@ test("the survey link sits under the pain icons", async ({ page }) => {
 test.describe("prt survey on a phone", () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
+  test("question text stays in the card and above the choices", async ({ page }) => {
+    await page.goto("/pages/prt-survey/");
+    await expect(page.locator(".fit-question")).toHaveCount(QUESTIONS.length);
+
+    const broken = await page.evaluate(() =>
+      [...document.querySelectorAll(".fit-question")].flatMap((field) => {
+        const legend = field.querySelector("legend").getBoundingClientRect();
+        const box = field.getBoundingClientRect();
+        const style = getComputedStyle(field);
+        const border = parseFloat(style.borderTopWidth);
+        const padLeft = parseFloat(style.paddingLeft);
+        const inside =
+          legend.top >= box.top + border - 1 &&
+          legend.bottom <= box.bottom - border + 1 &&
+          legend.left >= box.left + border + padLeft - 1 &&
+          legend.right <= box.right - border + 1;
+        const clear = [...field.querySelectorAll(".fit-choices label")].every((label) => {
+          return legend.bottom <= label.getBoundingClientRect().top + 1;
+        });
+        if (inside && clear) return [];
+        return [field.querySelector("legend").textContent];
+      }),
+    );
+    expect(broken).toEqual([]);
+  });
+
   test("the questions fit and the menu opens", async ({ page }) => {
     await page.goto("/pages/prt-survey/");
     await expect(page.locator("h1")).toHaveText("PRT Survey");

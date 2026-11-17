@@ -717,11 +717,11 @@ figcaption,
 
 .fit-question {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  /* Block, not flex. Safari drops the legend float on a flex fieldset and paints the question across the top border, over the choices. */
+  display: block;
   margin: 0;
   min-width: 0;
+  min-inline-size: 0;
   padding: 0.85rem 1rem 0.9rem 3.7rem;
   border: var(--border);
   background: var(--pale);
