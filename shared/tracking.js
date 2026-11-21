@@ -23,6 +23,13 @@ export function bindTracking() {
       });
     }
 
+    const blog = event.target.closest("[data-blog]");
+    if (blog) {
+      window.posthog.capture("blog_clicked", {
+        placement: blog.getAttribute("data-blog"),
+      });
+    }
+
     const survey = event.target.closest("[data-prt-survey]");
     if (survey) {
       window.posthog.capture("prt_survey_clicked", {

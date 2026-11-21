@@ -1,5 +1,7 @@
+import { assetPrefix } from "./header.js";
+
 export function PromoBanner(page = "home") {
-  const href = page === "home" ? "#data" : "../../#data";
+  const href = page === "home" ? "#data" : `${assetPrefix(page)}#data`;
 
   return `
 <aside class="promo-banner" aria-label="Study result">

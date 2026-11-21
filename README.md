@@ -35,6 +35,28 @@ Each page lives in a folder under `pages/`. Edit a section there. Each file is a
 
 GitHub Pages: Settings → Pages → Deploy from a branch → `main` → `/ (root)`. Pushing `main` publishes the site. It does not update the Workers.
 
+## Blog
+
+Writing lives at `/pages/blog/`. Posts are markdown in `content/blog/<slug>.md`:
+
+```md
+---
+title: Post title
+date: YYYY-MM-DD
+summary: One or two sentences for the list page.
+---
+
+Body text here.
+```
+
+After you add or edit a post, rebuild once:
+
+```bash
+pnpm build:blog
+```
+
+That updates the blog pages, sitemap blog URLs, and the blog lines in `llms.txt` and `llms-full.txt`. Commit the markdown and those generated files together. Do not hand-edit the generated blog output.
+
 ## Workers
 
 Deploy after `pnpm install`. `cd` into the Worker folder, then run the same command. Signup first, then checkout.
