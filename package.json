@@ -3,6 +3,7 @@
   "private": true,
   "scripts": {
     "test": "playwright test",
+    "build:blog": "node scripts/build-blog.mjs",
     "wrangler": "cd \"$INIT_CWD\" && wrangler"
   },
   "devDependencies": {

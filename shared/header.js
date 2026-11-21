@@ -1,11 +1,22 @@
-// `page` is the folder name under pages/ ("home" for the root index.html).
+// `page` is the folder name under pages/ ("home" for the root index.html),
+// or a nested key like "blog/<slug>" for a post under /pages/blog/<slug>/.
 // Links resolve against the page URL: "/" for home, "/pages/<page>/" for the rest.
+export function assetPrefix(page = "home") {
+  if (page === "home") return "";
+  const depth = page.split("/").filter(Boolean).length;
+  return "../".repeat(depth + 1);
+}
+
 export function Header(page = "home") {
   const onHome = page === "home";
-  const prefix = onHome ? "" : "../../";
+  const prefix = assetPrefix(page);
   const section = (id) => (onHome ? `#${id}` : `${prefix}#${id}`);
   const homeHref = onHome ? "#top" : prefix;
-  const current = (key) => (page === key ? ' aria-current="page"' : "");
+  const onBlog = page === "blog" || page.startsWith("blog/");
+  const current = (key) => {
+    if (key === "blog") return onBlog ? ' aria-current="page"' : "";
+    return page === key ? ' aria-current="page"' : "";
+  };
 
   return `
 <header class="site-header">
@@ -19,6 +30,7 @@ export function Header(page = "home") {
       <a href="${section("options")}">Options</a>
       <a href="${section("process")}">The Process</a>
       <a href="/pages/workshops/"${current("workshops")} data-workshops="header">Workshops</a>
+      <a href="/pages/blog/"${current("blog")} data-blog="header">Blog</a>
       <a href="/pages/my-story/"${current("my-story")} data-my-story="header">My Story</a>
       <a class="button nav-cta" data-discovery-call="header" href="https://scheduler.zoom.us/excelsior-llc/prt-discovery-call" target="_blank" rel="noopener noreferrer">Free Discovery Call</a>
     </nav>

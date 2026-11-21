@@ -8,7 +8,7 @@ Marketing site for Excelsior LLC. The owner is a Pain Reprocessing Therapy (PRT)
 - Each section is a JavaScript module that returns its markup as a string. Each page has one `page.js` that stacks its sections into `#app`. The HTML file only loads that script. See File layout.
 - To view locally, run `python3 serve.py` and open http://127.0.0.1:3000. http://localhost:3000 is the same server with a different browser origin. See Newsletter. Do not use `python3 -m http.server`. That command shows Python's own error page for a bad address. Do not open `index.html` as a file. The browser blocks the modules from a `file://` address.
 - One CSS file at `css/style.css`.
-- No app framework, database, or build step. Vanilla JS, HTML, and CSS only. GitHub Pages publishes the static files. The footer signup Worker and the checkout Worker are separate deploys. See Newsletter and Checkout.
+- No app framework or database. Vanilla JS, HTML, and CSS only. GitHub Pages publishes the static files. The footer signup Worker and the checkout Worker are separate deploys. See Newsletter and Checkout. There is no full-site build. Blog posts are the exception: markdown in `content/blog/` is compiled with `pnpm build:blog` (or `node scripts/build-blog.mjs`) into static pages under `pages/blog/`. Commit both the markdown and the generated files. See Blog.
 - `pnpm install` installs Playwright and Wrangler from `package.json`. The `wrangler` script runs Wrangler in the folder where you invoked it. Deploy with `pnpm wrangler deploy` from `worker/`, from `checkout/`, or from a future Worker folder. Do not use `npx wrangler` or `pnpm exec wrangler`. Do not run it from the repo root: Wrangler offers a new static Worker named `excelsior-site`. Decline that. Keep `pnpm.onlyBuiltDependencies` for `esbuild` and `workerd`. Without those build scripts, Wrangler cannot bundle a Worker.
 - Relative URLs, so the site works as a project site and on a custom domain.
 - Keep `.nojekyll` so Pages does not run Jekyll.
@@ -28,6 +28,14 @@ pages/                      one folder per page. Everything for a page lives in 
     index.html              served at /pages/my-story/. Loads page.js
     page.js                 entry script
     story.js                the page content
+  blog/
+    index.html              GENERATED list shell at /pages/blog/
+    page.js, list.js        list page entry and markup (hand-maintained)
+    posts-data.js           GENERATED post manifest
+    <slug>/                 GENERATED post folder (index.html, page.js, body.js)
+content/blog/               markdown source for blog posts (frontmatter + body)
+scripts/build-blog.mjs      compiles content/blog/*.md into pages/blog/
+scripts/blog-markdown.mjs   frontmatter + markdown helpers used by the builder and tests
 shared/                     code used by two or more pages
   header.js, footer.js      markup
   menu.js                   mobile menu behavior
@@ -58,7 +66,7 @@ Rules:
 - Do not put `.js`, `.css`, or image files in the repo root. `tests/site.spec.js` fails if you do.
 - Name files in lowercase with hyphens, for example `who-its-for.js`. A page folder name is its URL segment and the key passed to `Header()`.
 
-Gotcha: image and link paths in markup resolve against the page URL, not the file that holds the markup. On `/` write `images/x.png`. On `/pages/my-story/` write `../../images/x.png`. `shared/header.js` takes the page folder name and builds the right prefix. Image filenames must match the committed name exactly, including case.
+Gotcha: image and link paths in markup resolve against the page URL, not the file that holds the markup. On `/` write `images/x.png`. On `/pages/my-story/` write `../../images/x.png`. On `/pages/blog/<slug>/` write `../../../images/x.png`. `shared/header.js` takes the page key (`"my-story"` or `"blog/<slug>"`) and builds the right prefix via `assetPrefix`. Image filenames must match the committed name exactly, including case.
 
 To add a section to a page:
 1. Add `pages/<page>/<name>.js` exporting one function that returns the markup.
@@ -87,7 +95,7 @@ To add a page (only when asked):
 
 One page. Sticky header. In-page links. Sections stay in this order:
 
-1. Header. Corner-box mark: EXCELSIOR / LLC. Links: Options, The Process, About, My Story, Free Discovery Call. My Story goes to `/pages/my-story/`. On that page, the other links return to the matching home section.
+1. Header. Corner-box mark: EXCELSIOR / LLC. Links: Options, The Process, Workshops, Blog, My Story, Free Discovery Call. Blog goes to `/pages/blog/`. My Story goes to `/pages/my-story/`. On those pages, the other links return to the matching home section.
 2. Hero. Wordmark “Excelsior”. Line: Pain Reprocessing Therapy & Somatic Coaching. Short subhead. No button in the hero.
 3. Understanding Chronic Pain. Title, short intro, three icon cards.
 4. Options. Three short caption boxes.
@@ -140,7 +148,7 @@ The home page is built in the browser. Agents that do not run JavaScript only se
 
 `llms.txt` is the short index. Keep this order: an H1 `# Excelsior LLC`, a blockquote summary (offer, the approved location sentence, booking), then H2 sections whose items are markdown links. The H1 text is checked by `tests/site.spec.js`. Markdown links may only point at `https://excelsior-prt.com/...` or the Zoom booking URL. Any other markdown link fails the test. Put other URLs in the blockquote as plain text.
 
-`llms-full.txt` is one file with the offer, who it is for, the process, the session options, the questions, and the bio. The August 2026 spec no longer requires this expanded file. Keep it. This site has no per-page `.md` copies, and one fetch is how an agent reads the facts without JavaScript. Link it from `llms.txt`. Do not delete it, and do not add `/.well-known/` agent files. GitHub Pages cannot set `Link` headers.
+`llms-full.txt` is one file with the offer, who it is for, the process, the session options, the questions, and the bio. The August 2026 spec no longer requires this expanded file. Keep it. Blog markdown lives in `content/blog/` for authors and the build script; agents still use `llms.txt` / `llms-full.txt` plus each page’s `<noscript>` for facts without JavaScript. Link `llms-full.txt` from `llms.txt`. Do not delete it, and do not add `/.well-known/` agent files. GitHub Pages cannot set `Link` headers.
 
 The `<noscript>` blocks, the JSON-LD, `llms.txt`, and `llms-full.txt` must state the same facts as the visible page. When the offer, location, process, session options, or questions change, update all four in the same change. The home JSON-LD `FAQPage` questions and answers must match the `#questions` caption text. The test `agents can read the offer without running scripts` fails when they drift. The test `llms-full.txt lists every question and price shown on the page` fails when a question or a price on the page is missing from `llms-full.txt`.
 
@@ -159,7 +167,7 @@ Any fail means the change is not done.
 
 PostHog records visits and clicks. The visit snippet is `shared/posthog.js`. `index.html` loads it with `<script src="shared/posthog.js"></script>`. `404.html` loads it with `<script src="/shared/posthog.js"></script>` because that page is served at the missing address. Each `pages/<name>/index.html` loads it with `<script src="../../shared/posthog.js"></script>`. Do not add `defer`, `async`, or `type="module"`, and do not paste a second `posthog.init`. Click handlers live in `shared/tracking.js`. Do not add a second analytics tool, and do not write the project key, host account, or dashboard names into the repo docs.
 
-When a new control is added, send a PostHog event for it in the same change. Booking links already share one event, `discovery_call_clicked`, with a `placement` property for where it was clicked. Follow that pattern: one event name, plus a property when the same action appears in more than one place. The newsletter form sends `newsletter_signup` with `placement` set to `footer` only after the signup is accepted. A plan buy sends `plan_checkout_started` with `plan` only after the checkout Worker accepts it. A form error sends `form_error_shown` with `placement` and `reason`, and dismissing it sends `form_error_dismissed` with the same properties. Cover the event in `tests/`.
+When a new control is added, send a PostHog event for it in the same change. Booking links already share one event, `discovery_call_clicked`, with a `placement` property for where it was clicked. The header Blog link sends `blog_clicked` with `placement`. Follow that pattern: one event name, plus a property when the same action appears in more than one place. The newsletter form sends `newsletter_signup` with `placement` set to `footer` only after the signup is accepted. A plan buy sends `plan_checkout_started` with `plan` only after the checkout Worker accepts it. A form error sends `form_error_shown` with `placement` and `reason`, and dismissing it sends `form_error_dismissed` with the same properties. Cover the event in `tests/`.
 
 ## Newsletter
 
@@ -189,6 +197,30 @@ Buying a session pack uses a second Worker in `checkout/`. The newsletter Worker
 - After payment, Stripe sends the buyer to `/pages/paid/`. That page is not in the header. Cancel returns to `/#options`. The thank-you page is not proof of payment.
 - `tests/checkout.spec.js` covers the price lock, the promotion code box, that the starter has no checkout, and that a Stripe error log drops the address. `tests/site.spec.js` covers the buttons and `plan_checkout_started`.
 
+## Blog
+
+Writing lives at `/pages/blog/`. Posts are nested at `/pages/blog/<slug>/`. The blog is content about the PRT coaching offer, not a second program.
+
+Source files are markdown in `content/blog/<slug>.md` with YAML frontmatter:
+
+```md
+---
+title: Post title
+date: YYYY-MM-DD
+summary: One or two sentences for the list page.
+---
+
+Body uses ## / ###, paragraphs, lists, links, **bold**, *italic*, `code`, and blockquotes. No raw HTML.
+```
+
+After adding or editing a post:
+
+1. Run `pnpm build:blog` (or `node scripts/build-blog.mjs`). That one command rewrites `pages/blog/posts-data.js`, `pages/blog/index.html`, each `pages/blog/<slug>/`, blog URLs in `sitemap.xml`, and the blog entries in `llms.txt` and `llms-full.txt`.
+2. Commit the markdown and those generated files together.
+3. Add or update a visitor test in `tests/` when list or post behavior changes in a way the existing checks do not cover.
+
+Do not hand-edit generated `body.js`, post `index.html` / `page.js`, `posts-data.js`, or the blog lines in `llms.txt` / `llms-full.txt` — change the markdown and rebuild.
+
 ## Scope
 
-The home page stays one page. My Story is the story page, at `/pages/my-story/`. `/pages/paid/` is the page Stripe returns to after a payment. It is not in the header. Do not add a blog index, shop, login, CMS, or other pages unless asked. When a page is asked for, follow the steps in File layout. Keep the README short: what the page is, how to open it locally, the GitHub Pages setting, and that PostHog is used for instrumentation. Keep the file layout in this file, not the README.
+The home page stays one page. My Story is the story page, at `/pages/my-story/`. Writing is the blog at `/pages/blog/`. `/pages/paid/` is the page Stripe returns to after a payment. It is not in the header. Do not add a shop, login, CMS, or other pages unless asked. When a page is asked for, follow the steps in File layout. Keep the README short: what the page is, how to open it locally, the GitHub Pages setting, and that PostHog is used for instrumentation. Keep the file layout in this file, not the README.

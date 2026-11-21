@@ -91,6 +91,10 @@ test("search engines get the live domain and a description", async ({ page }) =>
   const sitemapText = await sitemap.text();
   expect(sitemapText).toContain("https://excelsior-prt.com/");
   expect(sitemapText).toContain("https://excelsior-prt.com/pages/my-story/");
+  expect(sitemapText).toContain("https://excelsior-prt.com/pages/blog/");
+  expect(sitemapText).toContain(
+    "https://excelsior-prt.com/pages/blog/excelsior-llc-mission/",
+  );
 });
 
 test("agents can read the offer without running scripts", async ({ page }) => {
@@ -408,6 +412,10 @@ test("navigation and booking link are present", async ({ page }) => {
   await expect(workshops).toHaveAttribute("href", "/pages/workshops/");
   await expect(workshops).not.toHaveAttribute("aria-current", "page");
 
+  const blog = nav.getByRole("link", { name: "Blog", exact: true });
+  await expect(blog).toHaveAttribute("href", "/pages/blog/");
+  await expect(blog).not.toHaveAttribute("aria-current", "page");
+
   await expect(nav.getByRole("link", { name: "PRT Survey", exact: true })).toHaveCount(0);
   await expect(nav.getByRole("link", { name: "Fit Check", exact: true })).toHaveCount(0);
   await expect(nav.getByRole("link", { name: "About", exact: true })).toHaveCount(0);
@@ -547,6 +555,26 @@ test("workshops link records a header click", async ({ page }) => {
   await expect
     .poll(() => page.evaluate(() => window.__workshopEvents))
     .toEqual([{ name: "workshops_clicked", placement: "header" }]);
+});
+
+test("blog link records a header click", async ({ page }) => {
+  await openPage(page);
+  await page.evaluate(() => {
+    window.__blogEvents = [];
+    const capture = window.posthog.capture.bind(window.posthog);
+    window.posthog.capture = (name, properties) => {
+      if (name === "blog_clicked") {
+        window.__blogEvents.push({ name, placement: properties.placement });
+      }
+      return capture(name, properties);
+    };
+  });
+
+  await clickWithoutLeaving(page.locator("[data-blog='header']"));
+
+  await expect
+    .poll(() => page.evaluate(() => window.__blogEvents))
+    .toEqual([{ name: "blog_clicked", placement: "header" }]);
 });
 
 test("each option has a plan mark in the corner", async ({ page }) => {
@@ -1432,6 +1460,10 @@ test("my story is its own page", async ({ page }) => {
     "href",
     "/pages/workshops/",
   );
+  await expect(nav.getByRole("link", { name: "Blog", exact: true })).toHaveAttribute(
+    "href",
+    "/pages/blog/",
+  );
   await expect(page.locator(".corner-box")).toHaveAttribute("href", "../../");
 
   const broken = await page.evaluate(() =>
@@ -1685,6 +1717,92 @@ test.describe("workshops on a phone", () => {
   });
 });
 
+test("blog index lists the first post", async ({ page }) => {
+  await page.goto("/pages/blog/");
+  await expect(page.locator("h1")).toHaveText("Writing");
+  await expect(page.locator(".blog-intro")).toContainText(
+    "Notes on Pain Reprocessing Therapy coaching",
+  );
+
+  const post = page.locator(".blog-list a").first();
+  await expect(post).toHaveText("Excelsior LLC's Mission");
+  await expect(post).toHaveAttribute("href", "excelsior-llc-mission/");
+  await expect(page.locator(".blog-list time")).toHaveAttribute("datetime", "2026-11-21");
+  await expect(page.locator(".blog-list-summary").first()).toContainText(
+    "help people with chronic pain feel better",
+  );
+
+  const nav = page.getByRole("navigation", { name: "Site" });
+  await expect(nav.getByRole("link", { name: "Blog", exact: true })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
+
+  await post.click();
+  await expect(page).toHaveURL(/\/pages\/blog\/excelsior-llc-mission\/$/);
+  await expect(page.locator("h1")).toHaveText("Excelsior LLC's Mission");
+});
+
+test("blog post shows the markdown body and marks Blog current", async ({ page }) => {
+  await page.goto("/pages/blog/excelsior-llc-mission/");
+  await expect(page.locator("h1")).toHaveText("Excelsior LLC's Mission");
+  await expect(page.locator(".blog-meta time")).toHaveAttribute("datetime", "2026-11-21");
+  await expect(page.locator(".blog-prose")).toContainText(
+    'Excelsior means "ever upward."',
+  );
+  await expect(page.locator(".blog-prose")).toContainText("Coaching is not medical care");
+  await expect(page.locator(".blog-prose h2").first()).toHaveText("Where to start");
+  await expect(page.locator(".blog-back a")).toHaveAttribute("href", "../");
+
+  const fillsPanel = await page.evaluate(() => {
+    const inner = document.querySelector(".blog-post-inner").getBoundingClientRect();
+    const prose = document.querySelector(".blog-prose p").getBoundingClientRect();
+    const rule = document.querySelector(".blog-prose h2").getBoundingClientRect();
+    const style = getComputedStyle(document.querySelector(".blog-post-inner"));
+    const pad = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+    return (
+      Math.abs(prose.width - (inner.width - pad)) < 2 &&
+      Math.abs(rule.width - (inner.width - pad)) < 2
+    );
+  });
+  expect(fillsPanel).toBe(true);
+
+  const nav = page.getByRole("navigation", { name: "Site" });
+  await expect(nav.getByRole("link", { name: "Blog", exact: true })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
+  await expect(page.locator(".corner-box")).toHaveAttribute("href", "../../../");
+  await expect(page.locator(".promo-banner a")).toHaveAttribute("href", "../../../#data");
+
+  const results = await new AxeBuilder({ page }).analyze();
+  const blocking = seriousViolations(results);
+  expect(blocking, formatViolations(blocking)).toEqual([]);
+});
+
+test.describe("blog on a phone", () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test("list stacks without horizontal scroll", async ({ page }) => {
+    await page.goto("/pages/blog/");
+    await expect(page.locator("h1")).toHaveText("Writing");
+
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    expect(overflow).toBeLessThanOrEqual(1);
+
+    const menu = page.locator(".menu-toggle");
+    await menu.focus();
+    await page.keyboard.press("Enter");
+    const link = page.locator("#site-nav").getByRole("link", { name: "Blog" });
+    await expect(link).toBeVisible();
+    await expect(link).toHaveAttribute("aria-current", "page");
+    await page.keyboard.press("Escape");
+    await expect(menu).toHaveAttribute("aria-expanded", "false");
+  });
+});
+
 const fitBands = [
   [0, "unlikely"],
   [1, "unlikely"],
@@ -1865,7 +1983,11 @@ test("prt survey returns a result without storing answers", async ({ page }) => 
 
   expect(leaks).toEqual([]);
   const writes = await page.evaluate(() => window.__storageWrites);
-  expect(writes.filter((key) => !key.startsWith("ph_"))).toEqual([]);
+  expect(
+    writes.filter(
+      (key) => key !== "__support__" && key !== "__mplssupport__" && !key.startsWith("ph_"),
+    ),
+  ).toEqual([]);
 
   const events = await page.evaluate(() => window.__fitEvents);
   const completed = events.filter((event) => event.name === "prt_survey_completed");
@@ -2023,6 +2145,12 @@ const pages = [
   {
     name: "prt-survey",
     url: "/pages/prt-survey/",
+    script: "page.js",
+    stylesheet: "../../css/style.css",
+  },
+  {
+    name: "blog",
+    url: "/pages/blog/",
     script: "page.js",
     stylesheet: "../../css/style.css",
   },
