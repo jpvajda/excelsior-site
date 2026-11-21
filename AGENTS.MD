@@ -199,7 +199,7 @@ Buying a session pack uses a second Worker in `checkout/`. The newsletter Worker
 
 ## Blog
 
-Writing lives at `/pages/blog/`. Posts are nested at `/pages/blog/<slug>/`. The blog is content about the PRT coaching offer, not a second program.
+The blog lives at `/pages/blog/`. The page heading is Blog. Posts are nested at `/pages/blog/<slug>/`. The blog is content about the PRT coaching offer, not a second program.
 
 Source files are markdown in `content/blog/<slug>.md` with YAML frontmatter:
 
@@ -223,4 +223,4 @@ Do not hand-edit generated `body.js`, post `index.html` / `page.js`, `posts-data
 
 ## Scope
 
-The home page stays one page. My Story is the story page, at `/pages/my-story/`. Writing is the blog at `/pages/blog/`. `/pages/paid/` is the page Stripe returns to after a payment. It is not in the header. Do not add a shop, login, CMS, or other pages unless asked. When a page is asked for, follow the steps in File layout. Keep the README short: what the page is, how to open it locally, the GitHub Pages setting, and that PostHog is used for instrumentation. Keep the file layout in this file, not the README.
+The home page stays one page. My Story is the story page, at `/pages/my-story/`. Blog is at `/pages/blog/`. `/pages/paid/` is the page Stripe returns to after a payment. It is not in the header. Do not add a shop, login, CMS, or other pages unless asked. When a page is asked for, follow the steps in File layout. Keep the README short: what the page is, how to open it locally, the GitHub Pages setting, and that PostHog is used for instrumentation. Keep the file layout in this file, not the README.

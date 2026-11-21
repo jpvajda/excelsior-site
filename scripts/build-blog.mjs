@@ -17,9 +17,9 @@ const LLMS_PATH = join(ROOT, "llms.txt");
 const LLMS_FULL_PATH = join(ROOT, "llms-full.txt");
 const SITE = "https://excelsior-prt.com";
 const BLOG_INTRO =
-  "Notes on Pain Reprocessing Therapy coaching and what Excelsior LLC is working toward.";
+  "A content hub for Pain Reprocessing Therapy & somatic coaching.";
 const BLOG_META =
-  "Writing from Excelsior LLC on Pain Reprocessing Therapy coaching and what the practice is working toward. Based in Boulder, Colorado. Coaching by video anywhere.";
+  "A content hub for Pain Reprocessing Therapy & somatic coaching. Based in Boulder, Colorado. Coaching by video anywhere.";
 
 function loadPosts() {
   if (!existsSync(CONTENT_DIR)) {
@@ -252,7 +252,7 @@ function updateLlmsTxt(posts) {
     throw new Error("llms.txt is missing the My Story page link");
   }
   const blogLines = [
-    `- [Writing](${SITE}/pages/blog/): ${BLOG_INTRO}`,
+    `- [Blog](${SITE}/pages/blog/): ${BLOG_INTRO}`,
     ...posts.map(
       (post) =>
         `- [${post.title}](${SITE}/pages/blog/${post.slug}/): ${post.summary}`,
@@ -266,7 +266,7 @@ function updateLlmsFull(posts) {
   let text = readFileSync(LLMS_FULL_PATH, "utf8");
   const headerLines = text.split("\n");
   const withoutBlogHeader = headerLines.filter((line) => {
-    if (line.startsWith("Writing: ")) return false;
+    if (line.startsWith("Writing: ") || line.startsWith("Blog: ")) return false;
     if (line.includes(`${SITE}/pages/blog/`)) return false;
     return true;
   });
@@ -275,13 +275,13 @@ function updateLlmsFull(posts) {
     throw new Error("llms-full.txt is missing the My Story line");
   }
   const headerBlog = [
-    `Writing: ${SITE}/pages/blog/`,
+    `Blog: ${SITE}/pages/blog/`,
     ...posts.map((post) => `${post.title}: ${SITE}/pages/blog/${post.slug}/`),
   ];
   withoutBlogHeader.splice(storyAt + 1, 0, ...headerBlog);
   text = withoutBlogHeader.join("\n");
 
-  const writingSection = `## Writing
+  const writingSection = `## Blog
 
 ${BLOG_INTRO} ${SITE}/pages/blog/
 
@@ -293,10 +293,10 @@ ${posts
   .join("\n\n")}
 `;
 
-  if (!/## Writing\n[\s\S]*?(?=\n## )/.test(text)) {
-    throw new Error("llms-full.txt is missing the ## Writing section");
+  if (!/## (?:Writing|Blog)\n[\s\S]*?(?=\n## )/.test(text)) {
+    throw new Error("llms-full.txt is missing the ## Blog section");
   }
-  text = text.replace(/## Writing\n[\s\S]*?(?=\n## )/, `${writingSection}\n`);
+  text = text.replace(/## (?:Writing|Blog)\n[\s\S]*?(?=\n## )/, `${writingSection}\n`);
   writeFileSync(LLMS_FULL_PATH, text);
 }
 
@@ -316,12 +316,12 @@ function writeBlogIndex(posts) {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Writing — Excelsior LLC</title>
+    <title>Blog — Excelsior LLC</title>
     <meta name="description" content="${escapeHtml(BLOG_META)}" />
     <link rel="canonical" href="${SITE}/pages/blog/" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="${SITE}/pages/blog/" />
-    <meta property="og:title" content="Writing — Excelsior LLC" />
+    <meta property="og:title" content="Blog — Excelsior LLC" />
     <meta property="og:description" content="${escapeHtml(BLOG_META)}" />
     <meta
       property="og:image"
@@ -332,10 +332,9 @@ function writeBlogIndex(posts) {
         {
           "@context": "https://schema.org",
           "@type": "Blog",
-          name: "Writing — Excelsior LLC",
+          name: "Blog — Excelsior LLC",
           url: `${SITE}/pages/blog/`,
-          description:
-            "Writing from Excelsior LLC on Pain Reprocessing Therapy coaching and what the practice is working toward.",
+          description: BLOG_INTRO,
           publisher: {
             "@type": "Organization",
             name: "Excelsior LLC",
@@ -359,7 +358,7 @@ function writeBlogIndex(posts) {
     <div id="app"></div>
     <noscript>
       <p>66% of people were pain-free or nearly pain-free after trying PRT. <a href="https://excelsior-prt.com/#data">See the Data</a>.</p>
-      <h1>Writing</h1>
+      <h1>Blog</h1>
       <p>${escapeHtml(BLOG_INTRO)}</p>
 ${postNoscript}
       <p><a href="https://excelsior-prt.com/">Excelsior LLC</a></p>
