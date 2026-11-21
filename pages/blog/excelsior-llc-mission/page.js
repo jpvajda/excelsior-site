@@ -6,7 +6,7 @@ import { bindTracking } from "../../../shared/tracking.js";
 import { bindNewsletter } from "../../../shared/newsletter.js";
 import { PostBody } from "./body.js";
 
-const pageKey = "blog/what-excelsior-strives-for";
+const pageKey = "blog/excelsior-llc-mission";
 const app = document.querySelector("#app");
 
 app.innerHTML = [

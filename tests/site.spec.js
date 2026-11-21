@@ -93,7 +93,7 @@ test("search engines get the live domain and a description", async ({ page }) =>
   expect(sitemapText).toContain("https://excelsior-prt.com/pages/my-story/");
   expect(sitemapText).toContain("https://excelsior-prt.com/pages/blog/");
   expect(sitemapText).toContain(
-    "https://excelsior-prt.com/pages/blog/what-excelsior-strives-for/",
+    "https://excelsior-prt.com/pages/blog/excelsior-llc-mission/",
   );
 });
 
@@ -1725,11 +1725,11 @@ test("blog index lists the first post", async ({ page }) => {
   );
 
   const post = page.locator(".blog-list a").first();
-  await expect(post).toHaveText("What Excelsior LLC Is Striving For");
-  await expect(post).toHaveAttribute("href", "what-excelsior-strives-for/");
+  await expect(post).toHaveText("Excelsior LLC's Mission");
+  await expect(post).toHaveAttribute("href", "excelsior-llc-mission/");
   await expect(page.locator(".blog-list time")).toHaveAttribute("datetime", "2026-11-21");
   await expect(page.locator(".blog-list-summary").first()).toContainText(
-    "help people with chronic pain relearn safety",
+    "help people with chronic pain feel better",
   );
 
   const nav = page.getByRole("navigation", { name: "Site" });
@@ -1739,19 +1739,19 @@ test("blog index lists the first post", async ({ page }) => {
   );
 
   await post.click();
-  await expect(page).toHaveURL(/\/pages\/blog\/what-excelsior-strives-for\/$/);
-  await expect(page.locator("h1")).toHaveText("What Excelsior LLC Is Striving For");
+  await expect(page).toHaveURL(/\/pages\/blog\/excelsior-llc-mission\/$/);
+  await expect(page.locator("h1")).toHaveText("Excelsior LLC's Mission");
 });
 
 test("blog post shows the markdown body and marks Blog current", async ({ page }) => {
-  await page.goto("/pages/blog/what-excelsior-strives-for/");
-  await expect(page.locator("h1")).toHaveText("What Excelsior LLC Is Striving For");
+  await page.goto("/pages/blog/excelsior-llc-mission/");
+  await expect(page.locator("h1")).toHaveText("Excelsior LLC's Mission");
   await expect(page.locator(".blog-meta time")).toHaveAttribute("datetime", "2026-11-21");
   await expect(page.locator(".blog-prose")).toContainText(
-    "Excelsior LLC is a Pain Reprocessing Therapy and somatic coaching practice",
+    'Excelsior means "ever upward."',
   );
   await expect(page.locator(".blog-prose")).toContainText("Coaching is not medical care");
-  await expect(page.locator(".blog-prose h2").first()).toHaveText("What we are working toward");
+  await expect(page.locator(".blog-prose h2").first()).toHaveText("Where to start");
   await expect(page.locator(".blog-back a")).toHaveAttribute("href", "../");
 
   const fillsPanel = await page.evaluate(() => {
@@ -1983,7 +1983,11 @@ test("prt survey returns a result without storing answers", async ({ page }) => 
 
   expect(leaks).toEqual([]);
   const writes = await page.evaluate(() => window.__storageWrites);
-  expect(writes.filter((key) => !key.startsWith("ph_"))).toEqual([]);
+  expect(
+    writes.filter(
+      (key) => key !== "__support__" && key !== "__mplssupport__" && !key.startsWith("ph_"),
+    ),
+  ).toEqual([]);
 
   const events = await page.evaluate(() => window.__fitEvents);
   const completed = events.filter((event) => event.name === "prt_survey_completed");

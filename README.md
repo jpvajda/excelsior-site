@@ -52,7 +52,7 @@ Body text here.
 After you add or edit a post, rebuild once:
 
 ```bash
-pnpm build:blog
+It does not touch llms.txt or llms-full.txt. If you change a title or summary, update those two by hand in the same change.
 ```
 
 That updates the blog pages, sitemap blog URLs, and the blog lines in `llms.txt` and `llms-full.txt`. Commit the markdown and those generated files together. Do not hand-edit the generated blog output.
