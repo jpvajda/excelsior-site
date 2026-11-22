@@ -25,8 +25,8 @@ export function BlogList() {
 
   return `
 <section class="panel blog-index" id="blog">
-  <h1 class="blog-heading">Writing</h1>
-  <p class="blog-intro">Notes on Pain Reprocessing Therapy coaching and what Excelsior LLC is working toward.</p>
+  <h1 class="blog-heading">Blog</h1>
+  <p class="blog-intro">A content hub for Pain Reprocessing Therapy &amp; somatic coaching.</p>
   <ul class="blog-list">
     ${items}
   </ul>

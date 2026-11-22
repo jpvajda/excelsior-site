@@ -37,7 +37,7 @@ GitHub Pages: Settings → Pages → Deploy from a branch → `main` → `/ (roo
 
 ## Blog
 
-Writing lives at `/pages/blog/`. Posts are markdown in `content/blog/<slug>.md`:
+The blog lives at `/pages/blog/`. The page heading is Blog. Posts are markdown in `content/blog/<slug>.md`:
 
 ```md
 ---

@@ -1719,9 +1719,9 @@ test.describe("workshops on a phone", () => {
 
 test("blog index lists the first post", async ({ page }) => {
   await page.goto("/pages/blog/");
-  await expect(page.locator("h1")).toHaveText("Writing");
-  await expect(page.locator(".blog-intro")).toContainText(
-    "Notes on Pain Reprocessing Therapy coaching",
+  await expect(page.locator("h1")).toHaveText("Blog");
+  await expect(page.locator(".blog-intro")).toHaveText(
+    "A content hub for Pain Reprocessing Therapy & somatic coaching.",
   );
 
   const post = page.locator(".blog-list a").first();
@@ -1785,7 +1785,7 @@ test.describe("blog on a phone", () => {
 
   test("list stacks without horizontal scroll", async ({ page }) => {
     await page.goto("/pages/blog/");
-    await expect(page.locator("h1")).toHaveText("Writing");
+    await expect(page.locator("h1")).toHaveText("Blog");
 
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth,

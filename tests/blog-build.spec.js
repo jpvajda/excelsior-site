@@ -67,9 +67,19 @@ test("llms files list every committed post title summary and url", () => {
   const full = readFileSync("llms-full.txt", "utf8");
   const index = readFileSync("pages/blog/index.html", "utf8");
 
-  expect(llms).toContain("[Writing](https://excelsior-prt.com/pages/blog/)");
-  expect(full).toContain("Writing: https://excelsior-prt.com/pages/blog/");
-  expect(full).toContain("## Writing");
+  expect(llms).toContain(
+    "[Blog](https://excelsior-prt.com/pages/blog/): A content hub for Pain Reprocessing Therapy & somatic coaching.",
+  );
+  expect(full).toContain("Blog: https://excelsior-prt.com/pages/blog/");
+  expect(full).toContain("## Blog");
+  expect(full).toContain(
+    "A content hub for Pain Reprocessing Therapy & somatic coaching. https://excelsior-prt.com/pages/blog/",
+  );
+  expect(index).toContain("<h1>Blog</h1>");
+  expect(index).toContain("<title>Blog — Excelsior LLC</title>");
+  expect(index).toContain(
+    "A content hub for Pain Reprocessing Therapy &amp; somatic coaching.",
+  );
 
   for (const post of posts) {
     const url = `https://excelsior-prt.com/pages/blog/${post.slug}/`;
@@ -79,7 +89,7 @@ test("llms files list every committed post title summary and url", () => {
     expect(full, `llms-full.txt header missing ${post.slug}`).toContain(
       `${post.title}: ${url}`,
     );
-    expect(full, `llms-full.txt Writing section missing ${post.slug}`).toContain(
+    expect(full, `llms-full.txt Blog section missing ${post.slug}`).toContain(
       `${post.title} (${post.date}): ${url}`,
     );
     expect(full).toContain(post.summary);
