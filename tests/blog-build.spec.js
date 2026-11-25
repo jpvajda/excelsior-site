@@ -6,7 +6,7 @@ import {
   renderMarkdown,
 } from "../scripts/blog-markdown.mjs";
 import { posts } from "../pages/blog/posts-data.js";
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, readdirSync, existsSync } from "node:fs";
 
 test("parseFrontmatter reads title date summary and body", () => {
   const { meta, body } = parseFrontmatter(`---
@@ -42,24 +42,35 @@ A [link](https://excelsior-prt.com/) with **bold** and *italic*.
   expect(formatDisplayDate("2026-11-21")).toBe("Nov 21, 2026");
 });
 
-test("committed first post matches the markdown source", () => {
-  expect(posts[0]).toEqual({
-    slug: "excelsior-llc-mission",
-    title: "Excelsior LLC's Mission",
-    date: "2026-11-21",
-    summary:
-      'Excelsior means "ever upward." Our mission is to help people with chronic pain feel better through Pain Reprocessing Therapy and somatic coaching.',
-  });
+function postsFromMarkdown() {
+  return readdirSync("content/blog")
+    .filter((name) => name.endsWith(".md"))
+    .map((file) => {
+      const slug = file.replace(/\.md$/, "");
+      const { meta } = parseFrontmatter(readFileSync(`content/blog/${file}`, "utf8"));
+      return {
+        slug,
+        title: meta.title,
+        date: meta.date,
+        summary: meta.summary,
+      };
+    })
+    .sort((a, b) => b.date.localeCompare(a.date) || a.slug.localeCompare(b.slug));
+}
 
-  expect(existsSync("content/blog/excelsior-llc-mission.md")).toBe(true);
-  expect(existsSync("pages/blog/excelsior-llc-mission/body.js")).toBe(true);
-  expect(existsSync("pages/blog/excelsior-llc-mission/index.html")).toBe(true);
-  expect(existsSync("pages/blog/excelsior-llc-mission/page.js")).toBe(true);
+test("generated posts match the markdown sources, newest first", () => {
+  const sources = postsFromMarkdown();
+  expect(sources.length).toBeGreaterThan(0);
+  expect(posts).toEqual(sources);
 
-  const body = readFileSync("pages/blog/excelsior-llc-mission/body.js", "utf8");
-  expect(body).toContain("Excelsior LLC's Mission");
-  expect(body).toContain("Coaching is not medical care");
-  expect(body).toContain('datetime=\\"2026-11-21\\"');
+  for (const post of sources) {
+    expect(existsSync(`pages/blog/${post.slug}/body.js`), post.slug).toBe(true);
+    expect(existsSync(`pages/blog/${post.slug}/index.html`), post.slug).toBe(true);
+    expect(existsSync(`pages/blog/${post.slug}/page.js`), post.slug).toBe(true);
+    const body = readFileSync(`pages/blog/${post.slug}/body.js`, "utf8");
+    expect(body).toContain(post.title);
+    expect(body).toContain(`datetime=\\"${post.date}\\"`);
+  }
 });
 
 test("llms files list every committed post title summary and url", () => {
