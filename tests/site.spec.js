@@ -6,6 +6,7 @@ import { newsletterEndpoint } from "../shared/newsletter.js";
 import { checkoutEndpoint } from "../pages/home/checkout.js";
 import { workshopInterestForm } from "../pages/workshops/workshops.js";
 import { QUESTIONS, resultForYesCount } from "../pages/prt-survey/score.js";
+import { posts } from "../pages/blog/posts-data.js";
 
 const sectionHeadings = [
   "Excelsior",
@@ -1717,7 +1718,8 @@ test.describe("workshops on a phone", () => {
   });
 });
 
-test("blog index lists the first post", async ({ page }) => {
+test("blog index lists the newest post first", async ({ page }) => {
+  const newest = posts[0];
   await page.goto("/pages/blog/");
   await expect(page.locator("h1")).toHaveText("Blog");
   await expect(page.locator(".blog-intro")).toHaveText(
@@ -1725,12 +1727,13 @@ test("blog index lists the first post", async ({ page }) => {
   );
 
   const post = page.locator(".blog-list a").first();
-  await expect(post).toHaveText("Excelsior LLC's Mission");
-  await expect(post).toHaveAttribute("href", "excelsior-llc-mission/");
-  await expect(page.locator(".blog-list time")).toHaveAttribute("datetime", "2026-11-21");
-  await expect(page.locator(".blog-list-summary").first()).toContainText(
-    "help people with chronic pain feel better",
+  await expect(post).toHaveText(newest.title);
+  await expect(post).toHaveAttribute("href", `${newest.slug}/`);
+  await expect(page.locator(".blog-list time").first()).toHaveAttribute(
+    "datetime",
+    newest.date,
   );
+  await expect(page.locator(".blog-list-summary").first()).toHaveText(newest.summary);
 
   const nav = page.getByRole("navigation", { name: "Site" });
   await expect(nav.getByRole("link", { name: "Blog", exact: true })).toHaveAttribute(
@@ -1739,8 +1742,8 @@ test("blog index lists the first post", async ({ page }) => {
   );
 
   await post.click();
-  await expect(page).toHaveURL(/\/pages\/blog\/excelsior-llc-mission\/$/);
-  await expect(page.locator("h1")).toHaveText("Excelsior LLC's Mission");
+  await expect(page).toHaveURL(new RegExp(`/pages/blog/${newest.slug}/$`));
+  await expect(page.locator("h1")).toHaveText(newest.title);
 });
 
 test("blog post shows the markdown body and marks Blog current", async ({ page }) => {
