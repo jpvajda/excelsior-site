@@ -1,3 +1,31 @@
+const discoveryCallUrl = "https://scheduler.zoom.us/excelsior-llc/prt-discovery-call";
+
+function blogSlug(pathname) {
+  const match = pathname.match(/\/pages\/blog\/([^/]+)\/?$/);
+  return match ? match[1] : "";
+}
+
+function isDiscoveryCall(href) {
+  try {
+    const url = new URL(href);
+    const expected = new URL(discoveryCallUrl);
+    return (
+      url.origin === expected.origin &&
+      url.pathname.replace(/\/$/, "") === expected.pathname
+    );
+  } catch {
+    return false;
+  }
+}
+
+function isPrtSurvey(href) {
+  try {
+    return new URL(href).pathname.replace(/\/$/, "") === "/pages/prt-survey";
+  } catch {
+    return false;
+  }
+}
+
 export function bindTracking() {
   document.addEventListener("click", (event) => {
     if (!window.posthog) return;
@@ -28,6 +56,25 @@ export function bindTracking() {
       window.posthog.capture("blog_clicked", {
         placement: blog.getAttribute("data-blog"),
       });
+    }
+
+    const listPost = event.target.closest(".blog-list a");
+    if (listPost) {
+      const slug = blogSlug(listPost.pathname);
+      if (slug) {
+        window.posthog.capture("blog_clicked", { placement: "list", slug });
+      }
+    }
+
+    const proseLink = event.target.closest(".blog-prose a");
+    if (proseLink) {
+      const slug = blogSlug(window.location.pathname);
+      if (slug && isDiscoveryCall(proseLink.href)) {
+        window.posthog.capture("discovery_call_clicked", { placement: "blog", slug });
+      }
+      if (slug && isPrtSurvey(proseLink.href)) {
+        window.posthog.capture("prt_survey_clicked", { placement: "blog", slug });
+      }
     }
 
     const survey = event.target.closest("[data-prt-survey]");

@@ -578,6 +578,72 @@ test("blog link records a header click", async ({ page }) => {
     .toEqual([{ name: "blog_clicked", placement: "header" }]);
 });
 
+test("blog list click records the post slug", async ({ page }) => {
+  const newest = posts[0];
+  await page.goto("/pages/blog/");
+  await expect(page.locator("h1")).toHaveText("Blog");
+  await page.evaluate(() => {
+    window.__blogEvents = [];
+    const capture = window.posthog.capture.bind(window.posthog);
+    window.posthog.capture = (name, properties) => {
+      if (name === "blog_clicked") {
+        window.__blogEvents.push({
+          name,
+          placement: properties.placement,
+          slug: properties.slug,
+        });
+      }
+      return capture(name, properties);
+    };
+  });
+
+  await clickWithoutLeaving(page.locator(".blog-list a").first());
+
+  await expect
+    .poll(() => page.evaluate(() => window.__blogEvents))
+    .toEqual([{ name: "blog_clicked", placement: "list", slug: newest.slug }]);
+});
+
+test("blog post call to action clicks record the post slug", async ({ page }) => {
+  await page.goto("/pages/blog/fear-and-chronic-pain/");
+  await expect(page.locator("h1")).toHaveText("How Fear Can Keep Chronic Pain Going");
+  await page.evaluate(() => {
+    window.__blogCtaEvents = [];
+    const capture = window.posthog.capture.bind(window.posthog);
+    window.posthog.capture = (name, properties) => {
+      if (name === "discovery_call_clicked" || name === "prt_survey_clicked") {
+        window.__blogCtaEvents.push({
+          name,
+          placement: properties.placement,
+          slug: properties.slug,
+        });
+      }
+      return capture(name, properties);
+    };
+  });
+
+  const prose = page.locator(".blog-prose");
+  await clickWithoutLeaving(
+    prose.getByRole("link", { name: "Book a free 30 minute discovery call" }),
+  );
+  await clickWithoutLeaving(prose.getByRole("link", { name: "PRT survey" }));
+
+  await expect
+    .poll(() => page.evaluate(() => window.__blogCtaEvents))
+    .toEqual([
+      {
+        name: "discovery_call_clicked",
+        placement: "blog",
+        slug: "fear-and-chronic-pain",
+      },
+      {
+        name: "prt_survey_clicked",
+        placement: "blog",
+        slug: "fear-and-chronic-pain",
+      },
+    ]);
+});
+
 test("each option has a plan mark in the corner", async ({ page }) => {
   await openPage(page);
 

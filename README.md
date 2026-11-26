@@ -57,6 +57,22 @@ It does not touch llms.txt or llms-full.txt. If you change a title or summary, u
 
 That updates the blog pages, sitemap blog URLs, and the blog lines in `llms.txt` and `llms-full.txt`. Commit the markdown and those generated files together. Do not hand-edit the generated blog output.
 
+## Blog Content Generation
+
+A new post starts from a topic and one or more writing examples. An agent drafts the article from those examples and from facts already on this site.
+
+Three reviews run at the same time:
+
+- method and tone
+- medical accuracy
+- claim rules and SEO
+
+The draft can be revised up to twice. It moves forward only when all three approve and the length, title, summary, links, and keyword checks pass.
+
+That produces one branch, `content/<slug>`, and one pull request titled `Blog: <title>`. GitHub runs `pnpm test` on the pull request. Merging it into `main` publishes the post.
+
+The Content Pipeline exists separately in a private repo.
+
 ## Workers
 
 Deploy after `pnpm install`. `cd` into the Worker folder, then run the same command. Signup first, then checkout.
@@ -83,4 +99,4 @@ The option cards post to the Cloudflare Worker in `checkout/`. The Stripe secret
 
 ## Instrumentation
 
-[PostHog](https://posthog.com) records page views, clicks, and booking clicks. The snippet is `shared/posthog.js`, loaded from each HTML page. A plan buy sends `plan_checkout_started` with the plan name. A form error sends `form_error_shown`, and closing it sends `form_error_dismissed`.
+[PostHog](https://posthog.com) records page views, clicks, and booking clicks. The snippet is `shared/posthog.js`, loaded from each HTML page. A plan buy sends `plan_checkout_started` with the plan name. A form error sends `form_error_shown`, and closing it sends `form_error_dismissed`. Opening a post from the blog list, or a discovery call or PRT survey link inside a post, sends the existing click event with that post's slug.
